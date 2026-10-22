@@ -123,6 +123,9 @@ section{padding-block:88px}
 .card{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:14px;min-width:0}
 .card .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .status{font-family:var(--mono);font-size:12px;letter-spacing:.1em;padding:4px 10px;border-radius:4px;background:var(--sign);color:var(--signink)}
+.card .cover{margin:-28px -28px 2px;aspect-ratio:16/10;overflow:hidden;border-radius:12px 12px 0 0;background:var(--surf2)}
+.card .cover img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.card:hover .cover img{transform:scale(1.03)}
 .status.beta{background:var(--warn);color:var(--warnink)}
 .group{font-family:var(--thai-display);font-weight:700;font-size:24px;margin:8px 0 18px;display:flex;align-items:baseline;gap:12px}
 .group span{font-family:var(--display);font-weight:900;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--earth)}
@@ -322,6 +325,7 @@ footer a:hover{text-decoration:underline}
     <h3 class="group"><span>Games</span>เกม</h3>
     <div class="projects g3">
       <article class="card">
+        <figure class="cover"><img src="img/roo.jpg" alt="ภาพในเกม Roo Road Rescue รถกระบะสีแดงขับผ่านทะเลทรายสีแดง มีจิงโจ้และนกอีมูข้างทาง" width="800" height="500" loading="lazy"></figure>
         <div class="top"><span class="kind">เกม road trip</span><span class="status">LIVE</span></div>
         <h3>Roo Road Rescue</h3>
         <p>เกมขับรถเที่ยวออสเตรเลียที่ต้องระวังและช่วยสัตว์ป่าบนถนน แผนที่สร้างจากเส้นทางจริง เช่น Perth ถึง Cervantes มีโหมดเนื้อเรื่องและ The Big Lap ที่ค่อย ๆ ปลดล็อกรอบประเทศ พร้อมตารางคะแนนโลก</p>
@@ -333,6 +337,7 @@ footer a:hover{text-decoration:underline}
         <a class="go" href="https://www.rooroadrescue.com" target="_blank" rel="noopener">rooroadrescue.com ↗</a>
       </article>
       <article class="card">
+        <figure class="cover"><img src="img/magpie.jpg" alt="ภาพในเกม Magpie Madness ถนนในย่าน Eastwood ประดับโคมแดง" width="800" height="500" loading="lazy"></figure>
         <div class="top"><span class="kind">เกม 3D</span><span class="status">LIVE</span></div>
         <h3>Magpie Madness</h3>
         <p>เกมปั่นจักรยานผ่านย่าน Eastwood ใน Sydney ช่วงฤดูนกแม็กพายโฉบ ทั้งฝั่งย่านคนจีนบนถนน Rowe St และย่านคนเกาหลีฝั่งสถานีรถไฟ เนื้อเรื่องออกเป็นซีซันต่อเนื่อง</p>
@@ -344,6 +349,7 @@ footer a:hover{text-decoration:underline}
         <a class="go" href="https://www.macpiemadness.com" target="_blank" rel="noopener">macpiemadness.com ↗</a>
       </article>
       <article class="card">
+        <figure class="cover"><img src="img/quokka.jpg" alt="ภาพในเกม Quokka Cafe and Friends คาเฟ่ของ Kip บนเกาะ Rottnest" width="800" height="500" loading="lazy"></figure>
         <div class="top"><span class="kind">เกม cozy RPG</span><span class="status beta">SOFT OPENING</span></div>
         <h3>Quokka Cafe and Friends</h3>
         <p>Kip ควอกกาหนุ่มนั่งเรือมาเปิดคาเฟ่ข้างท่าเรือบนเกาะ Wadjemup (Rottnest) ตอนเช้าเสิร์ฟนักท่องเที่ยว หลังปิดร้านออกสำรวจเกาะ ทำเควสต์ และเก็บเงินเพื่อพาพ่อแม่มาอยู่ด้วยกัน ภาพพิกเซลในโลก 3D</p>
