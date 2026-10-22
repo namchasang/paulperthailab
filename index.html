@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Paul Perth AI Lab">
+<meta property="og:description" content="แล็บของคนไทยใน Perth ที่ใช้ AI agent สร้างเกม เว็บแอป และระบบหลังบ้านให้ธุรกิจจริง">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://namchasang.github.io/paulperthailab/">
+<meta property="og:image" content="https://namchasang.github.io/paulperthailab/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a6638'/%3E%3Crect x='10' y='10' width='12' height='12' fill='%23f2b705' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Paul Perth AI Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="แล็บของคนไทยใน Perth ที่สร้างเกม แอป และระบบหลังบ้านด้วย AI agent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@600;800;900&family=Overpass+Mono:wght@600&family=Kanit:wght@500;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* Layout: a drive across the page. Green road-sign panels mark each stop; prose sits in one reading column, projects are wide "postcards". */
+:root{
+  --bg:#edf0ea; --surf:#ffffff; --surf2:#e2e7df; --ink:#18211c; --muted:#56635b; --line:rgba(24,33,28,.13);
+  --sign:#0a6638; --signink:#ffffff; --signedge:#ffffff;
+  --earth:#a9431a; --warn:#f2b705; --warnink:#111111;
+  --sky1:#cfe3ee; --sky2:#edf0ea;
+  --display:'Overpass','Arial Narrow',system-ui,sans-serif;
+  --thai-display:'Kanit','Overpass',system-ui,sans-serif;
+  --body:'IBM Plex Sans Thai','Kanit',system-ui,sans-serif;
+  --mono:'Overpass Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1411; --surf:#151f1a; --surf2:#1b2721; --ink:#e7ece5; --muted:#9caaa1; --line:rgba(231,236,229,.12);
+  --sign:#0d7342; --signink:#ffffff; --signedge:#dfe9e1;
+  --earth:#e2753f; --warn:#f5c22a; --warnink:#111111;
+  --sky1:#13241f; --sky2:#0d1411; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1411; --surf:#151f1a; --surf2:#1b2721; --ink:#e7ece5; --muted:#9caaa1; --line:rgba(231,236,229,.12);
+  --sign:#0d7342; --signink:#ffffff; --signedge:#dfe9e1;
+  --earth:#e2753f; --warn:#f5c22a; --warnink:#111111;
+  --sky1:#13241f; --sky2:#0d1411; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.75}
+a{color:inherit}
+a:focus-visible,button:focus-visible{outline:3px solid var(--warn);outline-offset:3px;border-radius:4px}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(20px, env(safe-area-inset-left, 0px));padding-right:max(20px, env(safe-area-inset-right, 0px))}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+
+/* top bar */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:10;background:var(--sign)}
+.bar{position:sticky;top:env(safe-area-inset-top, 0px);z-index:9;background:var(--sign);color:var(--signink)}
+.bar .wrap{display:flex;align-items:center;gap:24px;min-height:56px}
+.brand{font-family:var(--display);font-weight:900;letter-spacing:.04em;font-size:15px;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:10px}
+.brand i{width:12px;height:12px;background:var(--warn);transform:rotate(45deg);display:block}
+.nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-left:auto;min-width:0}
+.nav::-webkit-scrollbar{display:none}
+.nav a{font-family:var(--thai-display);font-weight:500;font-size:15px;text-decoration:none;padding:6px 12px;border-radius:6px;white-space:nowrap;opacity:.9}
+.nav a:hover{background:rgba(255,255,255,.14);opacity:1}
+
+/* hero */
+.hero{background:linear-gradient(180deg,var(--sky1),var(--sky2));padding-block:72px 64px;position:relative;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+.eyebrow{font-family:var(--display);font-weight:800;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--earth)}
+.hero h1{font-family:var(--display);font-weight:900;font-size:clamp(46px,7.4vw,92px);line-height:.95;letter-spacing:-.02em;margin-top:14px}
+.hero h1 span{display:block;color:var(--sign)}
+:root[data-theme="dark"] .hero h1 span{color:#4fbf83}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hero h1 span{color:#4fbf83}}
+.lead{font-size:clamp(18px,2vw,21px);line-height:1.7;color:var(--ink);margin-top:22px;max-width:34em}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.btn{font-family:var(--thai-display);font-weight:500;font-size:16px;text-decoration:none;padding:12px 22px;border-radius:8px;display:inline-flex;align-items:center;gap:8px}
+.btn.p{background:var(--sign);color:var(--signink)}
+.btn.s{border:2px solid var(--ink);color:var(--ink)}
+.btn:hover{filter:brightness(1.08)}
+
+/* road sign */
+.sign{background:var(--sign);color:var(--signink);border-radius:14px;padding:8px;box-shadow:0 18px 40px rgba(0,0,0,.18)}
+.sign-in{border:3px solid var(--signedge);border-radius:9px;padding:20px 22px 18px}
+.sign h2{font-family:var(--display);font-weight:900;font-size:22px;letter-spacing:.06em;text-transform:uppercase;line-height:1.1;padding-bottom:12px;border-bottom:2px solid rgba(255,255,255,.35)}
+.sign ul{list-style:none;margin:10px 0 0;padding:0}
+.sign li{display:flex;align-items:baseline;gap:10px;font-family:var(--display);font-weight:800;font-size:19px;padding:7px 0}
+.sign li .dots{flex:1;border-bottom:2px dotted rgba(255,255,255,.45);transform:translateY(-5px);min-width:16px}
+.sign li b{font-family:var(--mono);font-size:13px;letter-spacing:.08em;padding:3px 8px;border-radius:4px;background:#fff;color:var(--sign);white-space:nowrap}
+.sign li b.n{background:var(--warn);color:var(--warnink)}
+.sign li b.s{background:transparent;color:#fff;border:2px dashed #fff;padding:1px 6px}
+.sign li b.i{background:transparent;color:#fff;border:2px solid #fff;padding:1px 6px}
+.sign li{padding:0}
+.sign li a{flex:1;display:flex;align-items:baseline;gap:10px;padding:7px 10px;margin:0 -10px;border-radius:6px;text-decoration:none;color:inherit;transition:background .15s}
+.sign li a:hover,.sign li a:focus-visible{background:rgba(255,255,255,.14)}
+.sign li a:hover .nm{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px}
+.sign li .arr{font-size:14px;opacity:0;transform:translateX(-4px);transition:opacity .15s,transform .15s}
+.sign li a:hover .arr,.sign li a:focus-visible .arr{opacity:1;transform:none}
+@media (hover:none){.sign li .arr{opacity:.8;transform:none}}
+.signpost{display:flex;justify-content:center;gap:120px;height:46px}
+.signpost i{width:12px;background:linear-gradient(90deg,#8d9590,#c4cbc6,#8d9590);display:block}
+.roo{position:absolute;right:max(20px,3vw);bottom:18px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.diamond{width:74px;height:74px;background:var(--warn);border:3px solid #111;border-radius:8px;transform:rotate(45deg);display:grid;place-items:center}
+.diamond svg{transform:rotate(-45deg);width:48px;height:48px}
+.plate{background:var(--warn);color:#111;border:2px solid #111;border-radius:4px;font-family:var(--display);font-weight:900;font-size:11px;letter-spacing:.06em;padding:2px 8px;margin-top:14px}
+
+/* sections */
+section{padding-block:88px}
+.sec-head{display:grid;grid-template-columns:240px 1fr;gap:40px;align-items:start;margin-bottom:44px}
+.marker{display:inline-flex;flex-direction:column;gap:2px;background:var(--sign);color:var(--signink);border-radius:8px;padding:10px 14px;border:3px solid var(--signedge);outline:3px solid var(--sign);font-family:var(--display);font-weight:900;font-size:15px;letter-spacing:.08em;text-transform:uppercase;line-height:1.2;justify-self:start}
+.marker small{font-family:var(--mono);font-weight:600;font-size:11px;opacity:.85;letter-spacing:.1em}
+.sec-head h2{font-family:var(--thai-display);font-weight:700;font-size:clamp(30px,4vw,44px);line-height:1.25}
+.sec-head p{color:var(--muted);margin-top:12px;max-width:40em}
+.prose{display:grid;grid-template-columns:240px 1fr;gap:40px}
+.prose .body{display:grid;gap:18px;max-width:40em}
+.alt{background:var(--surf2)}
+
+/* principles */
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;background:var(--line);border:2px solid var(--line);border-radius:12px;overflow:hidden;margin-top:48px}
+.rule{background:var(--surf);padding:24px 26px}
+.rule h3{font-family:var(--thai-display);font-weight:500;font-size:19px;line-height:1.4}
+.rule p{color:var(--muted);font-size:15.5px;margin-top:6px}
+
+/* projects */
+.projects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.card .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.status{font-family:var(--mono);font-size:12px;letter-spacing:.1em;padding:4px 10px;border-radius:4px;background:var(--sign);color:var(--signink)}
+.status.beta{background:var(--warn);color:var(--warnink)}
+.group{font-family:var(--thai-display);font-weight:700;font-size:24px;margin:8px 0 18px;display:flex;align-items:baseline;gap:12px}
+.group span{font-family:var(--display);font-weight:900;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--earth)}
+@media (min-width:1001px){.projects.g3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.projects + .group{margin-top:48px}
+.status.int{background:transparent;color:var(--ink);border:2px solid var(--ink);padding:2px 8px}
+.status.next{background:var(--warn);color:var(--warnink)}
+.kind{font-family:var(--display);font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.card h3{font-family:var(--display);font-weight:900;font-size:28px;line-height:1.1;letter-spacing:-.01em}
+.card p{color:var(--ink);font-size:16px}
+.facts{display:grid;gap:0;border-top:1px solid var(--line);margin-top:auto}
+.facts div{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.facts dt,.facts span:first-child{color:var(--muted)}
+.facts span:last-child{text-align:right;font-weight:500}
+.go{font-family:var(--display);font-weight:800;font-size:15px;color:var(--sign);text-decoration:none;align-self:flex-start}
+:root[data-theme="dark"] .go{color:#4fbf83}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .go{color:#4fbf83}}
+.go:hover{text-decoration:underline}
+.card.wide{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+.card.wide .col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.featlist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.featlist li{font-size:15px;padding-left:16px;position:relative}
+.featlist li::before{content:"";position:absolute;left:0;top:.72em;width:7px;height:7px;background:var(--earth);transform:rotate(45deg)}
+
+/* masterplan */
+.lanes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.lane{border-top:6px solid var(--sign);padding-top:18px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.lane.l2{border-top-color:var(--warn)}
+.lane.l3{border-top-color:var(--earth)}
+.lane h3{font-family:var(--display);font-weight:900;font-size:13px;letter-spacing:.16em;text-transform:uppercase}
+.lane h3 span{font-family:var(--thai-display);font-weight:700;font-size:24px;letter-spacing:0;text-transform:none;display:block;margin-top:2px}
+.item{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.item b{font-family:var(--thai-display);font-weight:500;font-size:17px;display:block;line-height:1.4}
+.item p{font-size:15px;color:var(--muted);margin-top:4px;line-height:1.65}
+.shot{border-radius:8px;overflow:hidden;border:1px solid var(--line);margin-top:12px}
+.shot img{display:block;width:100%;height:auto}
+
+/* developer */
+.dev{display:grid;grid-template-columns:240px minmax(0,1fr) minmax(0,.8fr);gap:40px;align-items:start}
+.dev .body{display:grid;gap:18px}
+.roles{display:grid;gap:0;border-top:2px solid var(--ink)}
+.roles div{padding:14px 0;border-bottom:1px solid var(--line)}
+.roles b{font-family:var(--thai-display);font-weight:500;display:block;font-size:16.5px;line-height:1.4}
+.roles span{color:var(--muted);font-size:14.5px;line-height:1.6;display:block;margin-top:2px}
+
+/* SSS */
+.cities{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin-top:8px}
+.city{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:26px;display:grid;gap:10px;min-width:0}
+.city h3{font-family:var(--display);font-weight:900;font-size:30px;letter-spacing:.02em;text-transform:uppercase;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.city h3 small{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.08em}
+.city p{font-size:15.5px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+.chip{font-family:var(--display);font-weight:800;font-size:13px;letter-spacing:.04em;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surf)}
+.also{margin-top:22px;color:var(--muted);font-size:15px}
+
+/* road trips */
+.road{position:relative;margin-top:12px}
+.road::before{content:"";position:absolute;left:23px;top:8px;bottom:8px;width:10px;background:#3b3f3d;border-radius:5px}
+.road::after{content:"";position:absolute;left:27px;top:14px;bottom:14px;width:2px;background:repeating-linear-gradient(180deg,var(--warn) 0 14px,transparent 14px 28px)}
+.stop{position:relative;display:grid;grid-template-columns:56px minmax(0,1fr);gap:22px;padding-block:14px}
+.pin{width:56px;display:flex;justify-content:center;padding-top:6px;position:relative;z-index:1}
+.pin i{width:22px;height:22px;background:var(--warn);border:3px solid #111;transform:rotate(45deg);display:block}
+.stop-body{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:28px;align-items:start;background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:22px 24px}
+.place{display:inline-block;background:var(--sign);color:var(--signink);font-family:var(--display);font-weight:900;font-size:17px;letter-spacing:.04em;text-transform:uppercase;padding:8px 14px;border-radius:6px;box-shadow:inset 0 0 0 2px var(--sign),inset 0 0 0 4px #fff;line-height:1.2}
+.place-sub{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.06em;margin-top:8px;display:block}
+.stop h3{font-family:var(--thai-display);font-weight:500;font-size:19px;line-height:1.4}
+.stop p{font-size:15.5px;color:var(--muted);margin-top:4px}
+.became{font-family:var(--display);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--earth);margin-top:10px;display:block}
+.philo{margin-top:40px;border:3px solid var(--ink);border-radius:12px;padding:26px 28px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:32px}
+.philo h3{font-family:var(--thai-display);font-weight:700;font-size:22px;line-height:1.35}
+.philo ol{margin:0;padding-left:1.3em;display:grid;gap:6px;font-size:15.5px}
+
+/* footer */
+footer{background:var(--sign);color:var(--signink);padding-block:56px 40px}
+footer .wrap{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:40px}
+footer h2{font-family:var(--display);font-weight:900;font-size:28px;line-height:1.1}
+footer p{opacity:.88;margin-top:10px;font-size:15.5px}
+footer h3{font-family:var(--display);font-weight:800;font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.8;margin-bottom:10px}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+footer a{text-decoration:none;font-size:15.5px}
+footer a:hover{text-decoration:underline}
+.fine{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.3);padding-top:18px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;opacity:.8}
+
+@media (max-width:900px){
+  .hero .wrap{grid-template-columns:1fr;gap:40px}
+  .roo{display:none}
+  .sec-head,.prose,.dev,.philo{grid-template-columns:1fr;gap:18px}
+  .lanes{grid-template-columns:1fr}
+  .prose > div:empty,.dev > div:empty{display:none}
+  .card.wide{grid-template-columns:1fr}
+  footer .wrap{grid-template-columns:1fr 1fr}
+  footer .wrap > div:first-child{grid-column:1/-1}
+}
+@media (max-width:640px){
+  body{font-size:16px}
+  section{padding-block:64px}
+  .hero{padding-block:48px 44px}
+  .projects,.cities,.rules{grid-template-columns:1fr}
+  .featlist{grid-template-columns:1fr}
+  .stop-body{grid-template-columns:1fr;gap:12px}
+  .stop{grid-template-columns:40px minmax(0,1fr);gap:12px}
+  .pin{width:40px}
+  .road::before{left:15px}.road::after{left:19px}
+  .sign li{font-size:16px}
+  .brand span{display:none}
+}
+</style>
+
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top"><i></i>PAUL PERTH <span>AI LAB</span></a>
+    <nav class="nav" aria-label="เมนู">
+      <a href="#story">ที่มา</a>
+      <a href="#projects">โปรเจกต์</a>
+      <a href="#plan">แผนต่อไป</a>
+      <a href="#paul">ผู้พัฒนา</a>
+      <a href="#sss">Siam Sydney Services</a>
+      <a href="#roadtrip">Road trip</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Perth · Western Australia</div>
+      <h1>Paul Perth<span>AI Lab</span></h1>
+      <p class="lead">แล็บเล็ก ๆ ของคนไทยใน Perth ที่ใช้ AI agent สร้างเกม เว็บแอป และระบบหลังบ้านให้ธุรกิจจริง ทุกชิ้นเริ่มจากชีวิตจริงในออสเตรเลีย ทั้งบนถนน ในห้องเรียน และในบริษัททัวร์</p>
+      <div class="ctas">
+        <a class="btn p" href="#projects">ดูโปรเจกต์ทั้งหมด</a>
+        <a class="btn s" href="https://www.facebook.com/profile.php?id=61595308452588" target="_blank" rel="noopener">ติดตาม Dev Log บน Facebook ↗</a>
+      </div>
+    </div>
+    <div>
+      <nav class="sign" aria-label="ป้ายบอกทางไปยังโปรเจกต์ของแล็บ">
+        <div class="sign-in">
+          <h2>Paul Perth AI Lab</h2>
+          <ul>
+            <li><a href="https://learn.krujiftutor.com" target="_blank" rel="noopener"><span class="nm">Kru Jif Academy</span><span class="arr" aria-hidden="true">↗</span><span class="dots"></span><b>LIVE</b></a></li>
+            <li><a href="https://www.rooroadrescue.com" target="_blank" rel="noopener"><span class="nm">Roo Road Rescue</span><span class="arr" aria-hidden="true">↗</span><span class="dots"></span><b>LIVE</b></a></li>
+            <li><a href="https://www.macpiemadness.com" target="_blank" rel="noopener"><span class="nm">Magpie Madness</span><span class="arr" aria-hidden="true">↗</span><span class="dots"></span><b>LIVE</b></a></li>
+            <li><a href="#projects"><span class="nm">SSS Operations Lab</span><span class="arr" aria-hidden="true">↓</span><span class="dots"></span><b class="i">IN USE</b></a></li>
+            <li><a href="#plan"><span class="nm">Quokka Hop</span><span class="arr" aria-hidden="true">↓</span><span class="dots"></span><b class="n">NEXT</b></a></li>
+            <li><a href="https://namchasang.github.io/quokka-cafe/" target="_blank" rel="noopener"><span class="nm">Quokka Cafe and Friends</span><span class="arr" aria-hidden="true">↗</span><span class="dots"></span><b class="n">SOFT OPEN</b></a></li>
+          </ul>
+        </div>
+      </nav>
+      <div class="signpost" aria-hidden="true"><i></i><i></i></div>
+    </div>
+  </div>
+  <div class="roo" aria-hidden="true">
+    <div class="diamond">
+      <svg viewBox="0 0 64 64" fill="#111"><ellipse cx="30" cy="38" rx="11" ry="15" transform="rotate(-25 30 38)"/><ellipse cx="42" cy="17" rx="6" ry="5"/><path d="M38 12l1-8 3 7zM43 12l3-7 1 8z"/><path d="M25 50c-6 4-14 7-21 8 7-4 13-8 17-12z"/><path d="M30 50l10 8h-12l-3-6z"/><path d="M38 30l7 5-2 2-7-4z"/></svg>
+    </div>
+    <div class="plate">NEXT 3 km</div>
+  </div>
+</div>
+
+<section id="story">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="marker">Start<small>KM 0</small></div>
+      <div>
+        <h2>จุดเริ่มต้นของแล็บ</h2>
+        <p>จากงานซ้ำ ๆ ในบริษัท สู่เกมที่คนเล่นได้จริง</p>
+      </div>
+    </div>
+    <div class="prose">
+      <div></div>
+      <div class="body">
+        <p>Paul เป็นคนไทยที่ใช้ชีวิตอยู่ใน Perth และเป็นหนึ่งในกรรมการของ Siam Sydney Services บริษัททัวร์และรถรับส่งสองภาษาไทย-อังกฤษ งานของเขาในบริษัทคือการตลาด เว็บไซต์ และเอกสารการเงิน งานแบบนี้มีเรื่องที่ต้องทำซ้ำทุกวัน ทั้งตอบแชตลูกค้า จัดตารางรถ และเตรียมตัวเลขส่งนักบัญชี</p>
+        <p>เขาเริ่มให้ AI agent ช่วยสร้างเครื่องมือมาแก้ปัญหาเหล่านั้นทีละชิ้น แล้วพบว่าวิธีเดียวกันใช้สร้างของที่ใหญ่กว่าได้ จึงทำเว็บแอปเรียนภาษาอังกฤษให้แบรนด์สอนพิเศษ Kru Jif Diary และต่อด้วยเกมที่ได้แรงบันดาลใจจากการขับรถเที่ยวทั่วออสเตรเลีย</p>
+        <p>ปี 2026 ผลงานหลายชิ้นเปิดใช้งานจริงและเริ่มขายได้ Paul จึงตั้ง Paul Perth AI Lab ขึ้นเป็นที่รวมทุกโปรเจกต์ และเปิดเพจ Facebook เล่า dev log แบบเปิดหมด ทั้ง prompt ที่ใช้จริง บั๊กที่เจอ และต้นทุนจริงที่เริ่มต้นไม่เกิน $100</p>
+      </div>
+    </div>
+    <div class="rules">
+      <div class="rule"><h3>AI ร่าง คนเป็นคนกดส่ง</h3><p>ทุกระบบที่แตะลูกค้าจริง AI ช่วยสรุปและร่างข้อความ แต่คนในทีมเป็นคนตัดสินใจและกดส่งเอง</p></div>
+      <div class="rule"><h3>ทดลองใน Look Lab ก่อนขึ้นของจริง</h3><p>การเปลี่ยนแสง สี หรือหน้าตาเกม ต้องผ่านห้องทดลองที่เปิด-ปิดเทียบได้ทีละชั้นก่อนเสมอ</p></div>
+      <div class="rule"><h3>ทำทีละชิ้น ทดสอบทีละส่วน</h3><p>เริ่มจากส่วนเล็กที่ใช้งานได้ แล้วค่อยต่อชิ้นถัดไป ถ้ามีอะไรพังจะรู้ทันทีว่าพังตรงไหน</p></div>
+      <div class="rule"><h3>ไทย-อังกฤษ และมือถือมาก่อน</h3><p>ผู้ใช้มีทั้งคนไทยในออสเตรเลียและทีมงานต่างชาติ ทุกแอปจึงสลับภาษาได้และทดสอบบนมือถือจริงก่อนปล่อย</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="projects" class="alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="marker">Projects<small>ON THE ROAD</small></div>
+      <div>
+        <h2>โปรเจกต์ของแล็บ</h2>
+        <p>เกมที่ได้แรงบันดาลใจจากชีวิตในออสเตรเลีย และเว็บแอปที่ใช้งานจริงในธุรกิจ</p>
+      </div>
+    </div>
+    <h3 class="group"><span>Games</span>เกม</h3>
+    <div class="projects g3">
+      <article class="card">
+        <div class="top"><span class="kind">เกม road trip</span><span class="status">LIVE</span></div>
+        <h3>Roo Road Rescue</h3>
+        <p>เกมขับรถเที่ยวออสเตรเลียที่ต้องระวังและช่วยสัตว์ป่าบนถนน แผนที่สร้างจากเส้นทางจริง เช่น Perth ถึง Cervantes มีโหมดเนื้อเรื่องและ The Big Lap ที่ค่อย ๆ ปลดล็อกรอบประเทศ พร้อมตารางคะแนนโลก</p>
+        <dl class="facts">
+          <div><span>เล่นฟรี</span><span>บางเส้นทางบนเว็บ</span></div>
+          <div><span>เกมเต็ม</span><span>A$7.99 ซื้อครั้งเดียว</span></div>
+          <div><span>สร้างด้วย</span><span>Web · Cloudflare · Supabase</span></div>
+        </dl>
+        <a class="go" href="https://www.rooroadrescue.com" target="_blank" rel="noopener">rooroadrescue.com ↗</a>
+      </article>
+      <article class="card">
+        <div class="top"><span class="kind">เกม 3D</span><span class="status">LIVE</span></div>
+        <h3>Magpie Madness</h3>
+        <p>เกมปั่นจักรยานผ่านย่าน Eastwood ใน Sydney ช่วงฤดูนกแม็กพายโฉบ ทั้งฝั่งย่านคนจีนบนถนน Rowe St และย่านคนเกาหลีฝั่งสถานีรถไฟ เนื้อเรื่องออกเป็นซีซันต่อเนื่อง</p>
+        <dl class="facts">
+          <div><span>เล่นฟรี</span><span>บทที่ 1–3 และ Free Roam</span></div>
+          <div><span>เกมเต็ม</span><span>A$3.99</span></div>
+          <div><span>ขายที่</span><span>เว็บไซต์ · itch.io</span></div>
+        </dl>
+        <a class="go" href="https://www.macpiemadness.com" target="_blank" rel="noopener">macpiemadness.com ↗</a>
+      </article>
+      <article class="card">
+        <div class="top"><span class="kind">เกม cozy RPG</span><span class="status beta">SOFT OPENING</span></div>
+        <h3>Quokka Cafe and Friends</h3>
+        <p>Kip ควอกกาหนุ่มนั่งเรือมาเปิดคาเฟ่ข้างท่าเรือบนเกาะ Wadjemup (Rottnest) ตอนเช้าเสิร์ฟนักท่องเที่ยว หลังปิดร้านออกสำรวจเกาะ ทำเควสต์ และเก็บเงินเพื่อพาพ่อแม่มาอยู่ด้วยกัน ภาพพิกเซลในโลก 3D</p>
+        <dl class="facts">
+          <div><span>ตอนนี้</span><span>Soft opening เล่นฟรี</span></div>
+          <div><span>เล่นที่</span><span>เว็บ · มือถือและคอม</span></div>
+          <div><span>แผนที่</span><span>Rottnest · South Perth · Victoria Park</span></div>
+        </dl>
+        <a class="go" href="https://namchasang.github.io/quokka-cafe/" target="_blank" rel="noopener">เล่นฟรี ↗</a>
+      </article>
+    </div>
+    <h3 class="group"><span>Web apps</span>เว็บแอป</h3>
+    <div class="projects">
+      <article class="card">
+        <div class="top"><span class="kind">เว็บแอปการศึกษา</span><span class="status">LIVE</span></div>
+        <h3>Kru Jif Academy</h3>
+        <p>ห้องเรียนภาษาอังกฤษออนไลน์ของแบรนด์ Kru Jif Diary สำหรับเตรียมสอบ PTE Academic และ IELTS ผู้เรียนสมัครเองได้ ฝึกคำศัพท์ตามระดับฟรี แล้วซื้อคอร์สวิดีโอทีละคอร์ส ครูยังเปิดห้องเรียนของตัวเองให้นักเรียนเข้าด้วยรหัสคลาสได้</p>
+        <dl class="facts">
+          <div><span>สร้างด้วย</span><span>Next.js · Supabase</span></div>
+          <div><span>ชำระเงิน</span><span>Stripe · Apple Pay · Google Pay</span></div>
+          <div><span>ภาษา</span><span>ไทย / English</span></div>
+        </dl>
+        <a class="go" href="https://learn.krujiftutor.com" target="_blank" rel="noopener">learn.krujiftutor.com ↗</a>
+      </article>
+      <article class="card">
+        <div class="top"><span class="kind">ระบบหลังบ้าน</span><span class="status int">ใช้งานภายใน</span></div>
+        <h3>SSS Operations Lab</h3>
+        <p>ศูนย์ควบคุมของ Siam Sydney Services ที่รวมแชตจาก Messenger และ LINE ไว้ที่เดียว ให้ AI ร่างคำตอบเพื่อให้แอดมินตรวจและกดส่งเอง พร้อมตารางเดินรถ สถิติ และบัญชีส่งนักบัญชี</p>
+        <ul class="featlist">
+          <li>สรุปงานเช้านี้อัตโนมัติ</li>
+          <li>ตารางงานแยกตามคนขับ</li>
+          <li>สถิติลีดและเวลาตอบแชตแรก</li>
+          <li>รายรับรายเดือน ดาวน์โหลด CSV</li>
+          <li>สิทธิ์ 3 ระดับ และ passkey</li>
+          <li>ใช้ได้ทั้งไทยและอังกฤษ</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="plan">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="marker">Masterplan<small>ROUTE AHEAD</small></div>
+      <div>
+        <h2>เส้นทางข้างหน้า</h2>
+        <p>สิ่งที่แล็บกำลังทำ และสิ่งที่วางไว้ต่อจากนี้ เรียงตามระยะทาง</p>
+      </div>
+    </div>
+    <div class="lanes">
+      <div class="lane">
+        <h3>Now<span>กำลังทำ</span></h3>
+        <div class="item">
+          <b>คอร์สสร้างเกมด้วย Claude: Quokka Hop</b>
+          <p>คอร์สสำหรับคนเขียนโค้ดไม่เป็น สั่งงาน AI เป็นภาษาไทย 8 บท ประมาณ 90 นาที จบคอร์สมีลิงก์เกมของตัวเอง บทที่ 1–3 เปิดให้ดูฟรี</p>
+          <div class="shot"><img src="data:image/jpeg;base64,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u3i9fLb6r/hTX1q9cYDqn+6tUaKwWGpJ35UbfWKtrczHSSyTNukdnPqxzTKWit0ktEYtt6sSilopiEopaKAEopaKAEopaKAEopaKAHYoxS4oxSKExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoATFGKXFGKAExRilxRigBMUYpcUYoAXFGKdijFIY3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUANxRinYoxQA3FGKdijFADcUYp2KMUAOxRilxRilcYmKMUuKMUXATFGKXFGKLgJijFLijFFwExRilxUdwxS1mZThlRiD6HFJuyuVGPM0ilr19LpfhzUtQhVGltbaSZA4ypKqSM47cV4l/wvTxL/wA+Wlf9+pP/AIuusvNb1PUNPns7m8keC4jaKRcKMqwwR09DXI/8IRov/POf/v6a8OrmKk7wuj7Gjw3Vgnz2Z7P4T1WfXfCWm6pcrGk93CJHWMEKDk9Mknt61sYryvTN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" alt="ภาพจากเกม Quokka Hop ควอกกากระโดดบนชายหาดหน้าประภาคาร" width="720" height="405" loading="lazy"></div>
+        </div>
+        <div class="item"><b>Quokka Cafe and Friends: Soft opening</b><p>เปิดให้เล่นฟรีแล้ว กำลังทดสอบและเพิ่มระบบจากความเห็นผู้เล่น ก่อนทำเว็บไซต์ขายเต็มรูปแบบ</p></div>
+        <div class="item"><b>Magpie Madness บน App Store</b><p>แอปจ่ายครั้งเดียว ได้เกมเต็ม ไม่มีการซื้อในแอป</p></div>
+        <div class="item"><b>SSS Operations Lab phase 2</b><p>ร่างข้อความติดตามลูกค้าให้แอดมินส่งต่อ หลังจากทีมใช้ phase 1 จนคล่อง</p></div>
+      </div>
+      <div class="lane l2">
+        <h3>Next<span>ถัดไป</span></h3>
+        <div class="item"><b>Roo Road Rescue บน App Store และ Google Play</b><p>พร้อมขยาย The Big Lap ตามเนื้อเรื่อง และนำระบบแสงและสภาพอากาศจาก Magpie Madness มาใช้</p></div>
+        <div class="item"><b>บัญชีเดียว เล่นได้ทุกเกม</b><p>ใช้อีเมลเดียวกันซื้อและเล่นทั้ง Roo Road Rescue และ Magpie Madness</p></div>
+        <div class="item"><b>เว็บไซต์ Lab เป็นหน้าร้าน</b><p>รวมลิงก์เกม คอร์ส และโปรดักต์ทั้งหมดไว้ในที่เดียว</p></div>
+      </div>
+      <div class="lane l3">
+        <h3>Later<span>ระยะยาว</span></h3>
+        <div class="item"><b>เกมต่อสู้จิงโจ้แดง</b><p>เกมต่อสู้ 3D สำหรับ App Store ตัวเอกเป็นจิงโจ้แดง เป็นภาคพี่น้องของ Roo Road Rescue</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="paul" class="alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="marker">Developer<small>DRIVER'S SEAT</small></div>
+      <div>
+        <h2>คนเบื้องหลังแล็บ</h2>
+        <p>Paul คนไทยใน Perth ผู้แบ่งเวลาระหว่างบริษัททัวร์ งานสอน กล้องถ่ายรูป และแล็บ</p>
+      </div>
+    </div>
+    <div class="dev">
+      <div></div>
+      <div class="body">
+        <p>ชีวิตของ Paul อยู่กับการเดินทางมาตลอด งานในบริษัททัวร์ทำให้เขาได้รู้จักออสเตรเลียทั้งจากมุมคนพาเที่ยวและมุมคนวางระบบ เขาทำเพจ Travel Route in Sydney และ Travel Route in Perth เล่าเส้นทางเที่ยวให้คนไทย จน Reels บางคลิปมียอดดูเกิน 1 ล้านครั้ง</p>
+        <p>เวลาออกทริป เขามักพกกล้อง Canon EOS 7D หรือ Fujifilm X-E3 ไปด้วย ภาพเหล่านั้นกลายเป็นทั้งภาพขายบน Adobe Stock และฉากอ้างอิงในเกม เขายังแชร์ประสบการณ์ขับรถในกลุ่มนักเดินทางชาวไทย โดยเฉพาะเรื่องจิงโจ้ข้ามถนนช่วงเช้ามืดและพลบค่ำ</p>
+        <p>สิ่งที่เชื่อมทุกบทบาทเข้าด้วยกันคือความเชื่อว่า เทคโนโลยีควรทำให้ชีวิตจริงง่ายขึ้น และเรื่องราวดี ๆ ของออสเตรเลียควรถูกเล่าต่อในแบบที่คนไทยเข้าถึงได้</p>
+      </div>
+      <div class="roles">
+        <div><b>Co-director, Siam Sydney Services</b><span>ดูแลการตลาด เว็บไซต์ และเอกสารการเงิน</span></div>
+        <div><b>ผู้ก่อตั้ง Kru Jif Diary</b><span>แบรนด์สอน PTE Academic และ IELTS พร้อมเอกสารและเทมเพลต</span></div>
+        <div><b>Travel Route in Sydney / Perth</b><span>เพจเส้นทางเที่ยวสำหรับคนไทยในออสเตรเลีย</span></div>
+        <div><b>ช่างภาพท่องเที่ยว</b><span>ขายภาพทิวทัศน์ออสเตรเลียบน Adobe Stock</span></div>
+        <div><b>นักพัฒนา, Paul Perth AI Lab</b><span>สร้างเกมและแอปร่วมกับ AI agent</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sss">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="marker">Day job<small>SIAM SYDNEY SERVICES</small></div>
+      <div>
+        <h2>Siam Sydney Services</h2>
+        <p>บริษัททัวร์และรถรับส่งระดับพรีเมียม บริการสองภาษาไทย-อังกฤษ ดูแลนักท่องเที่ยวคนไทย ลูกค้าองค์กร และพาร์ตเนอร์บริษัททัวร์</p>
+      </div>
+    </div>
+    <div class="cities">
+      <div class="city">
+        <h3>Sydney <small>NSW · ฐานแรกของบริษัท</small></h3>
+        <p>รถรับส่งสนามบิน ทัวร์ในเมืองและรอบนอก รวมถึงงานเหมารถให้ลูกค้าองค์กรและกรุ๊ปทัวร์จากพาร์ตเนอร์ ทีมแอดมินดูแลการจองผ่าน Messenger และ LINE</p>
+      </div>
+      <div class="city">
+        <h3>Perth <small>WA · ที่ที่ Paul อยู่</small></h3>
+        <p>ทัวร์ Western Australia ตั้งแต่ไร่องุ่น Swan Valley ไปจนถึงเส้นทางเลียบชายฝั่ง พร้อมโปรแกรมเที่ยวภาษาไทยที่ Paul เขียนเองจากการขับไปจริง</p>
+      </div>
+    </div>
+    <p class="also">ให้บริการที่ Melbourne, Brisbane, Gold Coast และ Tasmania ด้วย ดูรายละเอียดได้ที่ <a href="https://www.siamsydneyservices.com.au" target="_blank" rel="noopener">siamsydneyservices.com.au ↗</a></p>
+    <div class="chips" aria-label="รถในฟลีต">
+      <span class="chip">Tesla Model Y</span><span class="chip">Kia Carnival</span><span class="chip">Honda Odyssey</span><span class="chip">Toyota Hiace</span><span class="chip">Mercedes-Benz Viano</span>
+    </div>
+  </div>
+</section>
+
+<section id="roadtrip" class="alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="marker">Road trip<small>≈ 3,900 KM SYD–PER</small></div>
+      <div>
+        <h2>ถนนคือห้องทดลองที่ดีที่สุด</h2>
+        <p>เกมของแล็บเกิดจากทริปจริง ทุกจุดแวะบนถนนกลายเป็นไอเดียที่อยากให้คนอื่นได้สัมผัสบรรยากาศสวย ๆ ของการใช้ชีวิตในออสเตรเลีย</p>
+      </div>
+    </div>
+    <div class="road">
+      <div class="stop">
+        <div class="pin"><i></i></div>
+        <div class="stop-body">
+          <div><span class="place">Perth → Cervantes</span><span class="place-sub">INDIAN OCEAN DRIVE · WA</span></div>
+          <div><h3>ถนนเลียบทะเลสู่ Pinnacles</h3><p>เส้นทางที่กลายเป็นแผนที่จริงชุดแรกของเกม และเป็นที่มาของหลัก "แผนที่จริงเป็นโครง ความสนุกมาก่อน"</p><span class="became">→ Roo Road Rescue</span></div>
+        </div>
+      </div>
+      <div class="stop">
+        <div class="pin"><i></i></div>
+        <div class="stop-body">
+          <div><span class="place">Dawn &amp; Dusk</span><span class="place-sub">ROO TIME · ทุกถนนนอกเมือง</span></div>
+          <div><h3>เวลาที่จิงโจ้ข้ามถนน</h3><p>ช่วงเช้ามืดและพลบค่ำคือช่วงที่คนขับต้องระวังที่สุด เกมจึงให้ผู้เล่นช่วยสัตว์ แทนที่จะหลบอย่างเดียว</p><span class="became">→ Roo Road Rescue</span></div>
+        </div>
+      </div>
+      <div class="stop">
+        <div class="pin"><i></i></div>
+        <div class="stop-body">
+          <div><span class="place">Eastwood</span><span class="place-sub">SYDNEY · AUG–NOV</span></div>
+          <div><h3>ฤดูนกแม็กพายโฉบ</h3><p>ประสบการณ์ที่คนปั่นจักรยานในซิดนีย์เจอกันทุกปี ถูกเล่าใหม่ในย่านที่มีทั้งร้านอาหารจีนและเกาหลี</p><span class="became">→ Magpie Madness</span></div>
+        </div>
+      </div>
+      <div class="stop">
+        <div class="pin"><i></i></div>
+        <div class="stop-body">
+          <div><span class="place">Rottnest Island</span><span class="place-sub">FERRY FROM FREMANTLE · WA</span></div>
+          <div><h3>บ้านของควอกกา</h3><p>สัตว์ยิ้มเก่งบนเกาะใกล้ Perth คือตัวเอกของเกมสอนในคอร์ส และของเกมคาเฟ่ที่เปิดให้เล่นฟรีแล้ว</p><span class="became">→ Quokka Hop · Quokka Cafe and Friends</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="philo">
+      <h3>หลักการสร้างแผนที่จากถนนจริง</h3>
+      <ol>
+        <li>ใช้แผนที่จริงเป็นโครง เก็บลำดับสถานที่ไว้ แต่ปรับระยะทางและโค้งให้เล่นสนุก</li>
+        <li>เนินต้องนุ่ม ความชันไม่เกินราว 10–15%</li>
+        <li>ช่วงในเมืองที่วุ่นวาย เปลี่ยนเป็นทางด่วนยกระดับ</li>
+        <li>ทุกช่วงถนนต้องมีอะไรให้ทำ</li>
+        <li>วิวเด่นจัดองค์ประกอบด้วยมือ บนข้อมูลจริง</li>
+        <li>เริ่มจากถนนช่วงสั้นที่ใช้ได้ แล้วค่อยต่อให้ครบเส้นทาง</li>
+      </ol>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <h2>Paul Perth AI Lab</h2>
+      <p>ติดตาม dev log การสร้างเกมและแอปด้วย AI ได้ทุกวันบนเพจ Facebook</p>
+      <div class="ctas"><a class="btn" style="background:#fff;color:var(--sign)" href="https://www.facebook.com/profile.php?id=61595308452588" target="_blank" rel="noopener">เปิดเพจ Facebook ↗</a></div>
+    </div>
+    <div>
+      <h3>Products</h3>
+      <ul>
+        <li><a href="https://learn.krujiftutor.com" target="_blank" rel="noopener">Kru Jif Academy ↗</a></li>
+        <li><a href="https://www.rooroadrescue.com" target="_blank" rel="noopener">Roo Road Rescue ↗</a></li>
+        <li><a href="https://www.macpiemadness.com" target="_blank" rel="noopener">Magpie Madness ↗</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Company</h3>
+      <ul>
+        <li><a href="https://www.siamsydneyservices.com.au" target="_blank" rel="noopener">Siam Sydney Services ↗</a></li>
+        <li><a href="#story">ที่มาของแล็บ</a></li>
+        <li><a href="#plan">แผนต่อไป</a></li>
+      </ul>
+    </div>
+    <div class="fine">© 2026 PAUL PERTH AI LAB · PERTH, WESTERN AUSTRALIA</div>
+  </div>
+</footer>
+
+</body>
+</html>
