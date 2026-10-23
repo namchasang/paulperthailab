@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quokka Cafe Radio Live</title>
+<meta name="description" content="Kip the quokka runs the café while Quokka Cafe Radio plays: 24/7 lo-fi and 90s RPG music from Quokka Cafe and Friends.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Kanit:wght@400;600&display=swap">
+<style>
+/* A 1920x1080 stage scaled to fit the window. The café is drawn at 480x270 and scaled 4x so every pixel stays crisp. */
+:root{--cream:#faf2e1;--amber:#f2c871;--red:#d9483e;--ink:#121a20;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0b1014;overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:50% 50%;font-family:'Kanit',system-ui,sans-serif;color:var(--cream)}
+#c{position:absolute;inset:0;width:1920px;height:1080px;image-rendering:pixelated;image-rendering:crisp-edges}
+.hud{position:absolute;pointer-events:none;text-shadow:0 3px 10px rgba(0,0,0,.55)}
+#brand{left:56px;top:44px;display:flex;align-items:center;gap:18px;font:700 34px/1 'Pixelify Sans',monospace;letter-spacing:.06em}
+#brand i{display:block;width:96px;height:24px;border-radius:6px;background:repeating-linear-gradient(90deg,var(--red) 0 24px,var(--cream) 24px 36px)}
+#live{right:56px;top:40px;display:flex;align-items:center;gap:12px;background:rgba(10,14,18,.72);border-radius:12px;padding:10px 18px;font:700 26px/1 'Pixelify Sans',monospace;letter-spacing:.1em;text-shadow:none}
+#live b{width:16px;height:16px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+#now{left:56px;bottom:52px;background:rgba(10,14,18,.74);border-radius:16px;padding:18px 26px 18px 22px;display:flex;align-items:center;gap:20px;min-width:620px;text-shadow:none}
+#disc{width:66px;height:66px;border-radius:50%;background:radial-gradient(circle,var(--amber) 0 9px,#1c1c1c 10px 13px,#2b2b2b 14px 20px,#1a1a1a 21px 25px,#2b2b2b 26px 33px);animation:spin 3.2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#now small{display:block;font:600 20px/1.2 'Kanit',sans-serif;color:var(--amber);letter-spacing:.04em;text-transform:uppercase}
+#trk{display:block;font:700 38px/1.15 'Pixelify Sans',monospace;margin-top:4px}
+#bars{display:flex;align-items:flex-end;gap:5px;height:40px;margin-left:auto}
+#bars i{display:block;width:7px;background:var(--amber);border-radius:2px;height:6px}
+#clock{right:56px;bottom:52px;text-align:right;background:rgba(10,14,18,.74);border-radius:16px;padding:16px 24px;text-shadow:none}
+#clock b{display:block;font:700 46px/1 'Pixelify Sans',monospace}
+#clock span{display:block;font:400 21px/1.3 'Kanit',sans-serif;color:#cfd8d4;margin-top:6px}
+#clock em{display:block;font:400 19px/1.3 'Kanit',sans-serif;color:var(--amber);font-style:normal;margin-top:4px}
+#start{position:absolute;inset:0;display:grid;place-items:center;background:rgba(8,12,16,.55);cursor:pointer;border:0;width:100%;color:var(--cream);font:700 54px/1.2 'Pixelify Sans',monospace}
+#start span{display:block;font:400 28px/1.4 'Kanit',sans-serif;color:var(--amber);margin-top:14px}
+#start[hidden]{display:none}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="c" width="480" height="270" aria-label="Kip the quokka serving coffee in Quokka Cafe"></canvas>
+  <div class="hud" id="brand"><i></i>QUOKKA CAFE RADIO</div>
+  <div class="hud" id="live"><b></b>LIVE</div>
+  <div class="hud" id="now"><div id="disc"></div><div><small id="stn">Island Lo-fi · 92.1</small><span id="trk">Tuning in…</span></div><div id="bars"></div></div>
+  <div class="hud" id="clock"><b id="hm">--:--</b><span id="wx">Rottnest Island · Perth time</span><em>Play the game free · namchasang.github.io/quokka-cafe</em></div>
+  <button id="start" type="button" hidden>▶ Tune in<span>Click to start the music</span></button>
+</div>
+<script src="../radio.js?v=3"></script>
+<script>
+(function(){'use strict';
+// ---------- options: ?st=lofi|crystal|seaside|breeze  ?vol=0-100  ?h=18 (test hour)  ?rain=1 ----------
+const Q=new URLSearchParams(location.search);
+const STATION=['lofi','crystal','seaside','breeze'].includes(Q.get('st'))?Q.get('st'):'lofi';
+const FREQ={seaside:'88.4',lofi:'92.1',crystal:'96.9',breeze:'103.5'};
+const W=480,H=270,cv=document.getElementById('c');let g=cv.getContext('2d');g.imageSmoothingEnabled=false;
+// fit the 1920x1080 stage to the window
+const stage=document.getElementById('stage');
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform='translate(-50%,-50%) scale('+s+')';}
+addEventListener('resize',fit);fit();
+// seeded randomness so the café looks the same every load
+let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
+const R=(a,b)=>a+Math.random()*(b-a);
+// ---------- drawing helpers ----------
+function px(x,y,w,h,c){g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),w,h);}
+function blob(cx,cy,rx,ry,c){g.fillStyle=c;const x0=Math.floor(cx-rx-1),x1=Math.ceil(cx+rx+1),y0=Math.floor(cy-ry-1),y1=Math.ceil(cy+ry+1);
+  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const dx=(x+.5-cx)/rx,dy=(y+.5-cy)/ry;if(dx*dx+dy*dy<=1)g.fillRect(x,y,1,1);}}
+function shade(hex,k){const n=parseInt(hex.slice(1),16);let r=n>>16,gg=n>>8&255,b=n&255;const f=v=>Math.max(0,Math.min(255,Math.round(k<0?v*(1+k):v+(255-v)*k)));return '#'+[f(r),f(gg),f(b)].map(v=>v.toString(16).padStart(2,'0')).join('');}
+// 3x5 chalk font for the menu board
+const FONT={A:'010101111101101',B:'110101110101110',C:'011100100100011',D:'110101101101110',E:'111100110100111',F:'111100110100100',G:'011100101101011',H:'101101111101101',I:'111010010010111',K:'101101110101101',L:'100100100100111',M:'101111111101101',N:'110101101101101',O:'010101101101010',P:'110101110100100',R:'110101110101101',S:'011100010001110',T:'111010010010010',U:'101101101101111',W:'101101111111101',Y:'101101010010010',V:'101101101101010',Z:'111001010100111',
+ 0:'111101101101111',1:'010110010010111',2:'110001010100111',3:'110001010001110',4:'101101111001001',5:'111100110001110',6:'011100111101111',7:'111001010010010',8:'111101111101111',9:'111101111001110','.':'000000000000010','-':'000000111000000',' ':'000000000000000'};
+function text(s,x,y,c){g.fillStyle=c;for(const ch of s){const f=FONT[ch]||FONT[' '];for(let i=0;i<15;i++)if(f[i]==='1')g.fillRect(x+i%3,y+Math.floor(i/3),1,1);x+=4;}}
+// ---------- time and weather ----------
+function perth(){const d=new Date(),m=(d.getUTCHours()*60+d.getUTCMinutes()+480)%1440;return Q.has('h')?(+Q.get('h'))*60:m+d.getUTCSeconds()/60;}
+let rainAmt=0;
+function rainingNow(){if(Q.get('rain')==='1')return true;const t=window.QCR&&QCR.track&&QCR.track();return !!(t&&(t.set==='rain'||/rain|storm|drizzle|puddle|umbrella/i.test(t.t)));}
+function skyAt(min){const h=min/60;
+  // [hour, top, bottom]
+  const K=[[0,'#0b1430','#1b2a4a'],[5,'#16203f','#3b3a5e'],[6.3,'#f0a37a','#fbd3a0'],[8,'#7fc3e8','#cfeaf5'],[16,'#79bfe6','#cfe9f3'],[17.6,'#f39a5f','#fcd08a'],[18.7,'#7a4f86','#f08a6a'],[19.6,'#1c2350','#3a3463'],[24,'#0b1430','#1b2a4a']];
+  let i=0;while(i<K.length-2&&K[i+1][0]<=h)i++;const a=K[i],b=K[i+1],f=Math.max(0,Math.min(1,(h-a[0])/(b[0]-a[0])));
+  const mix=(p,q)=>{const P=parseInt(p.slice(1),16),Qq=parseInt(q.slice(1),16);return '#'+[16,8,0].map(s=>Math.round(((P>>s)&255)*(1-f)+((Qq>>s)&255)*f).toString(16).padStart(2,'0')).join('');};
+  return [mix(a[1],b[1]),mix(a[2],b[2])];}
+function nightness(min){const h=min/60;return h<5.5||h>20?1:h<7?Math.max(0,(7-h)/1.5):h>18.3?Math.min(1,(h-18.3)/1.7):0;}
+// ---------- the room ----------
+const WIN={x:44,y:16,w:170,h:84};
+const BOARD={x:230,y:18,w:84,h:70};
+const COUNTER={x:330,y:92,w:150,top:100,front:144};
+const DOOR={x:10,y:70,w:30};
+const TABLES=[{x:92,y:190},{x:190,y:200},{x:288,y:188}];
+const SEATS=[];TABLES.forEach((t,i)=>{SEATS.push({x:t.x-27,y:t.y+2,dir:1,table:i,cup:{x:t.x-9,y:t.y-10},busy:null,dirty:false});SEATS.push({x:t.x+27,y:t.y+2,dir:-1,table:i,cup:{x:t.x+5,y:t.y-10},busy:null,dirty:false});});
+const KIP_HOME={x:398,y:170},MACHINE={x:362,y:168},CAKE={x:438,y:170};const LANE=160;const LAMPS=[60,150,250,400];
+const MENU=[['MENU',''],['FLAT WHITE','5'],['LONG BLACK','4'],['MOCHA','6'],['CHAI LATTE','5'],['LAMINGTON','4'],['BANANA BREAD','5']];
+const ITEMS={flat:{name:'flat white',cup:'#f4ece0',top:'#c99a6b'},long:{name:'long black',cup:'#f4ece0',top:'#3b2212'},mocha:{name:'mocha',cup:'#e9d3b8',top:'#6b3e22'},chai:{name:'chai',cup:'#f4ece0',top:'#d6a46c'},lam:{name:'lamington',cake:'#7a4a2c'},ban:{name:'banana bread',cake:'#c58b4a'}};
+const ITEM_KEYS=Object.keys(ITEMS);
+// background is static apart from the window, so draw it once per minute into a buffer
+const bg=document.createElement('canvas');bg.width=W;bg.height=H;let bgMin=-1,bgRain=-1;
+function drawRoom(min){const G=g;const c=bg.getContext('2d');g=c;g.imageSmoothingEnabled=false;
+  const N=nightness(min),wet=rainAmt>.5;
+  // wall: warm green paper above, wood panelling below
+  px(0,0,W,150,'#4f6550');for(let x=0;x<W;x+=12)px(x,0,1,112,'#475c48');
+  px(0,112,W,38,'#6b4329');for(let x=0;x<W;x+=16)px(x,112,1,38,'#5c3822');px(0,112,W,3,'#83563a');
+  // floor planks
+  px(0,150,W,120,'#9a6a40');for(let y=150;y<H;y+=10){px(0,y,W,1,'#875a35');for(let x=((y/10)%2)*24;x<W;x+=48)px(x,y,1,10,'#875a35');}
+  px(0,150,W,2,'#5a3a22');
+  // window to the island: sky, sea, the lighthouse on the hill
+  const [top,bot]=skyAt(min);const sg=g.createLinearGradient(0,WIN.y,0,WIN.y+WIN.h);sg.addColorStop(0,top);sg.addColorStop(1,bot);g.fillStyle=sg;g.fillRect(WIN.x,WIN.y,WIN.w,WIN.h);
+  if(N>.4&&!wet){for(let i=0;i<26;i++){const sx=WIN.x+((i*53)%WIN.w),sy=WIN.y+((i*29)%40);px(sx,sy,1,1,'rgba(255,250,220,'+(N*.9)+')');}blob(WIN.x+140,WIN.y+14,5,5,'rgba(250,240,210,'+N+')');}
+  else if(!wet){blob(WIN.x+34,WIN.y+20,6,6,'rgba(255,240,190,'+(1-N)*.9+')');}
+  const sea=N>.5?'#1d3650':wet?'#4a6a80':'#2f86b5';px(WIN.x,WIN.y+54,WIN.w,WIN.h-54,sea);for(let i=0;i<14;i++)px(WIN.x+((i*37)%WIN.w),WIN.y+58+((i*11)%24),6,1,shade(sea,.25));
+  const hill=N>.5?'#1f3324':wet?'#4d6b48':'#5e8f4e';blob(WIN.x+124,WIN.y+58,34,9,hill);px(WIN.x+90,WIN.y+56,68,4,hill);
+  px(WIN.x+128,WIN.y+32,6,22,'#f1ead8');px(WIN.x+127,WIN.y+30,8,3,'#c94a3e');px(WIN.x+129,WIN.y+27,4,3,'#2a2a2a');
+  if(N>.3){g.fillStyle='rgba(255,230,150,'+N*.5+')';g.beginPath();g.moveTo(WIN.x+131,WIN.y+29);g.lineTo(WIN.x+56,WIN.y+22);g.lineTo(WIN.x+56,WIN.y+34);g.fill();}
+  if(rainAmt>.05){g.fillStyle='rgba(60,70,90,'+rainAmt*.45+')';g.fillRect(WIN.x,WIN.y,WIN.w,WIN.h);}
+  // frame and mullions
+  px(WIN.x-4,WIN.y-4,WIN.w+8,4,'#efe4cc');px(WIN.x-4,WIN.y+WIN.h,WIN.w+8,6,'#efe4cc');px(WIN.x-4,WIN.y,4,WIN.h,'#efe4cc');px(WIN.x+WIN.w,WIN.y,4,WIN.h,'#efe4cc');
+  px(WIN.x+WIN.w/2-1,WIN.y,3,WIN.h,'#efe4cc');px(WIN.x,WIN.y+36,WIN.w,3,'#efe4cc');px(WIN.x-6,WIN.y+WIN.h+5,WIN.w+12,3,'#c9b899');
+  // plants on the sill
+  [WIN.x+6,WIN.x+WIN.w-20].forEach(x=>{const y=WIN.y+WIN.h;px(x,y-8,12,9,'#c46a3d');px(x,y-8,12,2,'#a85730');blob(x+6,y-13,8,6,'#3f8a4a');blob(x+3,y-17,4,4,'#4fa05a');blob(x+9,y-18,4,4,'#4fa05a');});
+  // chalk menu board
+  px(BOARD.x-3,BOARD.y-3,BOARD.w+6,BOARD.h+6,'#8a5a34');px(BOARD.x,BOARD.y,BOARD.w,BOARD.h,'#263028');
+  MENU.forEach(([n,p],i)=>{const y=BOARD.y+5+i*9;if(i===0){text(n,BOARD.x+BOARD.w/2-8,y,'#f2c871');px(BOARD.x+8,y+7,BOARD.w-16,1,'#5d6a5f');}else{text(n,BOARD.x+5,y,'#e8efe6');text(p,BOARD.x+BOARD.w-9,y,'#f2c871');}});
+  // shelf with record player, jars, a framed quokka and a plant
+  px(330,44,140,4,'#8a5a34');px(330,48,140,2,'#5c3822');
+  px(338,32,26,12,'#6e3f26');px(338,32,26,2,'#8c5534');
+  [[372,'#e7d2a4'],[384,'#c79a5c'],[396,'#9fc9b8']].forEach(([x,c])=>{px(x,30,9,14,'rgba(230,240,240,.35)');px(x+1,34,7,10,c);px(x,28,9,3,'#6b4a33');});
+  px(412,26,20,18,'#2f4a6a');px(414,28,16,12,'#f1d58a');blob(422,34,4,3,'#c46a3d');
+  blob(450,34,9,8,'#3f8a4a');px(445,38,10,6,'#c46a3d');
+  // door on the left wall
+  px(DOOR.x,DOOR.y,DOOR.w,80,'#7a4a2c');px(DOOR.x+4,DOOR.y+6,DOOR.w-8,32,shade(skyAt(min)[1],-.1));px(DOOR.x+4,DOOR.y+6,DOOR.w-8,32,'rgba(255,255,255,.08)');px(DOOR.x+DOOR.w-7,DOOR.y+46,3,3,'#f2c871');
+  px(DOOR.x-2,DOOR.y-3,DOOR.w+4,3,'#5c3822');text('OPEN',DOOR.x+7,DOOR.y+42,'#f2c871');
+  // counter
+  px(COUNTER.x,COUNTER.top,COUNTER.w,6,'#e8d7b5');px(COUNTER.x,COUNTER.top+6,COUNTER.w,2,'#b9a27c');
+  px(COUNTER.x,COUNTER.top+8,COUNTER.w,COUNTER.front-COUNTER.top,'#7b4b2c');for(let x=COUNTER.x+6;x<W;x+=18)px(x,COUNTER.top+12,12,COUNTER.front-COUNTER.top-10,'#6a3f24');
+  px(COUNTER.x,COUNTER.front+8,COUNTER.w,4,'#4a2c18');
+  // espresso machine, grinder, cake cabinet, till
+  px(344,72,34,28,'#c0c6cc');px(344,72,34,4,'#e5e9ec');px(346,90,30,3,'#8a9096');px(352,84,4,6,'#33383d');px(364,84,4,6,'#33383d');px(370,76,4,3,'#d9483e');
+  px(384,78,10,22,'#2f3438');blob(389,76,6,4,'#5a4030');
+  px(410,80,38,20,'rgba(220,240,245,.35)');px(410,80,38,2,'#e5e9ec');px(410,98,38,2,'#b9a27c');
+  [[414,'#7a4a2c'],[424,'#7a4a2c'],[436,'#c58b4a']].forEach(([x,c])=>{px(x,91,8,7,c);px(x,91,8,2,'#f4ece0');});
+  px(454,84,18,16,'#3b3f44');px(456,86,14,6,'#7fd0a0');
+  // short pendant lamps, hung above the window line so they never cover the menu
+  LAMPS.forEach(x=>{px(x,0,1,8,'#2a2a2a');px(x-6,8,13,5,'#2e4a3b');px(x-7,12,15,2,'#3c5e4b');});
+  g=G;bgMin=Math.floor(min);bgRain=Math.round(rainAmt*10);}
+// ---------- characters ----------
+const PAL={kip:{fur:'#9b6a3f',belly:'#d1a271',out:'#3b2414'},
+ q1:{fur:'#8a7666',belly:'#c9b3a0',out:'#3a2c22'},q2:{fur:'#b07a45',belly:'#e0b78a',out:'#45291a'},q3:{fur:'#6f5a4c',belly:'#b39c88',out:'#2b201a'},q4:{fur:'#a8865e',belly:'#dcc3a2',out:'#3d2b1c'}};
+const HATS=['none','beanie','sun','none','cap','none'],SCARF=['#d9483e','#3f7dbf','#e0b33a','#7a5bb5',null,null];
+const CK=1.4;// character scale: shapes are designed at 1x and drawn 1.4x bigger
+function quokka(x,y,dir,P,o){// o:{walk,frame,sit,carry,apron,hat,scarf,blink,sip}
+  x=Math.round(x);y=Math.round(y);const d=dir,k=CK;const by=o.sit?3:0;const bob=o.walk&&o.frame%2?-1:0;const v=by+bob;
+  const B=(dx,dy,rx,ry,c)=>blob(x+dx*k,y+dy*k,rx*k,ry*k,c);
+  const S=(dx,dy,w,h,c)=>px(x+Math.round(dx*k),y+Math.round(dy*k),Math.max(1,Math.round(w*k)),Math.max(1,Math.round(h*k)),c);
+  const parts=[[-5*d,-5+by,3,2,'fur'],[0,-8+v,5.2,6.2,'fur'],[1*d,-17+v,4.8,4.4,'fur'],[-1*d,-22+v,2,2,'fur'],[3*d,-22+v,2,2,'fur']];
+  parts.forEach(p=>B(p[0],p[1],p[2]+.8,p[3]+.8,P.out));
+  if(!o.sit){const l=o.walk?(o.frame%2?1:-1):0;S(-3+l,-2.4,3,3,P.out);S(1-l,-2.4,3,3,P.out);S(-2.4+l,-2,2,2,P.fur);S(1.6-l,-2,2,2,P.fur);}
+  parts.forEach(p=>B(p[0],p[1],p[2],p[3],P[p[4]]));
+  B(1*d,-7+v,3,4.2,P.belly);B(3.5*d,-16+v,2.4,2,P.belly);
+  S(-1*d,-22.4+v,1,1,'#e79a8f');S(3*d,-22.4+v,1,1,'#e79a8f');
+  const ex=d>0?2:-3.4;
+  if(o.blink)S(ex,-18+v,2,.8,'#1a1010');else{S(ex,-19+v,2,2,'#1a1010');px(x+Math.round(ex*k),y+Math.round((-19+v)*k),1,1,'#fff');}
+  S(d>0?5:-6.4,-17.4+v,1.6,1.6,'#2a1a12');S(d>0?2.6:-4,-15+v,2,.8,'#e39a8a');
+  if(o.apron){S(-3,-11+v,7,9,'#3f7d4e');S(-3,-11+v,7,.8,'#5a9a68');S(-2,-15+v,.8,4,'#3f7d4e');S(2.4,-15+v,.8,4,'#3f7d4e');S(0,-7+v,.8,.8,'#f2c871');}
+  if(o.scarf){S(-3,-13+v,8,2,o.scarf);S(d>0?-3:3,-11+v,2,4,o.scarf);}
+  if(o.hat==='beanie'){B(1*d,-21+v,4.6,2.4,'#d9483e');S(-3+1*d,-20+v,9,1.6,'#b23a31');S(1*d-.6,-25+v,2,2,'#faf2e1');}
+  if(o.hat==='sun'){S(-6+1*d,-21+v,14,1.6,'#e8cf8a');B(1*d,-22+v,4,2.4,'#e8cf8a');S(-3+1*d,-22+v,9,.8,'#c94a3e');}
+  if(o.hat==='cap'){B(1*d,-21+v,4.4,2.2,'#3f7dbf');S(d>0?3:-8,-20+v,6,1.6,'#2f5f93');}
+  // arm, and whatever Kip is carrying
+  if(o.carry){const ax=x+4*d*k,ay=y+(-12+v)*k;blob(ax,ay+2*k,1.6*k,2.4*k,P.fur);drawItem(o.carry,ax+(d>0?-1:-6),ay-7,true);}
+  else if(o.sip){B(4*d,-14+by,1.6,2,P.fur);S(d>0?4:-6.6,-16.4+by,3,3,'#f4ece0');}
+  else B(3*d,-8+v,1.4,2.4,shade(P.fur,-.15));}
+function penguin(x,y,dir,o){x=Math.round(x);y=Math.round(y);const d=dir,k=CK,v=(o.sit?3:0)+(o.walk&&o.frame%2?-1:0);
+  const B=(dx,dy,rx,ry,c)=>blob(x+dx*k,y+dy*k,rx*k,ry*k,c);
+  const S=(dx,dy,w,h,c)=>px(x+Math.round(dx*k),y+Math.round(dy*k),Math.max(1,Math.round(w*k)),Math.max(1,Math.round(h*k)),c);
+  B(0,-9+v,5.4,8,'#1b2530');B(0,-9+v,4.6,7.2,'#476a8a');B(1*d,-7+v,3,5.4,'#f4f1ea');B(1*d,-17+v,3.8,3.8,'#1b2530');B(1*d,-17+v,3.1,3.1,'#476a8a');
+  S(d>0?3.4:-6.4,-17.4+v,3,1,'#2a2a2a');S(d>0?1.2:-2.4,-19+v,1.4,1.4,'#111');
+  if(!o.sit){S(-3,-1,3,1,'#e3b04a');S(1,-1,3,1,'#e3b04a');}
+  if(o.scarf)S(-3,-13+v,7,2,o.scarf);
+  if(o.sip)S(d>0?4:-6.6,-14.4+v,3,3,'#f4ece0');}
+function drawItem(k,x,y,held){const I=ITEMS[k];x=Math.round(x);y=Math.round(y);
+  if(I.cake){px(x-1,y+5,9,1,'#e8e0d2');px(x,y,7,5,I.cake);px(x,y,7,2,k==='lam'?'#f4ece0':'#e0a85a');if(k==='lam'){px(x+1,y+3,1,1,'#f4ece0');px(x+4,y+2,1,1,'#f4ece0');px(x+5,y+4,1,1,'#f4ece0');}}
+  else{px(x-1,y+6,9,1,'#e8e0d2');px(x,y,6,6,I.cup);px(x,y,6,2,I.top);px(x+1,y,4,1,shade(I.top,.15));px(x+6,y+2,2,1,I.cup);px(x+7,y+2,1,3,I.cup);px(x+6,y+4,2,1,I.cup);}}
+// ---------- café life: customers arrive, Kip takes the order, brews, serves, clears ----------
+const custs=[];const queue=[];let nextArrive=2;
+const kip={x:KIP_HOME.x,y:KIP_HOME.y,dir:-1,st:'idle',t:0,job:null,carry:null,frame:0,ft:0,blink:0};
+function freeSeat(){const f=SEATS.filter(s=>!s.busy&&!s.dirty);return f.length?f[Math.floor(Math.random()*f.length)]:null;}
+function spawn(){const s=freeSeat();if(!s)return;const peng=Math.random()<.18;const k=Math.floor(Math.random()*4);
+  const c={x:DOOR.x+14,y:LANE,dir:1,seat:s,st:'enter',t:0,frame:0,ft:0,kind:peng?'peng':'q',pal:PAL['q'+(k+1)],hat:HATS[Math.floor(Math.random()*HATS.length)],scarf:SCARF[Math.floor(Math.random()*SCARF.length)],item:ITEM_KEYS[Math.floor(Math.random()*ITEM_KEYS.length)],sip:0,blink:0,bubble:0};
+  s.busy=c;custs.push(c);}
+function walk(o,tx,ty,dt,sp){const dx=tx-o.x,dy=ty-o.y,d=Math.hypot(dx,dy);if(d<1){o.x=tx;o.y=ty;return true;}const s=Math.min(d,sp*dt);o.x+=dx/d*s;o.y+=dy/d*s;if(Math.abs(dx)>.5)o.dir=dx>0?1:-1;o.ft+=dt;if(o.ft>.18){o.ft=0;o.frame++;}return false;}
+const steam=[];function puff(x,y,n){for(let i=0;i<n;i++)steam.push({x:x+R(-1,1),y,vx:R(-2,2),vy:R(-9,-5),life:R(1.2,2.4),t:0});}
+function tick(dt){
+  nextArrive-=dt;if(nextArrive<=0){spawn();nextArrive=R(9,26);}
+  for(const c of custs){
+    if(c.st==='enter'){c.walking=!walk(c,c.seat.x,LANE,dt,26);if(!c.walking)c.st='toSeat';}
+    else if(c.st==='toSeat'){c.walking=!walk(c,c.seat.x,c.seat.y,dt,22);if(!c.walking){c.st='order';c.dir=c.seat.dir;c.bubble=4;queue.push({type:'serve',c});}}
+    else if(c.st==='order'){c.bubble=Math.max(0,c.bubble-dt);}
+    else if(c.st==='eat'){c.t-=dt;c.sip=Math.max(0,c.sip-dt);if(Math.random()<dt/7)c.sip=1.2;if(c.t<=0){c.st='leave';c.seat.busy=null;c.seat.dirty=true;queue.push({type:'clear',seat:c.seat});}}
+    else if(c.st==='leave'){c.walking=!walk(c,c.x,LANE,dt,22);if(!c.walking)c.st='exit';}
+    else if(c.st==='exit'){c.walking=!walk(c,DOOR.x+14,LANE,dt,26);if(!c.walking)c.gone=true;}
+    c.blink=(c.blink+dt)%4.3;}
+  for(let i=custs.length-1;i>=0;i--)if(custs[i].gone)custs.splice(i,1);
+  // Kip
+  kip.blink=(kip.blink+dt)%3.7;
+  if(kip.st==='idle'){kip.walking=!walk(kip,KIP_HOME.x,KIP_HOME.y,dt,34);if(!kip.walking){kip.dir=-1;if(queue.length){kip.job=queue.shift();if(kip.job.type==='serve'&&!custs.includes(kip.job.c))kip.job=null;else kip.st=kip.job.type==='serve'?'toMake':'toClear';}}}
+  else if(kip.st==='toMake'){const cake=!!ITEMS[kip.job.c.item].cake,P=cake?CAKE:MACHINE;kip.walking=!walk(kip,P.x,P.y,dt,34);if(!kip.walking){kip.dir=1;kip.st='make';kip.t=cake?1.6:R(3.5,5);kip.dir=cake?1:-1;}}
+  else if(kip.st==='make'){kip.t-=dt;if(!ITEMS[kip.job.c.item].cake&&Math.random()<dt*6)puff(366,84,1);if(kip.t<=0){kip.carry=kip.job.c.item;kip.st='toServe';}}
+  else if(kip.st==='toServe'){const s=kip.job.c.seat,T=TABLES[s.table];kip.walking=!walk(kip,T.x+(s.dir>0?-5:5),T.y-11,dt,32);if(!kip.walking){kip.dir=s.dir>0?-1:1;kip.st='serve';kip.t=.8;}}
+  else if(kip.st==='serve'){kip.t-=dt;if(kip.t<=0){const c=kip.job.c;c.served=kip.carry;kip.carry=null;c.st='eat';c.t=R(40,90);kip.job=null;kip.st='idle';}}
+  else if(kip.st==='toClear'){const s=kip.job.seat,T=TABLES[s.table];kip.walking=!walk(kip,T.x+(s.dir>0?-5:5),T.y-11,dt,32);if(!kip.walking){kip.dir=s.dir>0?-1:1;kip.st='clear';kip.t=.8;}}
+  else if(kip.st==='clear'){kip.t-=dt;if(kip.t<=0){kip.job.seat.dirty=false;kip.carry='flat';kip.empty=true;kip.job=null;kip.st='back';}}
+  else if(kip.st==='back'){kip.walking=!walk(kip,KIP_HOME.x,KIP_HOME.y,dt,34);if(!kip.walking){kip.carry=null;kip.empty=false;kip.st='idle';}}
+  if(!kip.walking&&kip.st==='idle')kip.frame=0;
+  // steam from served drinks
+  for(const s of SEATS){const c=s.busy;if(c&&c.st==='eat'&&c.served&&!ITEMS[c.served].cake&&Math.random()<dt*1.2)puff(s.cup.x+2,s.cup.y-1,1);}
+  for(let i=steam.length-1;i>=0;i--){const p=steam[i];p.t+=dt;p.x+=p.vx*dt+Math.sin(p.t*3)*.05;p.y+=p.vy*dt;if(p.t>p.life)steam.splice(i,1);}}
+// ---------- per-frame drawing ----------
+const drops=Array.from({length:70},()=>({x:Math.random()*WIN.w,y:Math.random()*WIN.h,s:R(40,90)}));
+const runs=Array.from({length:9},()=>({x:Math.random()*WIN.w,y:Math.random()*WIN.h,s:R(3,9)}));
+let tail=0;
+function frame(dt,now){const min=perth();rainAmt+=((rainingNow()?1:0)-rainAmt)*Math.min(1,dt*.4);
+  if(Math.floor(min)!==bgMin||Math.round(rainAmt*10)!==bgRain)drawRoom(min);g.drawImage(bg,0,0);
+  const N=nightness(min);
+  // clouds drifting past the window
+  g.save();g.beginPath();g.rect(WIN.x,WIN.y,WIN.w,60);g.clip();
+  for(let i=0;i<4;i++){const cx=WIN.x+((now/1000*(2+i)+i*70)%(WIN.w+60))-30,cy=WIN.y+10+i*11;const col=rainAmt>.5?'rgba(120,130,145,.9)':(N>.5?'rgba(60,70,100,.6)':'rgba(255,255,255,.85)');blob(cx,cy,10+i*2,3,col);blob(cx+7,cy-2,7,3,col);}
+  g.restore();
+  // rain on the glass
+  if(rainAmt>.05){g.save();g.beginPath();g.rect(WIN.x,WIN.y,WIN.w,WIN.h);g.clip();g.fillStyle='rgba(200,215,235,'+(.55*rainAmt)+')';
+    for(const d of drops){d.y+=d.s*dt;if(d.y>WIN.h){d.y=-6;d.x=Math.random()*WIN.w;}g.fillRect(Math.round(WIN.x+d.x),Math.round(WIN.y+d.y),1,4);}
+    g.fillStyle='rgba(220,232,245,'+(.7*rainAmt)+')';for(const r of runs){r.y+=r.s*dt;if(r.y>WIN.h){r.y=0;r.x=Math.random()*WIN.w;}g.fillRect(Math.round(WIN.x+r.x),Math.round(WIN.y+r.y),2,2);}g.restore();}
+  // sunlight patch on the floor by day, lamp glow by night or rain
+  const day=(1-N)*(1-rainAmt*.8);if(day>.05){g.fillStyle='rgba(255,226,160,'+(day*.13)+')';g.beginPath();g.moveTo(WIN.x+10,152);g.lineTo(WIN.x+WIN.w,152);g.lineTo(WIN.x+WIN.w+80,268);g.lineTo(WIN.x+50,268);g.fill();}
+  const glow=Math.max(N,rainAmt*.7,.25);LAMPS.forEach((x,i)=>{const f=.9+.1*Math.sin(now/700+i*2);const rg=g.createRadialGradient(x,14,1,x,14,40);rg.addColorStop(0,'rgba(255,214,140,'+(.38*glow*f)+')');rg.addColorStop(1,'rgba(255,214,140,0)');g.fillStyle=rg;g.fillRect(x-48,0,96,80);px(x-4,13,9,2,'rgba(255,236,180,'+(.6+.4*glow)+')');});
+  // record spinning on the shelf
+  blob(351,31,7,2,'#141414');px(350,30,3,1,'#d9483e');const a=now/400;px(351+Math.round(Math.cos(a)*5),31+Math.round(Math.sin(a)),1,1,'#555');
+  // cat asleep on the sill, tail swishing
+  tail+=dt;blob(WIN.x+62,WIN.y+WIN.h-3,8,4,'#2b2b2b');blob(WIN.x+56,WIN.y+WIN.h-5,4,3.4,'#2b2b2b');px(WIN.x+53,WIN.y+WIN.h-9,2,2,'#2b2b2b');px(WIN.x+58,WIN.y+WIN.h-9,2,2,'#2b2b2b');
+  const tw=Math.round(Math.sin(tail*1.6)*2);px(WIN.x+70,WIN.y+WIN.h-4+tw,5,2,'#2b2b2b');
+  // espresso machine light
+  if(kip.st==='make')px(370,76,4,3,(Math.floor(now/250)%2)?'#ffd27a':'#d9483e');
+  // tables, cups and characters sorted by depth
+  const L=[];
+  TABLES.forEach((t,i)=>L.push({y:t.y-1,draw:()=>{blob(t.x,t.y+12,13,2.5,'rgba(0,0,0,.18)');px(t.x-2,t.y-4,5,16,'#5a3a22');px(t.x-9,t.y+11,19,2,'#5a3a22');blob(t.x,t.y-6,19,5.5,'#4a2c18');blob(t.x,t.y-7,18,4.8,'#c98f58');blob(t.x-4,t.y-8,8,1.5,'#d9a26a');
+    SEATS.filter(s=>s.table===i).forEach(s=>{const c=s.busy;if(c&&c.served)drawItem(c.served,s.cup.x,s.cup.y,false);else if(s.dirty){px(s.cup.x-1,s.cup.y+6,9,1,'#e8e0d2');px(s.cup.x,s.cup.y+2,6,4,'#e8e0d2');px(s.cup.x,s.cup.y+2,6,1,'#cdbfa8');}});}}));
+  SEATS.forEach(s=>L.push({y:s.y-3,draw:()=>{px(s.x-7,s.y-3,14,4,'#7b4b2c');px(s.x-7,s.y-3,14,1,'#9a6a40');px(s.x-6,s.y+1,2,8,'#5a3a22');px(s.x+4,s.y+1,2,8,'#5a3a22');}}));
+  for(const c of custs){const sit=c.st==='order'||c.st==='eat';L.push({y:c.y+(sit?-4:0),draw:()=>{
+    if(c.kind==='peng')penguin(c.x,c.y-(sit?6:0),c.dir,{walk:c.walking,frame:c.frame,sit,scarf:c.scarf,sip:c.sip>0&&c.served&&!ITEMS[c.served].cake});
+    else quokka(c.x,c.y-(sit?6:0),c.dir,c.pal,{walk:c.walking,frame:c.frame,sit,hat:c.hat,scarf:c.scarf,blink:c.blink<.15,sip:c.sip>0&&c.served&&!ITEMS[c.served].cake});
+    if(c.st==='order'&&c.bubble>0){const bx=Math.round(c.x-8),by=Math.round(c.y-50);px(bx,by,17,13,'#faf2e1');px(bx+1,by-1,15,1,'#faf2e1');px(bx+1,by+13,15,1,'#faf2e1');px(bx+7,by+14,3,2,'#faf2e1');drawItem(c.item,bx+4,by+3,false);}}});}
+  L.push({y:kip.y,draw:()=>quokka(kip.x,kip.y,kip.dir,PAL.kip,{walk:kip.walking,frame:kip.frame,apron:true,carry:kip.carry,blink:kip.blink<.15})});
+  L.sort((a,b)=>a.y-b.y).forEach(o=>o.draw());
+  // steam
+  for(const p of steam){const al=Math.max(0,1-p.t/p.life)*.6;px(p.x,p.y,1,1,'rgba(255,255,255,'+al+')');}
+  // evening and rain tint over the whole room
+  const tint=Math.max(N*.38,rainAmt*.22);if(tint>.01){g.fillStyle='rgba(20,26,60,'+tint+')';g.fillRect(0,0,W,H);}
+  TABLES.forEach(t=>{const x=t.x;const rg=g.createRadialGradient(x,t.y,2,x,t.y,58);rg.addColorStop(0,'rgba(255,200,120,'+(.16*glow)+')');rg.addColorStop(1,'rgba(255,200,120,0)');g.fillStyle=rg;g.fillRect(x-60,t.y-50,120,100);});
+}
+// ---------- HUD ----------
+const $=id=>document.getElementById(id);const bars=$('bars');for(let i=0;i<9;i++)bars.appendChild(document.createElement('i'));const barEls=[...bars.children];
+function hud(now){const m=perth(),h=Math.floor(m/60)%24,mm=Math.floor(m%60);$('hm').textContent=String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0');
+  $('wx').textContent=(rainAmt>.5?'Soft rain':nightness(m)>.6?'Starry night':h<11?'Sunny morning':h<17?'Sunny afternoon':'Golden hour')+' · Rottnest Island, Perth time';
+  const l=window.QCR&&QCR.st!=='off'?QCR.level():0;barEls.forEach((b,i)=>{b.style.height=Math.round(6+Math.min(34,l*240*(.5+.5*Math.abs(Math.sin(now/180+i*1.3)))))+'px';});}
+function label(){if(!window.QCR)return;const t=QCR.track();$('stn').textContent=QCR.stations[QCR.st]?QCR.stations[QCR.st].name+' · '+FREQ[QCR.st]+' FM':'';$('trk').textContent=t?t.t:QCR.stations[STATION].name;}
+// ---------- start ----------
+let started=false;
+function start(){if(started||!window.QCR)return;started=true;$('start').hidden=true;QCR.vol(Math.max(0,Math.min(100,+(Q.get('vol')||70)))/100);QCR.onTrack=label;QCR.play(STATION);label();}
+if(window.obsstudio||Q.get('autoplay')==='1'){start();setTimeout(()=>{if(window.QCR&&QCR.st==='off')start();},1500);}
+else{$('start').hidden=false;$('start').addEventListener('click',start);}
+let last=performance.now();
+function loop(now){const dt=Math.min(.1,(now-last)/1000);last=now;tick(dt);frame(dt,now);hud(now);requestAnimationFrame(loop);}
+// warm the café up so it is already busy when the stream starts
+for(let i=0;i<900;i++)tick(.1);
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
