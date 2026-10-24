@@ -1,0 +1,25 @@
+; Engine configuration file.
+config_version=5
+
+[application]
+config/name="Kyoto Canal - Godot Prototype"
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+
+[display]
+window/size/viewport_width=240
+window/size/viewport_height=150
+window/size/window_width_override=960
+window/size/window_height_override=600
+window/stretch/mode="viewport"
+window/stretch/aspect="expand"
+window/stretch/scale_mode="integer"
+
+[input_devices]
+pointing/emulate_touch_from_mouse=true
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/canvas_textures/default_texture_filter=0
+environment/defaults/default_clear_color=Color(0.572, 0.588, 0.627, 1)
