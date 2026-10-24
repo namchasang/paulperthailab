@@ -173,7 +173,8 @@ section{padding-block:88px}
 .qradio .qr-key-yt[aria-pressed="true"]{box-shadow:0 1px 0 #b46a5a,0 2px 3px rgba(0,0,0,.3);background:linear-gradient(#ffd0c6,#ef9f8f)}
 .qradio[data-yt="1"] .qr-eye i{animation:qrPulse 1.1s ease-in-out infinite}
 @keyframes qrPulse{50%{transform:scale(1.05)}0%,100%{transform:scale(.62)}}
-.qr-keys{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:14px}
+.qr-keys{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:14px}
+.qr-key-live small{color:#c0392b;opacity:1}
 .qr-key{appearance:none;border:0;border-radius:8px 8px 10px 10px;padding:10px 6px 12px;background:linear-gradient(#fbf4e3,#e6d6b2);color:#3a2412;font:600 12.5px/1.2 var(--thai-display,system-ui),system-ui,sans-serif;cursor:pointer;box-shadow:0 5px 0 #a98a57,0 7px 8px rgba(0,0,0,.3);transition:transform .08s,box-shadow .08s}
 .qr-key small{display:block;font:700 10px/1 ui-monospace,monospace;opacity:.6;margin-bottom:3px}
 .qr-key[aria-pressed="true"]{transform:translateY(4px);box-shadow:0 1px 0 #a98a57,0 2px 3px rgba(0,0,0,.3);background:linear-gradient(#ffe9b8,#f0cf86)}
@@ -191,7 +192,7 @@ section{padding-block:88px}
   .qradio{padding:14px 12px 14px}
   .qr-face{grid-template-columns:1fr}.qr-model{display:none}
   .qr-grille{min-height:64px}
-  .qr-keys{grid-template-columns:repeat(2,minmax(0,1fr))}.qr-key-yt{grid-column:1/-1}
+  .qr-keys{grid-template-columns:repeat(2,minmax(0,1fr))}
   .qr-vol{margin-left:0;width:100%}.qr-vol input{flex:1}
 }
 @media (prefers-reduced-motion:reduce){.qr-needle,.qr-eye i{transition:none}}
@@ -403,6 +404,7 @@ footer a:hover{text-decoration:underline}
         </div>
         <div class="qr-keys" role="group" aria-label="Stations">
           <button type="button" class="qr-key qr-key-yt" data-st="yt" data-f="106" aria-pressed="false"><small>PLAYLIST</small>YouTube</button>
+          <button type="button" class="qr-key qr-key-yt qr-key-live" data-st="live" data-f="107.5" aria-pressed="false"><small>● LIVE 24/7</small>Kip’s Café</button>
           <button type="button" class="qr-key" data-st="seaside" data-f="88.4" aria-pressed="false"><small>88.4</small>Seaside Piano</button>
           <button type="button" class="qr-key" data-st="lofi" data-f="92.1" aria-pressed="false"><small>92.1</small>Island Lo-fi</button>
           <button type="button" class="qr-key" data-st="crystal" data-f="96.9" aria-pressed="false"><small>96.9</small>Crystal Harbour</button>
@@ -428,17 +430,20 @@ footer a:hover{text-decoration:underline}
 <script>(function(){
   var R=document.getElementById('qradio');if(!R||!window.QCR)return;
   var YTLIST='PLT0yyoDBaFfM';
+  // 24/7 live stream of Kip's café (game ?live=1 sent through OBS). Put the channel ID (UC…, YouTube Studio > Settings > Channel > Advanced) here to play it inside the radio; empty = open YouTube Live in a new tab.
+  var LIVE_CH='';
   var Q=window.QCR,keys=[].slice.call(R.querySelectorAll('.qr-key')),pow=document.getElementById('qrPower'),
       prev=document.getElementById('qrPrev'),next=document.getElementById('qrNext'),vol=document.getElementById('qrVol'),
       needle=document.getElementById('qrNeedle'),st=document.getElementById('qrSt'),tr=document.getElementById('qrTr'),eye=document.getElementById('qrEye'),
-      cover=document.getElementById('qrCover'),mode='off',last='yt',raf=0,yt=null,ytPlaying=false;
+      cover=document.getElementById('qrCover'),mode='off',last='yt',raf=0,yt=null,ytKind='',ytPlaying=false;
   function pos(f){return ((f-87)/(108-87)*100)+'%';}
   function pad(n){return (n<10?'0':'')+n;}
   function label(){
-    var on=mode!=='off';R.dataset.on=on?'1':'0';R.dataset.yt=(mode==='yt'&&ytPlaying)?'1':'0';pow.setAttribute('aria-pressed',on);
+    var on=mode!=='off';R.dataset.on=on?'1':'0';R.dataset.yt=((mode==='yt'||mode==='live')&&ytPlaying)?'1':'0';pow.setAttribute('aria-pressed',on);
     keys.forEach(function(k){k.setAttribute('aria-pressed',on&&k.dataset.st===mode);});
     if(!on){prev.disabled=next.disabled=true;st.textContent='Radio off';tr.textContent='Press a station to tune in';return;}
     var k=R.querySelector('.qr-key[data-st="'+mode+'"]');needle.style.left=pos(+k.dataset.f);
+    if(mode==='live'){prev.disabled=next.disabled=true;st.textContent='LIVE · Quokka Cafe Radio';var lt='';try{lt=yt.getVideoData().title||'';}catch(e){}tr.textContent=lt||'Kip is running the café, live on YouTube';return;}
     if(mode==='yt'){prev.disabled=next.disabled=!yt;st.textContent='YouTube · Quokka Cafe Radio';
       var t='',n=0,i=0;try{t=yt.getVideoData().title||'';n=(yt.getPlaylist()||[]).length;i=yt.getPlaylistIndex();}catch(e){}
       tr.textContent=t?((n?pad(i+1)+'/'+n+' · ':'')+t):'Loading the playlist…';return;}
@@ -450,18 +455,23 @@ footer a:hover{text-decoration:underline}
   function stopMeter(){cancelAnimationFrame(raf);raf=0;eye.style.transform='';}
   function loadYT(cb){if(window.YT&&window.YT.Player){cb();return;}var prevCb=window.onYouTubeIframeAPIReady;window.onYouTubeIframeAPIReady=function(){if(prevCb)prevCb();cb();};
     var sc=document.createElement('script');sc.src='https://www.youtube.com/iframe_api';document.head.appendChild(sc);}
-  function ytPlay(){cover.hidden=true;if(yt&&yt.playVideo){yt.playVideo();return;}
-    loadYT(function(){yt=new YT.Player('qrYT',{width:'100%',height:'100%',playerVars:{listType:'playlist',list:YTLIST,playsinline:1,rel:0},
-      events:{onReady:function(e){e.target.setVolume(+vol.value);e.target.playVideo();label();},
-              onStateChange:function(e){ytPlaying=e.data===1;if(ytPlaying&&mode!=='yt'){Q.off();stopMeter();mode='yt';last='yt';}label();}}});});}
+  function ytPlay(kind){kind=kind||'yt';cover.hidden=true;if(yt&&ytKind===kind&&yt.playVideo){yt.playVideo();return;}
+    if(yt&&yt.destroy){try{yt.destroy();}catch(e){}yt=null;ytPlaying=false;}ytKind=kind;
+    var ev={onReady:function(e){e.target.setVolume(+vol.value);e.target.playVideo();label();},
+            onStateChange:function(e){ytPlaying=e.data===1;if(ytPlaying&&mode!==ytKind){Q.off();stopMeter();mode=ytKind;last=ytKind;}label();}};
+    loadYT(function(){
+      if(kind==='live'){var host=document.getElementById('qrYT'),f=document.createElement('iframe');f.id='qrYT';f.title='Quokka Cafe Radio live';f.allow='autoplay; encrypted-media; picture-in-picture';f.allowFullscreen=true;
+        f.src='https://www.youtube.com/embed/live_stream?channel='+encodeURIComponent(LIVE_CH)+'&enablejsapi=1&autoplay=1&playsinline=1&rel=0&origin='+encodeURIComponent(location.origin);host.replaceWith(f);yt=new YT.Player(f,{events:ev});}
+      else yt=new YT.Player('qrYT',{width:'100%',height:'100%',playerVars:{listType:'playlist',list:YTLIST,playsinline:1,rel:0},events:ev});});}
   function ytPause(){if(yt&&yt.pauseVideo)yt.pauseVideo();ytPlaying=false;}
   function tune(s){last=s;
-    if(s==='yt'){if(Q.st!=='off')Q.off();stopMeter();mode='yt';ytPlay();label();return;}
+    if(s==='live'&&!LIVE_CH){window.open('https://www.youtube.com/@QuokkaCafeRadio/live','_blank','noopener');return;}
+    if(s==='yt'||s==='live'){if(Q.st!=='off')Q.off();stopMeter();mode=s;ytPlay(s);label();return;}
     ytPause();Q.vol(vol.value/100);if(Q.play(s)){mode=s;label();if(!raf)meter();}}
-  Q.onTrack=function(){if(mode!=='yt')label();};
+  Q.onTrack=function(){if(mode!=='yt'&&mode!=='live')label();};
   keys.forEach(function(k){k.addEventListener('click',function(){tune(k.dataset.st);});});
-  cover.addEventListener('click',function(){tune('yt');});
-  pow.addEventListener('click',function(){if(mode==='off'){tune(last);return;}if(mode==='yt')ytPause();else{Q.off();stopMeter();}mode='off';label();});
+  cover.addEventListener('click',function(){tune(last==='live'&&LIVE_CH?'live':'yt');});
+  pow.addEventListener('click',function(){if(mode==='off'){tune(last);return;}if(mode==='yt'||mode==='live')ytPause();else{Q.off();stopMeter();}mode='off';label();});
   prev.addEventListener('click',function(){if(mode==='yt'){if(yt)yt.previousVideo();}else Q.skip(-1);});
   next.addEventListener('click',function(){if(mode==='yt'){if(yt)yt.nextVideo();}else Q.skip(1);});
   vol.addEventListener('input',function(){Q.vol(vol.value/100);if(yt&&yt.setVolume)yt.setVolume(+vol.value);});
