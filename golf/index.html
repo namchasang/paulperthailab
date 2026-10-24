@@ -1,0 +1,1064 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Roo Point Links</title>
+<meta name="description" content="หลุมกอล์ฟทดลองบนภูมิประเทศจริงชายฝั่งตะวันตกของออสเตรเลีย มีจิงโจ้บนแฟร์เวย์และนกแม็กพายจอมขโมยลูก">
+<meta name="theme-color" content="#14202a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#fffaf0;--glass:rgba(16,24,30,.55);--line:rgba(255,255,255,.18);--gold:#ffcf5a;--green:#7fd36a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#14202a;font-family:Kanit,system-ui,sans-serif;color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#hud{position:fixed;left:max(12px,env(safe-area-inset-left));top:max(12px,env(safe-area-inset-top));padding:9px 13px;font-size:14px;line-height:1.35;max-width:62vw}
+#hud b{font-weight:800;font-size:16px}
+#hud .sub{opacity:.85;font-size:13px}
+#topr{position:fixed;right:max(12px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.btn{font:600 14px Kanit,sans-serif;color:var(--ink);padding:8px 12px;cursor:pointer}
+.btn:active{transform:scale(.96)}
+#wind{display:flex;align-items:center;gap:8px;padding:7px 11px;font-size:13px}
+#wind svg{width:22px;height:22px;transition:transform .3s}
+#bottom{position:fixed;left:0;right:0;bottom:max(14px,env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:flex-end;padding:0 max(14px,env(safe-area-inset-left))}
+#club{min-width:96px;text-align:center;padding:10px 12px}
+#club small{display:block;font-weight:400;opacity:.8;font-size:11px}
+#shootWrap{display:flex;align-items:flex-end;gap:10px}
+#meter{width:16px;height:150px;border-radius:9px;position:relative;overflow:hidden;padding:0}
+#meter i{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(0deg,#7fd36a,#ffcf5a 70%,#ff6a4a)}
+#meter s{position:absolute;left:0;right:0;bottom:84%;height:2px;background:#fff;opacity:.7}
+#shoot{width:96px;height:96px;border-radius:50%;font:800 22px Kanit,sans-serif;color:#1d2a12;background:radial-gradient(circle at 35% 30%,#d8ff9a,#7fd36a 60%,#4c9a3c);border:3px solid rgba(255,255,255,.75);box-shadow:0 6px 20px rgba(0,0,0,.35);cursor:pointer}
+#shoot.dis{filter:grayscale(.8) brightness(.7)}
+#tip{position:fixed;left:50%;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 178px);transform:translateX(-50%);font-size:12px;opacity:.8;padding:5px 10px;white-space:nowrap}
+#toast{position:fixed;left:50%;top:26%;transform:translate(-50%,-50%) scale(.9);font:800 26px Kanit,sans-serif;text-align:center;padding:12px 22px;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+#toast.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#toast small{display:block;font:400 14px Kanit,sans-serif;opacity:.9}
+.over{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(10,16,22,.25),rgba(10,16,22,.75));transition:opacity .5s}
+.over.hide{opacity:0;pointer-events:none}
+.panel{text-align:center;padding:26px 30px;max-width:min(92vw,440px)}
+.panel h1{margin:0;font:800 clamp(34px,9vw,52px)/1 Kanit,sans-serif;letter-spacing:.5px;color:#fff;text-shadow:0 3px 18px rgba(0,0,0,.45)}
+.panel h1 span{color:var(--gold)}
+.panel p{margin:10px 0 0;opacity:.9;font-size:15px}
+.panel .go{margin-top:20px;font-size:18px;padding:12px 26px;border-radius:30px;background:var(--gold);color:#2a1d00;border:0;font-weight:800}
+.panel .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+#credit{position:fixed;left:50%;transform:translateX(-50%);bottom:4px;font-size:10px;opacity:.55;white-space:nowrap;pointer-events:none}
+#load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#14202a;font-size:16px;z-index:9}
+@media (max-height:520px){#meter{height:110px}#shoot{width:80px;height:80px;font-size:19px}#tip{display:none}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud" class="card"><b id="hTitle">หลุม 1 · พาร์ 4</b><div id="hLine" class="sub"></div></div>
+<div id="topr">
+  <div id="wx" class="card btn">🌅 เย็นทอง</div>
+  <div id="wind" class="card"><svg viewBox="0 0 24 24"><path d="M12 2l6 10h-4v10h-4V12H6z" fill="#fffaf0"/></svg><span id="windT">ลม</span></div>
+</div>
+<div id="tip" class="card">ลากนิ้วซ้าย-ขวาเพื่อเล็ง · กดค้างปุ่มตีแล้วปล่อย</div>
+<div id="bottom">
+  <div id="club" class="card btn">ไดรเวอร์<small>แตะเพื่อเปลี่ยนไม้</small></div>
+  <div id="shootWrap"><div id="meter" class="card"><s></s><i></i></div><button id="shoot">ตี</button></div>
+</div>
+<div id="toast" class="card"></div>
+<div id="title" class="over"><div class="panel card">
+  <h1>Roo Point <span>Links</span></h1>
+  <p>หลุมทดลอง · ชายฝั่งแหลมใต้ของเพิร์ท WA<br>ภูมิประเทศจากข้อมูลความสูงจริง</p>
+  <p style="font-size:13px;opacity:.75">ระวังจิงโจ้บนแฟร์เวย์ และนกแม็กพายจอมขโมยลูก</p>
+  <p style="font-size:11px;opacity:.55">ภูมิประเทศ: Terrain Tiles on AWS (SRTM) · ชื่อสนามสมมติ · Paul Perth AI Lab</p>
+  <button class="go" id="start">เริ่มตี</button>
+</div></div>
+<div id="end" class="over hide"><div class="panel card">
+  <h1 id="eName">พาร์</h1><p id="eLine"></p>
+  <div class="row"><button class="go" id="again">เล่นอีกครั้ง</button></div>
+</div></div>
+<div id="load">กำลังสร้างสนาม...</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* PPL-LIB-START */
+/* ==== PPL library v0.1 items: kit, kangaroo, magpie, aussie-flora, golfer, golf-props, sky-weather, ocean, heightfield (generated by lib/tools/libpack.py; edit the library, not this part) ==== */
+/* ==== PPL core kit: shared helpers for every Paul Perth library item ====
+   Needs THREE r128 loaded first. Everything lives on window.PPL. */
+(function(){
+const P = window.PPL = window.PPL || {};
+P.ver = '0.1';
+P.items = P.items || {};
+P.reg = (id, meta) => { P.items[id] = meta; };
+
+/* seeded random: same seed -> same tree, rock, mob of roos */
+P.rng = seed => { let a = seed >>> 0 || 1; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; };
+P.clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+P.lerp = (a, b, t) => a + (b - a) * t;
+P.smooth = (a, b, x) => { const t = P.clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+P.V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+/* colours are written as sRGB hex (what you see in a colour picker); the renderer works in linear light */
+P.lin = c => new THREE.Color(c).convertSRGBToLinear();
+
+/* value noise 2D (cheap, tileable enough for ground breakup) */
+P.noise2 = (() => {
+  const p = new Uint8Array(512), R = P.rng(1337);
+  for (let i = 0; i < 256; i++) p[i] = i;
+  for (let i = 255; i > 0; i--) { const j = (R() * (i + 1)) | 0; [p[i], p[j]] = [p[j], p[i]]; }
+  for (let i = 0; i < 256; i++) p[i + 256] = p[i];
+  const g = (h, x, y) => { h &= 7; const u = h < 4 ? x : y, v = h < 4 ? y : x; return ((h & 1) ? -u : u) + ((h & 2) ? -2 * v : 2 * v); };
+  const f = t => t * t * t * (t * (t * 6 - 15) + 10);
+  return (x, y) => {
+    const X = Math.floor(x) & 255, Y = Math.floor(y) & 255; x -= Math.floor(x); y -= Math.floor(y);
+    const u = f(x), v = f(y), a = p[X] + Y, b = p[X + 1] + Y;
+    return P.lerp(P.lerp(g(p[a], x, y), g(p[b], x - 1, y), u), P.lerp(g(p[a + 1], x, y - 1), g(p[b + 1], x - 1, y - 1), u), v) * 0.25;
+  };
+})();
+P.fbm = (x, y, oct = 4) => { let s = 0, a = .5, f = 1; for (let i = 0; i < oct; i++) { s += a * P.noise2(x * f, y * f); f *= 2; a *= .5; } return s; };
+
+/* geometry helpers: transform, vertex-paint, merge (vertex colours keep draw calls low) */
+P.tr = (g, x = 0, y = 0, z = 0, sx = 1, sy = 1, sz = 1, rx = 0, ry = 0, rz = 0) => {
+  if (sx !== 1 || sy !== 1 || sz !== 1) g.scale(sx, sy, sz);
+  if (rx) g.rotateX(rx); if (ry) g.rotateY(ry); if (rz) g.rotateZ(rz);
+  g.translate(x, y, z); return g;
+};
+P.paint = (g, cols, jitter = 0, seed = 1) => {
+  g = g.index ? g.toNonIndexed() : g;
+  const n = g.attributes.position.count, c = new Float32Array(n * 3), R = P.rng(seed), cs = cols.map(x => P.lin(x));
+  for (let f = 0; f < n; f += 3) {
+    const col = cs[(R() * cs.length) | 0].clone(); if (jitter) col.offsetHSL(0, 0, (R() - .5) * jitter);
+    for (let k = 0; k < 3 && f + k < n; k++) { c[(f + k) * 3] = col.r; c[(f + k) * 3 + 1] = col.g; c[(f + k) * 3 + 2] = col.b; }
+  }
+  g.setAttribute('color', new THREE.BufferAttribute(c, 3)); return g;
+};
+P.merge = list => {
+  const gs = list.map(g => { g = g.index ? g.toNonIndexed() : g; if (!g.attributes.normal) g.computeVertexNormals(); return g; });
+  let n = 0; gs.forEach(g => n += g.attributes.position.count);
+  const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3), col = new Float32Array(n * 3); let o = 0;
+  gs.forEach(g => {
+    const c = g.attributes.position.count; pos.set(g.attributes.position.array, o * 3); nor.set(g.attributes.normal.array, o * 3);
+    if (g.attributes.color) col.set(g.attributes.color.array, o * 3); else col.fill(1, o * 3, (o + c) * 3); o += c;
+  });
+  const m = new THREE.BufferGeometry();
+  m.setAttribute('position', new THREE.BufferAttribute(pos, 3)); m.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); m.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  m.computeBoundingSphere(); return m;
+};
+
+/* materials (cached) */
+const MC = {};
+P.mat = (color, o) => { const k = color + JSON.stringify(o || {}); if (MC[k]) return MC[k]; const m = new THREE.MeshStandardMaterial(Object.assign({ roughness: .85 }, o || {})); m.color = P.lin(color); return MC[k] = m; };
+P.vmat = o => P.mat('#ffffff', Object.assign({ vertexColors: true }, o || {}));
+
+/* canvas texture helper */
+P.ctex = (w, h, draw, repeat) => {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat, repeat); }
+  t.anisotropy = 4; return t;
+};
+/* soft grey noise used as a detail map on terrain, bark, rock */
+P.detailTex = (() => { let t; return () => t || (t = P.ctex(256, 256, (x, w, h) => {
+  const d = x.createImageData(w, h);
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
+    const v = 178 + 90 * (0.45 * P.fbm(i / 20, j / 20, 4) + 0.55 * P.noise2(i / 2.2, j / 2.2));
+    const k = (j * w + i) * 4; d.data[k] = d.data[k + 1] = d.data[k + 2] = P.clamp(v, 95, 255); d.data[k + 3] = 255;
+  }
+  x.putImageData(d, 0, 0);
+}, 1)); })();
+
+P.shadowAll = (o, cast = true, recv = false) => { o.traverse(m => { if (m.isMesh) { m.castShadow = cast; m.receiveShadow = recv; } }); return o; };
+})();
+/* ==== PPL kangaroo (from Roo Road Rescue makeRoo3, smooth-shaded) ====
+   const r = PPL.kangaroo({fur:'#8c7766', pose:'graze', seed:3});  scene.add(r);
+   r.userData.setPose('stand'|'graze'|'lie'|'alert');
+   r.userData.hop(target THREE.Vector3, groundFn(x,z)->y)   // hops there in bounds
+   PPL.kangarooTick(r, dt, groundFn)                         // call every frame
+   Size: ~1.5 m standing at scale 1 (real western grey ~1.3-1.6 m). */
+(function(){
+const P = window.PPL;
+const SPH = (r, w, h) => new THREE.SphereGeometry(r, w || 12, h || 9);
+const sm = (c, o) => { const m = new THREE.MeshStandardMaterial(Object.assign({ roughness: .82 }, o || {})); m.color = (c.isColor ? c.clone() : P.lin(c)); return m; };
+function kit(){
+  const g = new THREE.Group(), pose = new THREE.Group(), body = new THREE.Group(); g.add(pose); pose.add(body);
+  const B = (geo, m, p, s, r) => { const o = new THREE.Mesh(geo, m); o.position.set(...p); if (s) o.scale.set(...s); if (r) o.rotation.set(...r); o.castShadow = true; body.add(o); return o; };
+  const eye = (m, p, r) => { const e = new THREE.Mesh(new THREE.SphereGeometry(r || .025, 6, 4), m); e.position.set(...p); body.add(e); };
+  return { g, pose, body, B, eye };
+}
+function tail(K, mat, pts, r0, r1, tipM){
+  for (let k = 0; k < pts.length; k++) { const t = k / (pts.length - 1); K.B(SPH(r0 + (r1 - r0) * t), k === pts.length - 1 && tipM ? tipM : mat, pts[k]); }
+  for (let k = 0; k < pts.length - 1; k++) {
+    const a = P.V3(...pts[k]), b = P.V3(...pts[k + 1]), m = a.clone().add(b).multiplyScalar(.5), t = (k + .5) / (pts.length - 1), r = r0 + (r1 - r0) * t;
+    const c = K.B(new THREE.CylinderGeometry(r * .92, r * .98, a.distanceTo(b), 12), mat, [m.x, m.y, m.z]);
+    c.quaternion.setFromUnitVectors(P.V3(0, 1, 0), b.clone().sub(a).normalize());
+  }
+}
+P.kangaroo = (o = {}) => {
+  const R = P.rng(o.seed || 1), K = kit(), base = P.lin(o.fur || '#8c7766').offsetHSL(0, (R() - .5) * .05, (R() - .5) * .06);
+  const fur = sm(base), lt = sm(o.belly || '#dccdb9'), dk = sm('#4a3d33'), pink = sm('#c99a8e'), nose = sm('#2a2422', { roughness: .4 }), eyeM = sm('#1b120b', { roughness: .3 });
+  K.B(SPH(.32), fur, [0, .5, -.12], [1, .95, 1.15]); [-1, 1].forEach(s => K.B(SPH(.2), fur, [s * .17, .42, -.04], [.75, 1.15, 1.3]));
+  K.B(SPH(.27), fur, [0, .86, .05], [.86, 1.38, .86], [.38, 0, 0]); K.B(SPH(.2), lt, [0, .84, .17], [.72, 1.25, .55], [.38, 0, 0]);
+  const head = new THREE.Group(); head.position.set(0, 1.17, .17); K.body.add(head);
+  const H = (geo, m, p, s, r) => { const x = K.B(geo, m, [p[0], p[1] - 1.17, p[2] - .17], s, r); K.body.remove(x); head.add(x); return x; };
+  H(SPH(.12), fur, [0, 1.17, .17], [.82, 1.25, .85], [.25, 0, 0]); H(SPH(.13), fur, [0, 1.32, .24], [.86, .9, 1.12]); H(SPH(.085), lt, [0, 1.28, .38], [.82, .72, 1.35]);
+  H(SPH(.034), nose, [0, 1.3, .49], [1.2, .8, .7]); H(SPH(.03), lt, [0, 1.22, .36], [1.3, .6, 1]);
+  [-1, 1].forEach(s => {
+    H(SPH(.075), fur, [s * .075, 1.5, .2], [.55, 1.65, .25], [0, 0, s * -.22]); H(SPH(.06), pink, [s * .074, 1.49, .218], [.42, 1.35, .12], [0, 0, s * -.22]);
+    H(new THREE.SphereGeometry(.024, 6, 4), eyeM, [s * .072, 1.36, .335]);
+    K.B(new THREE.CylinderGeometry(.032, .026, .26, 8), fur, [s * .1, .93, .28], null, [.65, 0, 0]); K.B(SPH(.035), dk, [s * .1, .83, .36], [1, .8, 1.2]);
+    K.B(new THREE.CylinderGeometry(.075, .05, .32, 10), fur, [s * .17, .2, -.02], null, [-.65, 0, 0]);
+    K.B(SPH(.07), dk, [s * .15, .045, .13], [.8, .45, 3.4]);
+  });
+  tail(K, fur, [[0, .42, -.38], [0, .32, -.6], [0, .2, -.82], [0, .1, -1.02], [0, .05, -1.18]], .13, .035, dk);
+  const g = K.g, U = g.userData;
+  U.head = head; U.body = K.body; U.pose = K.pose; U.state = 'idle'; U.t = R() * 10; U.seed = R();
+  U.setPose = name => {
+    U.poseName = name; const p = K.pose;
+    p.rotation.set(0, 0, 0); p.position.set(0, 0, 0); head.rotation.set(0, 0, 0);
+    if (name === 'graze') { p.rotation.x = .62; p.position.set(0, -.05, .1); head.rotation.x = .5; }
+    if (name === 'lie') { p.rotation.z = 1.38; p.position.set(.5, .2, 0); head.rotation.set(-.25, .2, -1.25); }
+    if (name === 'alert') { p.rotation.x = -.12; head.rotation.x = -.1; }
+  };
+  U.hop = (to, ground) => { U.from = g.position.clone(); U.to = to.clone(); U.state = 'hop'; U.hopT = 0; U.ground = ground; U.setPose('stand'); };
+  U.setPose(o.pose || 'stand');
+  return g;
+};
+/* hop: 2.4 m bounds, ~0.45 s each, body squashes on landing; idle: ears/head twitch */
+P.kangarooTick = (g, dt) => {
+  const U = g.userData; U.t += dt;
+  if (U.state === 'hop') {
+    const d = U.to.clone().sub(U.from); const dist = d.length(); if (dist < .1) { U.state = 'idle'; return; }
+    const sp = 6.5; U.hopT += dt * sp; const k = Math.min(1, U.hopT / dist);
+    const p = U.from.clone().lerp(U.to, k); const gy = U.ground ? U.ground(p.x, p.z) : U.from.y;
+    const ph = (U.hopT / 2.4) % 1; p.y = gy + Math.sin(ph * Math.PI) * .55;
+    g.position.copy(p); g.rotation.y = Math.atan2(d.x, d.z);
+    U.pose.rotation.x = .35 * Math.sin(ph * Math.PI) - .1; U.body.scale.y = 1 - .12 * Math.max(0, Math.cos(ph * Math.PI * 2));
+    if (k >= 1) { U.state = 'idle'; U.body.scale.y = 1; U.setPose(U.restPose || 'alert'); }
+    return;
+  }
+  if (U.poseName === 'graze') U.head.rotation.x = .5 + .12 * Math.sin(U.t * 2.1 + U.seed * 9);
+  else if (U.poseName !== 'lie') U.head.rotation.y = .35 * Math.sin(U.t * .7 + U.seed * 5) * (Math.sin(U.t * .23) > .3 ? 1 : 0);
+  else U.body.scale.y = 1 + .015 * Math.sin(U.t * 1.6); // breathing
+};
+P.reg('kangaroo', { group: 'models/fauna', from: 'Roo Road Rescue' });
+})();
+/* ==== PPL Australian magpie (from Magpie Madness buildMagpie) ====
+   const m = PPL.magpie();  m.userData.flap(t, amount 0..1)   // call per frame while flying
+   ~0.4 m long at scale 1; scale x2-3 for gameplay readability. */
+(function(){
+const P = window.PPL;
+P.magpie = (o = {}) => {
+  const g = new THREE.Group(), blk = P.mat('#14141a', { roughness: .5 }), wht = P.mat('#f4f4f8', { roughness: .6 }), grey = P.mat('#9a9aa6', { roughness: .5 });
+  const box = new THREE.BoxGeometry(1, 1, 1);
+  const mesh = (geo, m) => { const x = new THREE.Mesh(geo, m); x.castShadow = true; return x; };
+  const body = mesh(new THREE.SphereGeometry(.2, 14, 10), blk); body.scale.set(.8, .75, 1.5); g.add(body);
+  const back = mesh(new THREE.SphereGeometry(.2, 12, 10), wht); back.scale.set(.72, .5, .9); back.position.set(0, .1, -.06); g.add(back);
+  const nape = mesh(new THREE.SphereGeometry(.1, 10, 8), wht); nape.scale.set(1, .7, .9); nape.position.set(0, .12, .2); g.add(nape);
+  const head = mesh(new THREE.SphereGeometry(.13, 12, 9), blk); head.position.set(0, .07, .3); g.add(head);
+  const beak = mesh(new THREE.ConeGeometry(.045, .22, 6), grey); beak.rotation.x = Math.PI / 2; beak.position.set(0, .04, .47); g.add(beak);
+  const eyeM = P.mat(o.eye || '#b8321f', { roughness: .3 });
+  [-1, 1].forEach(s => { const e = new THREE.Mesh(new THREE.SphereGeometry(.025, 8, 6), eyeM); e.position.set(s * .08, .1, .37); g.add(e); });
+  const tail = mesh(box, blk); tail.scale.set(.16, .03, .42); tail.position.set(0, -.01, -.42); g.add(tail);
+  const tailW = mesh(box, wht); tailW.scale.set(.17, .031, .14); tailW.position.set(0, -.01, -.28); g.add(tailW);
+  const legM = P.mat('#2a2a2e');
+  [-1, 1].forEach(s => { const l = mesh(new THREE.CylinderGeometry(.012, .012, .2, 5), legM); l.position.set(s * .06, -.2, .02); g.add(l); });
+  const wings = [];
+  [-1, 1].forEach(s => {
+    const w = new THREE.Group(); w.position.set(s * .13, .06, .02);
+    const a = mesh(box, blk); a.scale.set(.75, .025, .32); a.position.x = s * .38;
+    const b = mesh(box, wht); b.scale.set(.3, .027, .2); b.position.set(s * .28, .002, -.03);
+    w.add(a, b); g.add(w); wings.push({ w, s });
+  });
+  g.userData.wings = wings;
+  g.userData.flap = (t, amt = 1) => wings.forEach(({ w, s }) => { w.rotation.z = s * (Math.sin(t * 16) * .85 * amt + (1 - amt) * -1.25); });
+  g.userData.fold = () => g.userData.flap(0, 0);
+  return g;
+};
+P.reg('magpie', { group: 'models/fauna', from: 'Magpie Madness' });
+})();
+/* ==== PPL Australian flora & rocks (geometry builders; one draw call each with vertex colours) ====
+   Each returns a BufferGeometry (cached per seed). Place many with PPL.scatter(geo, points).
+   PPL.gumGeo(seed)        eucalyptus / marri: pale trunk, open clumpy crown       ~14 m
+   PPL.peppermintGeo(seed) WA peppermint: dark trunk, weeping layered crown        ~7 m
+   PPL.grassTreeGeo(seed)  grass tree: black trunk, green skirt, spike             ~2.2 m
+   PPL.heathGeo(seed)      coastal heath shrub, grey-green dome                    ~1 m
+   PPL.tussockGeo(seed)    tussock grass clump                                     ~0.5 m
+   PPL.boulderGeo(seed)    granite boulder, lichen speckles                        ~1 m (scale it)  */
+(function(){
+const P = window.PPL, C = {};
+const cache = (k, f) => C[k] || (C[k] = f());
+const blob = (R, cols, x, y, z, s, sy, det = 1) => P.paint(P.tr(new THREE.IcosahedronGeometry(1, det), x, y, z, s * (0.85 + R() * .3), s * (sy || .7), s * (0.85 + R() * .3), 0, R() * 6), cols, .12, (R() * 1e6) | 0);
+const branch = (R, cols, x0, y0, z0, x1, y1, z1, r0, r1) => {
+  const a = P.V3(x0, y0, z0), b = P.V3(x1, y1, z1), len = a.distanceTo(b);
+  const g = new THREE.CylinderGeometry(r1, r0, len, 6); g.translate(0, len / 2, 0);
+  const q = new THREE.Quaternion().setFromUnitVectors(P.V3(0, 1, 0), b.clone().sub(a).normalize());
+  g.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q)); g.translate(x0, y0, z0);
+  return P.paint(g, cols, .08, (R() * 1e6) | 0);
+};
+P.gumGeo = (seed = 1) => cache('gum' + seed, () => {
+  const R = P.rng(seed), L = [], bark = ['#d9d2c2', '#cfc6b2', '#e4ddcd', '#b9ad96'], leaf = ['#4f6440', '#5b7048', '#46593a', '#677a4f'];
+  const H = 9 + R() * 6; L.push(branch(R, bark, 0, 0, 0, (R() - .5) * 1.2, H * .55, (R() - .5) * 1.2, .45, .3));
+  const top = P.V3(0, H * .55, 0);
+  const nb = 4 + (R() * 3 | 0);
+  for (let i = 0; i < nb; i++) {
+    const a = i / nb * 6.28 + R(), r = 2 + R() * 3.5, y = H * (.75 + R() * .25);
+    const ex = Math.cos(a) * r, ez = Math.sin(a) * r;
+    L.push(branch(R, bark, top.x, top.y, top.z, ex, y, ez, .26, .1));
+    const n = 3 + (R() * 3 | 0);
+    for (let k = 0; k < n; k++) L.push(blob(R, leaf, ex + (R() - .5) * 2.6, y + (R() - .2) * 1.8, ez + (R() - .5) * 2.6, 1.2 + R() * 1.1, .8));
+  }
+  return P.merge(L);
+});
+P.peppermintGeo = (seed = 1) => cache('pep' + seed, () => {
+  const R = P.rng(seed), L = [], bark = ['#4b3b2e', '#5a4636', '#3e3027'], leaf = ['#3f5a30', '#486536', '#36502a', '#55703c'];
+  const lean = (R() - .5) * .8; L.push(branch(R, bark, 0, 0, 0, lean, 2.6, (R() - .5) * .6, .28, .18));
+  for (let i = 0; i < 4; i++) { const a = i * 1.7 + R(), r = 1.4 + R() * 1.3; L.push(branch(R, bark, lean, 2.5, 0, lean + Math.cos(a) * r, 4 + R() * 1.4, Math.sin(a) * r, .14, .06)); }
+  for (let k = 0; k < 22; k++) { // dense rounded crown that droops at the rim
+    const a = R() * 6.28, r = Math.sqrt(R()) * 3.2, y = 4.4 + (1 - r / 3.2) * 2.2 - r * .25 + R() * .6;
+    L.push(blob(R, leaf, lean + Math.cos(a) * r, y, Math.sin(a) * r, 1 + R() * .6, .75));
+  }
+  return P.merge(L);
+});
+P.grassTreeGeo = (seed = 1) => cache('gt' + seed, () => {
+  const R = P.rng(seed), L = [], h = .7 + R() * .9;
+  L.push(P.paint(P.tr(new THREE.CylinderGeometry(.16, .22, h, 8), 0, h / 2, 0), ['#211b17', '#2b241f'], .1, seed));
+  for (let k = 0; k < 70; k++) { // fountain of thin leaves
+    const a = R() * 6.28, tilt = .25 + R() * 1.15, len = .9 + R() * .5;
+    const c = new THREE.ConeGeometry(.018, len, 3); c.translate(0, len / 2, 0); c.rotateZ(tilt); c.rotateY(a); c.translate(0, h, 0);
+    L.push(P.paint(c, tilt > 1.1 ? ['#9a8a56', '#8a7a4a'] : ['#6f8a3c', '#7d9846', '#5f7a32'], .1, k + seed * 99));
+  }
+  if (R() < .6) L.push(P.paint(P.tr(new THREE.CylinderGeometry(.02, .035, 1.6, 5), 0, h + .8, 0), ['#5a4a32'], 0, seed), P.paint(P.tr(new THREE.CylinderGeometry(.045, .045, .7, 6), 0, h + 1.35, 0), ['#6b5a3c', '#7a6a4a'], .1, seed));
+  return P.merge(L);
+});
+P.heathGeo = (seed = 1) => cache('heath' + seed, () => {
+  const R = P.rng(seed), L = [], cols = R() < .5 ? ['#7d8c6a', '#8a9a74', '#6f7e5e'] : ['#5f6e4a', '#6c7b55', '#56653f'];
+  for (let k = 0; k < 6; k++) L.push(blob(R, cols, (R() - .5) * .9, .35 + R() * .3, (R() - .5) * .9, .35 + R() * .3, .75, 0));
+  if (R() < .35) for (let k = 0; k < 8; k++) L.push(P.paint(P.tr(new THREE.IcosahedronGeometry(.05, 0), (R() - .5) * 1, .55 + R() * .35, (R() - .5) * 1), [R() < .5 ? '#e8c43a' : '#f0f0e8'], 0, k));
+  return P.merge(L);
+});
+P.tussockGeo = (seed = 1) => cache('tus' + seed, () => {
+  const R = P.rng(seed), L = [];
+  for (let k = 0; k < 22; k++) {
+    const a = R() * 6.28, tilt = R() * .7, len = .35 + R() * .3;
+    const c = new THREE.ConeGeometry(.02, len, 3); c.translate(0, len / 2, 0); c.rotateZ(tilt); c.rotateY(a);
+    L.push(P.paint(c, ['#a8a46a', '#9a9a5e', '#b8b07a', '#8a8f55'], .1, k + seed * 31));
+  }
+  return P.merge(L);
+});
+P.boulderGeo = (seed = 1) => cache('rock' + seed, () => {
+  const R = P.rng(seed), g = new THREE.IcosahedronGeometry(1, 2), p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const v = P.V3(p.getX(i), p.getY(i), p.getZ(i)), n = 1 + .22 * P.fbm(v.x * 1.3 + seed, v.y * 1.3 + v.z, 3);
+    v.multiplyScalar(n); v.y = v.y > 0 ? v.y * .75 : v.y * .4; p.setXYZ(i, v.x, v.y, v.z);
+  }
+  g.computeVertexNormals();
+  return P.paint(g, ['#9a948a', '#a8a298', '#8c867c', '#b3ab9c', '#7f8c6a'], .1, seed);
+});
+/* instanced placement: points = [{x,y,z,s,ry}] */
+P.scatter = (geo, points, mat) => {
+  const m = new THREE.InstancedMesh(geo, mat || P.vmat({ roughness: .9 }), points.length), o = new THREE.Object3D();
+  points.forEach((p, i) => { o.position.set(p.x, p.y, p.z); o.rotation.set(0, p.ry || 0, 0); o.scale.setScalar(p.s || 1); o.updateMatrix(); m.setMatrixAt(i, o.matrix); });
+  m.castShadow = true; m.receiveShadow = true; return m;
+};
+['gumGeo', 'peppermintGeo', 'grassTreeGeo', 'heathGeo', 'tussockGeo', 'boulderGeo'].forEach(id => P.reg(id, { group: 'models/flora', from: 'new (golf)' }));
+})();
+/* ==== PPL golfer (simple adult rig with club; reusable for any standing person) ====
+   const g = PPL.golfer({shirt:'#2f6f9f', pants:'#e8e2d0', skin:'#c99a78', cap:'#f2f2ee'});
+   g.userData.swing(t)  t: 0 address, 0..0.45 backswing, 0.45..0.6 downswing (impact ~0.56), ..1 follow-through
+   g.userData.setClub('driver'|'iron'|'wedge'|'putter')
+   Faces +z, ball sits at about (0.05, 0, 0.62) in its local space. Height ~1.78 m. */
+(function(){
+const P = window.PPL;
+P.golfer = (o = {}) => {
+  const g = new THREE.Group(), m = c => P.mat(c, { roughness: .8 });
+  const skin = m(o.skin || '#c99a78'), shirt = m(o.shirt || '#2f6f9f'), pants = m(o.pants || '#e6e0cc'), shoe = m('#f4f4f0'), capM = m(o.cap || '#f2f2ee'), hair = m('#2a211b');
+  const mesh = (geo, mt, parent, x = 0, y = 0, z = 0) => { const k = new THREE.Mesh(geo, mt); k.position.set(x, y, z); k.castShadow = true; parent.add(k); return k; };
+  const hips = new THREE.Group(); hips.position.y = .95; g.add(hips);
+  mesh(new THREE.CylinderGeometry(.17, .16, .2, 12), pants, hips, 0, 0, 0);
+  const legs = [-1, 1].map(s => { const L = new THREE.Group(); L.position.set(s * .11, -.05, 0); hips.add(L);
+    mesh(new THREE.CylinderGeometry(.085, .06, .9, 10), pants, L, 0, -.45, 0); mesh(new THREE.BoxGeometry(.11, .07, .27), shoe, L, 0, -.9, .05); L.rotation.z = s * .15; return L; });
+  const spine = new THREE.Group(); spine.position.y = .08; hips.add(spine);
+  mesh(new THREE.CylinderGeometry(.19, .17, .55, 12), shirt, spine, 0, .3, 0);
+  const head = new THREE.Group(); head.position.set(0, .7, 0); spine.add(head);
+  mesh(new THREE.CylinderGeometry(.05, .06, .1, 8), skin, head, 0, -.06, 0);
+  mesh(new THREE.SphereGeometry(.105, 14, 11), skin, head, 0, .08, .01);
+  mesh(new THREE.SphereGeometry(.108, 14, 8, 0, 6.3, 0, 1.4), hair, head, 0, .09, -.005);
+  mesh(new THREE.CylinderGeometry(.112, .112, .05, 14), capM, head, 0, .16, 0); mesh(new THREE.BoxGeometry(.18, .015, .12), capM, head, 0, .145, .12);
+  /* arms hang from a shoulder pivot; both hands meet on the grip */
+  const shoulders = new THREE.Group(); shoulders.position.y = .52; spine.add(shoulders);
+  /* each arm = upper (sleeve) + forearm (skin), re-aimed every pose from shoulder to the grip */
+  const limb = (mt, r0, r1) => { const c = new THREE.CylinderGeometry(r1, r0, 1, 8); c.translate(0, .5, 0); const k = new THREE.Mesh(c, mt); k.castShadow = true; spine.add(k); return k; };
+  const arms = [-1, 1].map(s => ({ s, up: limb(shirt, .055, .048), lo: limb(skin, .045, .038) }));
+  const hands = new THREE.Group(); hands.position.set(0, -.68, .2); shoulders.add(hands);
+  mesh(new THREE.SphereGeometry(.05, 8, 6), m('#f4f4f0'), hands, 0, 0, 0);
+  const club = new THREE.Group(); hands.add(club);
+  const shaft = mesh(new THREE.CylinderGeometry(.008, .006, 1, 6), m('#c8ccd2'), club, 0, -.5, 0);
+  const headM = m('#30343a'); const clubHead = mesh(new THREE.BoxGeometry(.1, .05, .06), headM, club, .03, -1, 0);
+  const U = g.userData; U.clubHead = clubHead;
+  U.setClub = (k) => { const len = { driver: 1.12, iron: .96, wedge: .9, putter: .86 }[k] || 1; shaft.scale.y = len; shaft.position.y = -len / 2; clubHead.position.y = -len;
+    clubHead.scale.set(k === 'driver' ? 1.3 : 1, k === 'driver' ? 1.6 : 1, k === 'driver' ? 1.7 : 1); U.club = k; U.swing(0); };
+  /* aim the arms at the hands each frame */
+  const Y = P.V3(0, 1, 0);
+  const seg = (k, a, b) => { const d = b.clone().sub(a); k.position.copy(a); k.scale.set(1, d.length(), 1); k.quaternion.setFromUnitVectors(Y, d.normalize()); };
+  const aimArms = () => { spine.updateMatrixWorld(true); const hw = new THREE.Vector3(); hands.getWorldPosition(hw); spine.worldToLocal(hw);
+    arms.forEach(({ s, up, lo }) => { const sh = P.V3(s * .2, .55, 0), grip = hw.clone().add(P.V3(s * .03, .02, 0));
+      const mid = sh.clone().lerp(grip, .5).add(P.V3(s * .06, -.02, .04)); seg(up, sh, mid); seg(lo, mid, grip); }); };
+  U.swing = (t) => {
+    const put = U.club === 'putter';
+    const bend = put ? .55 : .42; spine.rotation.x = bend; head.rotation.x = -bend * .7; legs.forEach(L => L.rotation.x = -.12);
+    hips.position.y = put ? .9 : .93;
+    let a; // club angle around the swing plane: 0 = address (down), + = back
+    if (t < .45) a = (t / .45) * (put ? .55 : 2.6); else if (t < .6) a = P.lerp(put ? .55 : 2.6, -1.2, (t - .45) / .15); else a = P.lerp(-1.2, put ? -.45 : -2.7, P.smooth(.6, 1, t));
+    /* target is the golfer's left (+x local); backswing goes to -x */
+    const twist = put ? 0 : -P.clamp(a, -2.7, 2.6) * .35;
+    spine.rotation.y = twist; hips.rotation.y = twist * .4;
+    shoulders.rotation.set(0, 0, 0);
+    const r = .5; hands.position.set(-Math.sin(a) * r * .9, -.68 + (1 - Math.cos(a)) * r * .55, .22 - (1 - Math.cos(a)) * .06);
+    club.rotation.set(-.25, 0, -a * (put ? 1 : 1.25));
+    if (!put && Math.abs(a) > 1.4) club.rotation.z -= Math.sign(a) * (Math.abs(a) - 1.4) * .9;
+    g.updateMatrixWorld(true); aimArms();
+  };
+  U.setClub('driver');
+  return g;
+};
+P.reg('golfer', { group: 'models/people', from: 'new (golf)' });
+})();
+/* ==== PPL golf props: flag & cup, tee markers, ball with trail ====
+   PPL.flagPin({color})  -> Group (cup ring at y=0, 2.3 m pin, waving flag: userData.tick(t, wind))
+   PPL.teeMarkers(color) -> Group of two markers 6 m apart on x
+   PPL.golfBall()        -> Mesh (radius 0.0214 m real; scale up for readability)
+   PPL.trail(n)          -> Line; userData.push(v3), userData.clear() */
+(function(){
+const P = window.PPL;
+P.flagPin = (o = {}) => {
+  const g = new THREE.Group();
+  const cup = new THREE.Mesh(new THREE.RingGeometry(.054, .07, 20), P.mat('#e8e8e8')); cup.rotation.x = -Math.PI / 2; cup.position.y = .012; g.add(cup);
+  const hole = new THREE.Mesh(new THREE.CircleGeometry(.054, 20), new THREE.MeshBasicMaterial({ color: '#0d0f0c' })); hole.rotation.x = -Math.PI / 2; hole.position.y = .011; g.add(hole);
+  const pin = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, 2.3, 6), P.mat('#f2f2ea', { roughness: .4 })); pin.position.y = 1.15; pin.castShadow = true; g.add(pin);
+  const fg = new THREE.PlaneGeometry(.6, .4, 8, 4); fg.translate(.3, 0, 0);
+  const flag = new THREE.Mesh(fg, P.mat(o.color || '#e0322b', { side: THREE.DoubleSide, roughness: .7 })); flag.position.y = 2.08; flag.castShadow = true; g.add(flag);
+  const base = fg.attributes.position.array.slice();
+  g.userData.tick = (t, wind = 1, dir = 0) => {
+    flag.rotation.y = dir; const p = fg.attributes.position;
+    for (let i = 0; i < p.count; i++) { const x = base[i * 3]; p.setZ(i, Math.sin(x * 9 - t * 7 * (.6 + wind * .4)) * .06 * x * (.4 + wind)); }
+    p.needsUpdate = true; fg.computeVertexNormals();
+  };
+  return g;
+};
+P.teeMarkers = (color = '#2a6fd6') => {
+  const g = new THREE.Group();
+  [-3, 3].forEach(x => { const b = new THREE.Mesh(new THREE.SphereGeometry(.09, 14, 10), P.mat(color, { roughness: .35 })); b.position.set(x, .08, 0); b.castShadow = true; g.add(b); });
+  return g;
+};
+P.golfBall = () => { const b = new THREE.Mesh(new THREE.SphereGeometry(.0214, 16, 12), P.mat('#fbfbf6', { roughness: .35 })); b.castShadow = true; return b; };
+P.trail = (n = 120) => {
+  const pos = new Float32Array(n * 3), g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setDrawRange(0, 0);
+  const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color: '#ffffff', transparent: true, opacity: .55 })); l.frustumCulled = false; let k = 0;
+  l.userData.push = v => { if (k >= n) { pos.copyWithin(0, 3); k = n - 1; } pos.set([v.x, v.y, v.z], k * 3); k++; g.setDrawRange(0, k); g.attributes.position.needsUpdate = true; };
+  l.userData.clear = () => { k = 0; g.setDrawRange(0, 0); };
+  return l;
+};
+['flagPin', 'teeMarkers', 'golfBall', 'trail'].forEach(id => P.reg(id, { group: 'models/props', from: 'new (golf)' }));
+})();
+/* ==== PPL sky, sun, light, fog, clouds, rain — one call sets up a whole outdoor atmosphere ====
+   const W = PPL.skyWeather(scene, renderer, {radius:4000});
+   W.set({hour:17.4, weather:'clear'|'hazy'|'overcast'|'rain', sunAzimuth: deg (0=north,270=west at sunset)})
+   W.update(dt, camera, focus)   // every frame: moves sky/rain with camera, shadow box with focus point
+   W.sun (DirectionalLight), W.hemi, W.preset (current colours)  */
+(function(){
+const P = window.PPL;
+const C = (h) => P.lin(h);
+/* colour stops by sun elevation (deg): zenith, horizon, sun light, ambient sky, ambient ground, fog */
+const STOPS = [
+  { e: -8, zen: '#0b1424', hor: '#27324a', sun: '#30364a', sky: '#24304a', gnd: '#141414', sunI: 0, hemiI: .35 },
+  { e: -1, zen: '#22305a', hor: '#c96a4a', sun: '#ff7a3c', sky: '#55608a', gnd: '#3a2a22', sunI: .2, hemiI: .45 },
+  { e: 4, zen: '#2c4f8c', hor: '#ee9a5a', sun: '#ffa850', sky: '#7f98c4', gnd: '#5a4632', sunI: 1.8, hemiI: .5 },
+  { e: 12, zen: '#2a5ea8', hor: '#e8b888', sun: '#ffd09a', sky: '#9ab6dc', gnd: '#66583e', sunI: 2.4, hemiI: .55 },
+  { e: 30, zen: '#2563b8', hor: '#a9cbe8', sun: '#fff1dc', sky: '#b0cbea', gnd: '#6e6248', sunI: 2.8, hemiI: .62 },
+  { e: 70, zen: '#2a64bc', hor: '#b4d2f0', sun: '#ffffff', sky: '#c0d6f0', gnd: '#706650', sunI: 3.0, hemiI: .7 }
+];
+const WX = {
+  clear: { cloud: .18, grey: 0, fog: 1, rain: 0, sunK: 1 },
+  hazy: { cloud: .35, grey: .15, fog: 1.8, rain: 0, sunK: .8 },
+  overcast: { cloud: .9, grey: .7, fog: 2.4, rain: 0, sunK: .25 },
+  rain: { cloud: 1, grey: .85, fog: 3.5, rain: 1, sunK: .12 }
+};
+function lerpStop(e){
+  let a = STOPS[0], b = STOPS[STOPS.length - 1];
+  for (let i = 0; i < STOPS.length - 1; i++) if (e >= STOPS[i].e && e <= STOPS[i + 1].e) { a = STOPS[i]; b = STOPS[i + 1]; break; }
+  if (e < STOPS[0].e) b = a; if (e > b.e) a = b;
+  const t = a === b ? 0 : (e - a.e) / (b.e - a.e), o = {};
+  ['zen', 'hor', 'sun', 'sky', 'gnd'].forEach(k => o[k] = C(a[k]).lerp(C(b[k]), t));
+  o.sunI = P.lerp(a.sunI, b.sunI, t); o.hemiI = P.lerp(a.hemiI, b.hemiI, t); return o;
+}
+P.skyWeather = (scene, renderer, opt = {}) => {
+  const R = opt.radius || 4000, W = { hour: 17.3, weather: 'clear', sunAz: opt.sunAzimuth ?? 280 };
+  renderer.outputEncoding = THREE.sRGBEncoding; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = opt.exposure || .9;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = opt.softShadows ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
+  /* sky dome: gradient + sun disc + halo */
+  const U = { zen: { value: C('#3f72b8') }, hor: { value: C('#f4cfa0') }, sunDir: { value: P.V3(0, .2, -1) }, sunCol: { value: C('#ffd6a0') }, grey: { value: 0 }, greyCol: { value: C('#8a9098') } };
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(R, 32, 16), new THREE.ShaderMaterial({
+    uniforms: U, side: THREE.BackSide, depthWrite: false, fog: false,
+    vertexShader: 'varying vec3 vD;void main(){vD=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_Position.z=gl_Position.w;}',
+    fragmentShader: `uniform vec3 zen,hor,sunDir,sunCol,greyCol;uniform float grey;varying vec3 vD;
+      void main(){float h=max(vD.y,0.);vec3 c=mix(hor,zen,pow(h,.33));
+      float sd=max(dot(vD,normalize(sunDir)),0.);
+      c+=sunCol*(pow(sd,12.)*.22+pow(sd,90.)*.5)*(1.-grey*.8);
+      c+=sunCol*smoothstep(.9994,.9997,sd)*3.*(1.-grey);
+      c=mix(c,greyCol*(.75+.35*h),grey);
+      if(vD.y<0.)c=mix(hor,hor*.7,clamp(-vD.y*4.,0.,1.));
+      gl_FragColor=vec4(c,1.);
+      #include <tonemapping_fragment>
+      #include <encodings_fragment>
+      }`
+  }));
+  sky.renderOrder = -10; sky.frustumCulled = false; scene.add(sky);
+  /* lights */
+  const sun = new THREE.DirectionalLight('#fff', 2.5); sun.castShadow = true;
+  const S = opt.shadowSize || 60; Object.assign(sun.shadow.camera, { left: -S, right: S, top: S, bottom: -S, near: 1, far: 900 });
+  sun.shadow.mapSize.set(opt.shadowRes || 2048, opt.shadowRes || 2048); sun.shadow.bias = -.0004; sun.shadow.normalBias = .03;
+  scene.add(sun, sun.target);
+  const hemi = new THREE.HemisphereLight('#bcd', '#654', .6); scene.add(hemi);
+  scene.fog = new THREE.FogExp2('#cdd6dc', .00028);
+  /* clouds: soft canvas billboards in a ring of sky */
+  const cTex = P.ctex(256, 128, (x, w, h) => {
+    for (let k = 0; k < 26; k++) {
+      const cx = w * (.18 + Math.random() * .64), cy = h * (.45 + Math.random() * .25), r = 18 + Math.random() * 34;
+      const g = x.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, 'rgba(255,255,255,.55)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = g; x.beginPath(); x.arc(cx, cy, r, 0, 7); x.fill();
+    }
+  });
+  const clouds = new THREE.Group(); scene.add(clouds); const cl = [];
+  for (let i = 0; i < 46; i++) {
+    const m = new THREE.SpriteMaterial({ map: cTex, transparent: true, depthWrite: false, fog: false, opacity: .8 });
+    const s = new THREE.Sprite(m), a = Math.random() * 6.28, d = 700 + Math.random() * 2400;
+    s.position.set(Math.cos(a) * d, 260 + Math.random() * 420, Math.sin(a) * d); const sc = 380 + Math.random() * 620; s.scale.set(sc, sc * .45, 1);
+    s.userData.k = i / 46; clouds.add(s); cl.push(s);
+  }
+  /* rain streaks around the camera */
+  const RN = 2600, rp = new Float32Array(RN * 6);
+  for (let i = 0; i < RN; i++) { const x = (Math.random() - .5) * 80, y = Math.random() * 40, z = (Math.random() - .5) * 80; rp.set([x, y, z, x + .05, y - .9, z], i * 6); }
+  const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.BufferAttribute(rp, 3));
+  const rain = new THREE.LineSegments(rg, new THREE.LineBasicMaterial({ color: '#c8d4e0', transparent: true, opacity: .45, fog: false }));
+  rain.frustumCulled = false; rain.visible = false; scene.add(rain);
+  /* sky reflection map (water, wet or shiny things): rebuilt whenever time or weather changes */
+  const pmrem = new THREE.PMREMGenerator(renderer), envScene = new THREE.Scene(), envSky = new THREE.Mesh(new THREE.SphereGeometry(100, 32, 16), sky.material);
+  envScene.add(envSky); let envRT = null; W.env = null; W.onEnv = [];
+  const rebuildEnv = () => { try { if (envRT) envRT.dispose(); envRT = pmrem.fromScene(envScene, 0, .1, 300); W.env = envRT.texture; W.onEnv.forEach(f => f(W.env)); } catch (e) { W.env = null; } };
+  W.sun = sun; W.hemi = hemi; W.sky = sky; W.clouds = clouds; W.rain = rain;
+  W.sunDir = P.V3(0, 1, 0);
+  W.set = (o = {}) => {
+    Object.assign(W, o.hour != null ? { hour: o.hour } : {}, o.weather ? { weather: o.weather } : {}, o.sunAzimuth != null ? { sunAz: o.sunAzimuth } : {});
+    const wx = WX[W.weather] || WX.clear;
+    /* simple sun path: rises in the east (az 80) at 6:00, sets in the west (W.sunAz) at 18:40, peak ~ 65 deg */
+    const t = P.clamp((W.hour - 6) / 12.7, -.1, 1.1), elev = Math.sin(t * Math.PI) * 65 - 2;
+    const az = THREE.MathUtils.degToRad(P.lerp(80, W.sunAz, t) );
+    const el = THREE.MathUtils.degToRad(elev);
+    W.sunDir.set(Math.sin(az) * Math.cos(el), Math.sin(el), -Math.cos(az) * Math.cos(el)).normalize();
+    const st = lerpStop(elev); W.preset = st; W.elev = elev;
+    const grey = wx.grey, gcol = C('#8d949c').lerp(st.hor, .25).multiplyScalar(P.clamp(.35 + elev / 30, .25, 1));
+    U.zen.value.copy(st.zen); U.hor.value.copy(st.hor).lerp(gcol, grey * .7); U.sunDir.value.copy(W.sunDir); U.sunCol.value.copy(st.sun); U.grey.value = grey; U.greyCol.value.copy(gcol);
+    sun.color.copy(st.sun); sun.intensity = st.sunI * wx.sunK;
+    hemi.color.copy(st.sky).lerp(gcol, grey * .6); hemi.groundColor.copy(st.gnd); hemi.intensity = st.hemiI * (1 + grey * .5);
+    scene.fog.color.copy(st.hor).lerp(st.zen, .22).lerp(gcol, grey); scene.fog.density = .00013 * wx.fog;
+    cl.forEach(s => { s.visible = s.userData.k < wx.cloud; s.material.color.copy(st.hor).lerp(C('#ffffff'), .55).lerp(gcol, grey * .8); s.material.opacity = .5 + grey * .45; });
+    rain.visible = !!wx.rain;
+    renderer.toneMappingExposure = (opt.exposure || .9) * (1 + grey * .25);
+    rebuildEnv();
+  };
+  W.update = (dt, cam, focus) => {
+    sky.position.copy(cam.position); clouds.position.set(cam.position.x, 0, cam.position.z);
+    clouds.rotation.y += dt * .002;
+    const f = focus || cam.position;
+    sun.target.position.copy(f); sun.position.copy(f).addScaledVector(W.sunDir, 400); sun.target.updateMatrixWorld();
+    if (rain.visible) { rain.position.set(cam.position.x, cam.position.y - 12, cam.position.z); const p = rain.geometry.attributes.position.array;
+      for (let i = 0; i < p.length; i += 6) { p[i + 1] -= dt * 26; p[i + 4] -= dt * 26; if (p[i + 4] < 0) { p[i + 1] += 40; p[i + 4] += 40; } } rain.geometry.attributes.position.needsUpdate = true; }
+  };
+  W.set();
+  return W;
+};
+P.reg('skyWeather', { group: 'env', from: 'new (golf), ideas from Magpie Madness sky + Roo Road Look Lab weather' });
+})();
+/* ==== PPL ocean: depth-tinted sea with moving ripples, sun glitter and shore foam ====
+   const sea = PPL.ocean({size:6000, seg:220, depth:(x,z)=>metres below sea level (>0 = water)});
+   scene.add(sea); each frame: sea.userData.tick(dt)   ·  add env: W (skyWeather) to reflect the sky
+   Colours: turquoise over sand shallows, deep Indian-Ocean blue offshore, white foam band at the shore. */
+(function(){
+const P = window.PPL;
+P.ocean = (o = {}) => {
+  const size = o.size || 6000, seg = o.seg || 200, depth = o.depth || (() => 20);
+  const g = new THREE.PlaneGeometry(size, size, seg, seg); g.rotateX(-Math.PI / 2);
+  const p = g.attributes.position, col = new Float32Array(p.count * 3);
+  const foam = P.lin('#f4f7f6'), shal = P.lin(o.shallow || '#3fc0bd'), mid = P.lin(o.mid || '#1a7fa6'), deep = P.lin(o.deep || '#0b3d6e');
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i) + (o.cx || 0), z = p.getZ(i) + (o.cz || 0), d = depth(x, z), c = new THREE.Color();
+    if (d < .4) c.copy(foam); else if (d < 1.6) c.copy(foam).lerp(shal, (d - .4) / 1.2); else if (d < 8) c.copy(shal).lerp(mid, (d - 1.6) / 6.4); else c.copy(mid).lerp(deep, P.clamp((d - 8) / 30, 0, 1));
+    col.set([c.r, c.g, c.b], i * 3);
+  }
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  /* ripple normal map drawn from layered noise */
+  const nTex = P.ctex(256, 256, (x, w, h) => {
+    const d = x.createImageData(w, h), H = (i, j) => P.fbm(i / 22, j / 22, 4) + .35 * P.noise2(i / 6, j / 6);
+    for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
+      const dx = H(i + 1, j) - H(i - 1, j), dy = H(i, j + 1) - H(i, j - 1), k = (j * w + i) * 4;
+      d.data[k] = 128 + dx * 160; d.data[k + 1] = 128 + dy * 160; d.data[k + 2] = 255; d.data[k + 3] = 255;
+    }
+    x.putImageData(d, 0, 0);
+  }, size / 40);
+  const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .24, metalness: 0, normalMap: nTex, normalScale: new THREE.Vector2(.4, .4) });
+  if (o.env) { const use = t => { m.envMap = t; m.envMapIntensity = 1; m.needsUpdate = true; }; if (o.env.env) use(o.env.env); o.env.onEnv.push(use); } // pass the skyWeather object
+  const sea = new THREE.Mesh(g, m); sea.receiveShadow = true; sea.position.set(o.cx || 0, o.y || 0, o.cz || 0);
+  let t = 0; sea.userData.tick = dt => { t += dt; nTex.offset.set(t * .012, t * .007); sea.position.y = (o.y || 0) + Math.sin(t * .5) * .08; };
+  return sea;
+};
+P.reg('ocean', { group: 'env', from: 'new (golf)' });
+})();
+/* ==== PPL real-terrain heightfield + terrain mesh builder ====
+   Real elevation comes from Terrain Tiles on AWS (terrarium PNG), cut and packed by
+   lib/tools/terrain-pack.py into base64 Int16 decimetres (n x n samples over `size` metres).
+
+   const T = PPL.heightfield({b64, n:200, size:2540});    // centre of the grid = world (0,0)
+   T.h(x,z) smooth height in metres (Catmull-Rom), T.normal(x,z), T.slope(x,z) (0 flat .. 1 vertical)
+   PPL.limitSlope(T, maxGrade=.15, passes)  // Roo Road lesson: real data is too steep to play, ease it
+   PPL.terrainMesh({x0,z0,w,d,step,height:(x,z)=>y,color:(x,z,y,slope,out)=>void, skirt:3}) -> Mesh  */
+(function(){
+const P = window.PPL;
+P.heightfield = (o) => {
+  const n = o.n, size = o.size, cell = size / (n - 1), half = size / 2;
+  let H = o.data;
+  if (!H) { const bin = atob(o.b64), dv = new DataView(new ArrayBuffer(2)); H = new Float32Array(n * n);
+    for (let i = 0; i < n * n; i++) { dv.setUint8(0, bin.charCodeAt(i * 2)); dv.setUint8(1, bin.charCodeAt(i * 2 + 1)); H[i] = dv.getInt16(0, true) / 10 * (o.scaleY || 1); } }
+  const at = (i, j) => H[P.clamp(j, 0, n - 1) * n + P.clamp(i, 0, n - 1)];
+  const cr = (a, b, c, d, t) => b + .5 * t * (c - a + t * (2 * a - 5 * b + 4 * c - d + t * (3 * (b - c) + d - a)));
+  const T = { n, size, cell, data: H, at };
+  T.h = (x, z) => {
+    const fx = (x + half) / cell, fz = (z + half) / cell, i = Math.floor(fx), j = Math.floor(fz), tx = fx - i, tz = fz - j;
+    const r = k => cr(at(i - 1, j + k), at(i, j + k), at(i + 1, j + k), at(i + 2, j + k), tx);
+    return cr(r(-1), r(0), r(1), r(2), tz);
+  };
+  T.normal = (x, z, e = 1.5, fn) => { const f = fn || T.h; return P.V3(f(x - e, z) - f(x + e, z), 2 * e, f(x, z - e) - f(x, z + e)).normalize(); };
+  T.slope = (x, z, fn) => 1 - T.normal(x, z, 1.5, fn).y;
+  return T;
+};
+P.limitSlope = (T, maxGrade = .15, passes = 6) => {
+  const { n, cell, data: H } = T, lim = maxGrade * cell;
+  for (let p = 0; p < passes; p++) for (let j = 1; j < n - 1; j++) for (let i = 1; i < n - 1; i++) {
+    const k = j * n + i; let avg = (H[k - 1] + H[k + 1] + H[k - n] + H[k + n]) / 4;
+    if (Math.abs(H[k] - avg) > lim) H[k] = avg + Math.sign(H[k] - avg) * lim;
+  }
+};
+/* elevation tiles often report the sea as 0 m: carve a believable sea floor that deepens with
+   distance from the shore (chamfer distance over the grid). Call before building meshes. */
+P.seaFloor = (T, land = .3, grade = .035, max = 30) => {
+  const { n, cell, data: H } = T, D = new Float32Array(n * n).fill(1e9);
+  for (let k = 0; k < n * n; k++) if (H[k] > land) D[k] = 0;
+  const s2 = Math.SQRT2;
+  for (let pass = 0; pass < 2; pass++) {
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const k = j * n + i; let d = D[k];
+      if (i > 0) d = Math.min(d, D[k - 1] + 1); if (j > 0) d = Math.min(d, D[k - n] + 1); if (i > 0 && j > 0) d = Math.min(d, D[k - n - 1] + s2); if (i < n - 1 && j > 0) d = Math.min(d, D[k - n + 1] + s2); D[k] = d; }
+    for (let j = n - 1; j >= 0; j--) for (let i = n - 1; i >= 0; i--) { const k = j * n + i; let d = D[k];
+      if (i < n - 1) d = Math.min(d, D[k + 1] + 1); if (j < n - 1) d = Math.min(d, D[k + n] + 1); if (i < n - 1 && j < n - 1) d = Math.min(d, D[k + n + 1] + s2); if (i > 0 && j < n - 1) d = Math.min(d, D[k + n - 1] + s2); D[k] = d; }
+  }
+  for (let k = 0; k < n * n; k++) if (D[k] > 0) H[k] = Math.min(H[k], -Math.min(max, .6 + D[k] * cell * grade));
+  return T;
+};
+/* smoothed copy (box blur) — use to soften fairways, roads, building pads while keeping the real shape */
+P.blurField = (T, r = 2, passes = 2) => {
+  const { n } = T; let A = Float32Array.from(T.data), B = new Float32Array(n * n);
+  for (let p = 0; p < passes; p++) {
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { let s = 0, c = 0; for (let k = -r; k <= r; k++) { const ii = i + k; if (ii >= 0 && ii < n) { s += A[j * n + ii]; c++; } } B[j * n + i] = s / c; }
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { let s = 0, c = 0; for (let k = -r; k <= r; k++) { const jj = j + k; if (jj >= 0 && jj < n) { s += B[jj * n + i]; c++; } } A[j * n + i] = s / c; }
+  }
+  return P.heightfield({ n, size: T.size, data: A });
+};
+P.terrainMesh = (o) => {
+  const nx = Math.round(o.w / o.step), nz = Math.round(o.d / o.step), pos = [], col = [], uv = [], idx = [], c = new THREE.Color();
+  const H = o.height, e = o.step * .5;
+  for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
+    const x = o.x0 + i * o.step, z = o.z0 + j * o.step, y = H(x, z);
+    const s = 1 - P.V3(H(x - e, z) - H(x + e, z), 2 * e, H(x, z - e) - H(x, z + e)).normalize().y;
+    pos.push(x, y, z); uv.push(x / 3, z / 3); o.color(x, z, y, s, c); col.push(c.r, c.g, c.b);
+  }
+  for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { const a = j * (nx + 1) + i, b = a + 1, d = a + nx + 1, f = d + 1; idx.push(a, d, b, b, d, f); }
+  if (o.skirt) { // vertical curtain round the edge hides cracks against a coarser outer terrain
+    const ring = []; for (let i = 0; i <= nx; i++) ring.push(i); for (let j = 1; j <= nz; j++) ring.push(j * (nx + 1) + nx);
+    for (let i = nx - 1; i >= 0; i--) ring.push(nz * (nx + 1) + i); for (let j = nz - 1; j >= 1; j--) ring.push(j * (nx + 1)); ring.push(0);
+    const base = pos.length / 3;
+    ring.forEach(k => { pos.push(pos[k * 3], pos[k * 3 + 1] - o.skirt, pos[k * 3 + 2]); uv.push(uv[k * 2], uv[k * 2 + 1]); col.push(col[k * 3] * .7, col[k * 3 + 1] * .7, col[k * 3 + 2] * .7); });
+    for (let r = 0; r < ring.length - 1; r++) { const a = ring[r], b = ring[r + 1], a2 = base + r, b2 = base + r + 1; idx.push(a, b, a2, b, b2, a2); }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx); g.computeVertexNormals();
+  const m = new THREE.Mesh(g, o.material || new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95, map: P.detailTex() }));
+  m.receiveShadow = true; return m;
+};
+P.reg('heightfield', { group: 'terrain', from: 'new (golf), slope rule from Roo Road lesson l04' });
+})();
+/* PPL-LIB-END */
+</script>
+<script>
+const TERRAIN={n:200,size:2540.0,lat:-33.5598,lon:115.0089,b64:'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/////////////wAAAQABAAIAAwAFAAYABwAIAAgACQAJAAoACgAKAAkACQAJAAkACQAJAAkACgALAAsADAANAA4ADwAQABEAEgATABQAFQAWABYAFwAYABkAGgAbABwAHgAgACIAMAAoACYAIAAeAB8AIAAhACgANQBEAFcAcQCPAKQAtADEANIA2wDkAPQADgEuAVYBhAGvAdYB+gEWAi4CQgJSAmICcgKCAo4CmQKnArECugLFAtIC3ALqAvUC+QL5AvgC+gL/AgYDDgMWAx4DJgMqAyoDKAMhAxkDEgMOAxADFQMXAxgDFwMXAxUDDwMHAwIDAgMCAwIDAgMCAwQDDAMTAxcDGAMZAx8DJwMwAzsDRwNIA0MDQAM9AzkDPgNBA0IDPgM3AzYDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//////////////////8AAAEAAgADAAQABQAGAAgACQAKAAoACwALAAsACwALAAsACgAKAAsACwAMAAwADQAOABAAEQASABQAFQAWABcAGAAZABoAGwAcAB0AHwAgACEAIgAkACYAKAArAC8AJwAhAB4AHwAjACgAKgAwADkARgBaAHgAmACwAMQA0gDbAOQA8QAAARQBMAFVAYMBqwHMAewBCwIlAj0CUgJiAnICggKOApkCqAK3AsECygLTAtwC6wL6AgAD/gL6Av8CAQMGAw8DFwMeAyYDKgMqAykDIgMaAxYDGAMdAx8DHwMfAx8DHgMYAxADCAMDAwIDAgMCAwIDBQMMAxQDHAMjAycDKAMpAzADPANIA1ADUQNQA0wDSANHA0kDUgNYA1MDSANHAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//////////////////AAABAAIAAwAEAAYABwAIAAoACwALAAwADAANAA0ADAAMAAwADAANAA0ADgAPABAAEgATABUAFgAYABoAGwAcAB4AHwAgACIAIwAkACUAJwAmACgAKwAuADAA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'};
+</script>
+<script>
+/* ==== Roo Point Links: one-hole prototype ==== */
+(function(){
+const P = PPL, V = (x, y, z) => new THREE.Vector3(x, y, z), $ = id => document.getElementById(id);
+const Q = new URLSearchParams(location.search);
+
+/* ---------- renderer, scene, camera ---------- */
+const renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
+const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(55, 1, .1, 9000);
+function resize(){ const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w < h ? 68 : 55; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+const W = P.skyWeather(scene, renderer, { radius: 5000, sunAzimuth: 282, shadowSize: 55 });
+
+/* ---------- real terrain + hole layout ---------- */
+const T0 = P.seaFloor(P.heightfield(TERRAIN)), TB = P.blurField(T0, 2, 3);
+const TEE = { x: -60, z: -12 }, GRN = { x: -392, z: 22 };
+const DX = GRN.x - TEE.x, DZ = GRN.z - TEE.z, LEN = Math.hypot(DX, DZ), DIR = { x: DX / LEN, z: DZ / LEN }, PERP = { x: -DIR.z, z: DIR.x };
+const toAP = (x, z, o = TEE) => { const rx = x - o.x, rz = z - o.z; return [rx * DIR.x + rz * DIR.z, rx * PERP.x + rz * PERP.z]; };
+const fromAP = (a, p, o = TEE) => ({ x: o.x + DIR.x * a + PERP.x * p, z: o.z + DIR.z * a + PERP.z * p });
+const PIN = fromAP(3, -2.5, GRN);
+const BUNK = [[228, 17, 9, 5], [252, -18, 10, 5.5], [LEN - 19, -11, 6, 4], [LEN + 13, 9, 7, 3.5]].map(([a, p, ra, rp]) => ({ a, p, ra, rp }));
+const fwHalf = a => 16 + 4 * Math.sin(a * .021) + (a > LEN - 60 ? -3 : 0);
+const greenD = (x, z) => { const [a, p] = toAP(x, z, GRN); return Math.hypot(a / 17, p / 13.5); };
+const bunkD = (a, p) => { let m = 9; for (const b of BUNK) m = Math.min(m, Math.hypot((a - b.a) / b.ra, (p - b.p) / b.rp)); return m; };
+const HG = TB.h(GRN.x, GRN.z) + .35, HT = TB.h(TEE.x, TEE.z) + .5;
+const coastDune = (x, z, h0) => { if (h0 < .4 || h0 > 9) return 0; const k = P.smooth(-575, -500, x) * (1 - P.smooth(-455, -420, x)); return k * Math.max(0, P.fbm(x / 26 + 3, z / 26, 3) + .15) * 4.5; };
+/* final playable height: real ground, softened inside the course, shaped green / tee / bunkers */
+function H(x, z){
+  const h0 = T0.h(x, z), [a, p] = toAP(x, z);
+  const along = P.smooth(-60, -20, a) * (1 - P.smooth(LEN + 45, LEN + 80, a)), m = along * (1 - P.smooth(52, 80, Math.abs(p)));
+  let h = P.lerp(h0, TB.h(x, z), m * .9) + coastDune(x, z, h0) * (1 - m);
+  h += m * .45 * P.fbm(x / 22, z / 22, 3);
+  const gd = greenD(x, z);
+  if (gd < 1.7) { const [ga, gp] = toAP(x, z, GRN); const plane = HG + ga * .017 + gp * .008 + .14 * Math.exp(-((ga - 5) ** 2 + (gp + 4) ** 2) / 60) - .09 * Math.exp(-((ga + 6) ** 2 + (gp - 5) ** 2) / 50);
+    h = P.lerp(h, plane, P.smooth(1.7, 1.08, gd)); }
+  const td = Math.max(Math.abs(a) / 6, Math.abs(p) / 8); if (td < 1.8) h = P.lerp(h, HT, P.smooth(1.8, 1.05, td));
+  const bd = bunkD(a, p); if (bd < 1.3) h += bd < 1 ? -.75 * (1 - bd * bd) : .18 * Math.sin((bd - 1) / .3 * Math.PI);
+  return h;
+}
+const SURF = { tee: [.3, .25, .11], fairway: [.32, .25, .11], fringe: [.26, .3, .09], green: [.24, .2, .05], rough: [.2, .55, .3], bunker: [.04, .92, 1.3], native: [.16, .6, .45], beach: [.06, .85, 1], water: [0, 1, 9] };
+const TH = { tee: 'บนแท่นที', fairway: 'บนแฟร์เวย์', fringe: 'ขอบกรีน', green: 'บนกรีน', rough: 'ในรัฟ', bunker: 'ในบังเกอร์', native: 'ในพุ่มไม้ชายฝั่ง', beach: 'บนหาดทราย', water: 'ในน้ำ' };
+function surface(x, z, y){
+  y = y ?? H(x, z); if (y < .12) return 'water';
+  const [a, p] = toAP(x, z), gd = greenD(x, z);
+  if (gd < 1) return 'green'; if (gd < 1.15) return 'fringe';
+  if (Math.abs(a) < 6 && Math.abs(p) < 8) return 'tee';
+  if (bunkD(a, p) < 1) return 'bunker';
+  if (a > 62 && a < LEN - 10 && Math.abs(p) < fwHalf(a)) return 'fairway';
+  if (a > -20 && a < LEN + 35 && Math.abs(p) < 46) return 'rough';
+  if (y < 3 && x < -440) return 'beach';
+  return 'native';
+}
+/* colours: mown stripes, dry WA heath, limestone on steep ground, white beach */
+const CC = {}; const cc = h => CC[h] || (CC[h] = P.lin(h));
+function groundColor(x, z, y, s, out){
+  const sf = surface(x, z, y), [a, p] = toAP(x, z), n = P.fbm(x / 14, z / 14, 3), n2 = P.noise2(x / 3.3, z / 3.3);
+  if (sf === 'water') { out.copy(cc('#c8b88f')).lerp(cc('#6e8a7a'), P.clamp(-y / 6, 0, 1)); return; }
+  if (sf === 'green') { out.copy(((Math.floor((a + p * .5) / 3.2) & 1) ? cc('#6dbb4a') : cc('#63b043'))); }
+  else if (sf === 'fringe' || sf === 'tee') out.copy(cc('#5ea83f'));
+  else if (sf === 'fairway') out.copy((Math.floor(a / 9) & 1) ? cc('#6cad45') : cc('#5c9a39'));
+  else if (sf === 'bunker') { out.copy(cc('#ead9ae')); out.offsetHSL(0, 0, n2 * .03); return; }
+  else if (sf === 'rough') { out.copy(cc('#4f7d34')).lerp(cc('#77803f'), P.clamp(n * 1.4 + .3, 0, 1) * .6); }
+  else if (sf === 'beach') { out.copy(cc('#ddcfac')).lerp(cc('#cdb991'), P.smooth(1.2, .2, y)); return; }
+  else { out.copy(cc('#5d6a42')).lerp(cc('#948f62'), P.clamp(n * 1.5 + .35, 0, 1)); if (n2 > .3) out.lerp(cc('#c9b994'), .45);
+    if (s > .12) out.lerp(cc('#b9ad90'), P.smooth(.12, .3, s)); }
+  /* soften fairway/rough edges */
+  if (sf === 'rough' || sf === 'fairway') { const e = Math.abs(Math.abs(p) - fwHalf(a)); if (a > 62 && a < LEN - 10 && e < 1.8) out.lerp(cc('#5a8e3a'), (1 - e / 1.8) * .5); }
+  out.offsetHSL(0, 0, n2 * .025);
+}
+const NEAR = { x0: -575, x1: 35, z0: -165, z1: 185 };
+const near = P.terrainMesh({ x0: NEAR.x0, z0: NEAR.z0, w: NEAR.x1 - NEAR.x0, d: NEAR.z1 - NEAR.z0, step: Q.has('lo') ? 4 : 2.5, height: H, color: groundColor, skirt: 4 });
+scene.add(near);
+const inNear = (x, z, m = 0) => x > NEAR.x0 + m && x < NEAR.x1 - m && z > NEAR.z0 + m && z < NEAR.z1 - m;
+const far = P.terrainMesh({ x0: -3000, z0: -3000, w: 6000, d: 6000, step: 25, height: (x, z) => H(x, z) - (inNear(x, z, -3) ? 2 : 0), color: (x, z, y, s, o) => groundColor(x, z, y + (inNear(x, z, -3) ? 2 : 0), s, o) });
+scene.add(far);
+const sea = P.ocean({ size: 9000, seg: 260, cx: -1500, depth: (x, z) => -T0.h(x, z), env: W }); scene.add(sea);
+
+/* ---------- vegetation (seeded so every player sees the same course) ---------- */
+const R = P.rng(2026), pts = { pep: [], gum: [], gt: [], heath: [], tus: [], rock: [] };
+const freeAt = (x, z) => { const y = H(x, z), s = surface(x, z, y); return s === 'native' || s === 'beach' ? y : null; };
+const put = (k, x, z, s, sink = 0) => { const y = freeAt(x, z); if (y == null) return false; pts[k].push({ x, y: y - sink, z, s, ry: R() * 6.28 }); return true; };
+for (let i = 0; i < 2600 && pts.pep.length < 95; i++) { const a = -60 + R() * (LEN + 140), p = (R() < .5 ? -1 : 1) * (48 + R() * 120), q = fromAP(a, p); put('pep', q.x, q.z, .8 + R() * .5); }
+for (let i = 0; i < 3000 && pts.gum.length < 70; i++) { const x = -260 + R() * 1400, z = -700 + R() * 1400; if (T0.h(x, z) > 18) put('gum', x, z, .85 + R() * .45, .2); }
+for (let i = 0; i < 6000 && pts.gt.length < 160; i++) { const x = -560 + R() * 900, z = -420 + R() * 840; put('gt', x, z, .8 + R() * .6); }
+for (let i = 0; i < 16000 && pts.heath.length < 1700; i++) { const near = R() < .7, x = near ? -560 + R() * 700 : -560 + R() * 1100, z = near ? -250 + R() * 500 : -500 + R() * 1000; put('heath', x, z, .7 + R() * 1.1, .1); }
+for (let i = 0; i < 9000 && pts.tus.length < 1100; i++) { const x = -575 + R() * 640, z = -260 + R() * 560; put('tus', x, z, .8 + R() * .8); }
+for (let i = 0; i < 4000 && pts.rock.length < 60; i++) { const x = -560 + R() * 900, z = -400 + R() * 800; if (T0.slope(x, z) > .06 || R() < .25) put('rock', x, z, .5 + R() * 1.6, .35); }
+/* granite boulders along the waterline and a big offshore rock (like the real coast) */
+for (let z = -600; z < 600; z += 9) { let x = -700; while (x < -300 && T0.h(x, z) < .2) x += 4; if (R() < .55) pts.rock.push({ x: x - R() * 14, y: -.6, z: z + R() * 6, s: 1.5 + R() * 3.5, ry: R() * 6 }); }
+pts.rock.push({ x: -790, y: -4, z: -240, s: 26, ry: .6 }, { x: -760, y: -3, z: -222, s: 12, ry: 2 });
+const split = (arr, n) => { const o = Array.from({ length: n }, () => []); arr.forEach((p, i) => o[i % n].push(p)); return o; };
+const veg = new THREE.Group(); scene.add(veg);
+split(pts.pep, 4).forEach((a, i) => veg.add(P.scatter(P.peppermintGeo(i + 1), a)));
+split(pts.gum, 3).forEach((a, i) => veg.add(P.scatter(P.gumGeo(i + 11), a)));
+split(pts.gt, 3).forEach((a, i) => veg.add(P.scatter(P.grassTreeGeo(i + 21), a)));
+split(pts.heath, 4).forEach((a, i) => { const m = P.scatter(P.heathGeo(i + 31), a); m.castShadow = false; veg.add(m); });
+split(pts.tus, 3).forEach((a, i) => { const m = P.scatter(P.tussockGeo(i + 41), a); m.castShadow = false; veg.add(m); });
+split(pts.rock, 4).forEach((a, i) => veg.add(P.scatter(P.boulderGeo(i + 51), a)));
+
+/* ---------- hole props ---------- */
+const flag = P.flagPin({ color: '#e0322b' }); flag.position.set(PIN.x, H(PIN.x, PIN.z), PIN.z); scene.add(flag);
+const tees = P.teeMarkers('#2a6fd6'); { const q = fromAP(1.5, 0); tees.position.set(q.x, HT, q.z); tees.rotation.y = Math.atan2(PERP.x, PERP.z) + Math.PI / 2; } scene.add(tees);
+const golfer = P.golfer({ shirt: '#f3f1ea', pants: '#2b3a55', cap: '#1f6f8b' }); scene.add(golfer);
+const ball = P.golfBall(); ball.scale.setScalar(2.2); scene.add(ball);
+const trail = P.trail(160); scene.add(trail);
+const BR = .0214 * 2.2; /* render radius used for ground contact */
+const aimLine = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: .0, depthWrite: false }));
+const aimDots = []; for (let i = 0; i < 26; i++) { const d = new THREE.Mesh(new THREE.CircleGeometry(.22, 10), new THREE.MeshBasicMaterial({ color: '#fffbe8', transparent: true, opacity: .75, depthWrite: false })); d.rotation.x = -Math.PI / 2; scene.add(d); aimDots.push(d); }
+const ring = new THREE.Mesh(new THREE.RingGeometry(2.6, 3.1, 40), new THREE.MeshBasicMaterial({ color: '#ffcf5a', transparent: true, opacity: .85, depthWrite: false, side: THREE.DoubleSide })); ring.rotation.x = -Math.PI / 2; scene.add(ring);
+
+/* ---------- kangaroos on the fairway ---------- */
+const roos = [];
+[[165, -6, 'graze'], [172, 4, 'lie'], [181, -11, 'graze'], [190, 9, 'lie'], [199, -2, 'stand'], [214, 12, 'graze'], [223, -14, 'lie']].forEach(([a, p, pose], i) => {
+  const q = fromAP(a, p), r = P.kangaroo({ pose, seed: i + 3, fur: i % 3 ? '#8a7563' : '#7a6a5e' }); r.scale.setScalar(1.05 + (i % 2) * .15);
+  r.position.set(q.x, H(q.x, q.z), q.z); r.rotation.y = R() * 6.28; r.userData.restPose = pose; r.userData.calm = 0; scene.add(r); roos.push(r);
+});
+function startle(x, z, rad){
+  roos.forEach(r => { const d = Math.hypot(r.position.x - x, r.position.z - z); if (d < rad && r.userData.state !== 'hop') {
+    const ax = (r.position.x - x) / (d || 1), az = (r.position.z - z) / (d || 1), k = 14 + R() * 12;
+    const tx = r.position.x + ax * k + (R() - .5) * 8, tz = r.position.z + az * k + (R() - .5) * 8;
+    r.userData.restPose = 'alert'; r.userData.calm = 7 + R() * 4; r.userData.hop(V(tx, H(tx, tz), tz), H); sfx('thump'); } });
+}
+
+/* ---------- magpie ---------- */
+const mag = P.magpie(); mag.scale.setScalar(2.4); mag.visible = false; scene.add(mag);
+const MG = { on: false, done: false, t: 0, phase: '' };
+function magpieSteal(){
+  /* swoop from the nearest peppermint, grab the ball, drop it 20-35 m away on dry land */
+  let best = pts.pep[0], bd = 1e9; pts.pep.forEach(p => { const d = Math.hypot(p.x - S.pos.x, p.z - S.pos.z); if (d < bd && d > 25) { bd = d; best = p; } });
+  let drop = null;
+  for (let i = 0; i < 40 && !drop; i++) { const a = R() * 6.28, d = 20 + R() * 15, x = S.pos.x + Math.cos(a) * d, z = S.pos.z + Math.sin(a) * d, s = surface(x, z);
+    if (inNear(x, z, 10) && s !== 'water' && s !== 'green' && s !== 'beach' && Math.hypot(x - PIN.x, z - PIN.z) > Math.hypot(S.pos.x - PIN.x, S.pos.z - PIN.z) - 6) drop = { x, z }; }
+  if (!drop) return false;
+  Object.assign(MG, { on: true, done: true, t: 0, phase: 'in', from: V(best.x, best.y + 6 * best.s, best.z), at: S.pos.clone(), drop: V(drop.x, H(drop.x, drop.z) + 9, drop.z) });
+  mag.visible = true; mag.position.copy(MG.from); S.mode = 'magpie'; toast('นกแม็กพายบินมา!', 'ระวังลูก...'); sfx('warble'); return true;
+}
+function tickMagpie(dt){
+  MG.t += dt; const U = mag.userData;
+  if (MG.phase === 'in') { const k = Math.min(1, MG.t / 2.2), p = MG.from.clone().lerp(MG.at, k); p.y += Math.sin(k * Math.PI) * 4 - k * .2; mag.position.copy(p);
+    mag.lookAt(MG.at.x, mag.position.y, MG.at.z); U.flap(MG.t, k < .85 ? 1 : .3); if (k >= 1) { MG.phase = 'grab'; MG.t = 0; U.fold(); } }
+  else if (MG.phase === 'grab') { mag.position.set(MG.at.x, MG.at.y + .45 + Math.abs(Math.sin(MG.t * 12)) * .06, MG.at.z); if (MG.t > .7) { trail.userData.clear(); MG.phase = 'carry'; MG.t = 0; toast('นกแม็กพายคาบลูกไป!', 'ตีต่อจากจุดที่ลูกตก ไม่เสียแต้ม'); sfx('warble'); } }
+  else if (MG.phase === 'carry') { const k = Math.min(1, MG.t / 2.8), p = MG.at.clone().lerp(MG.drop, k); p.y = P.lerp(MG.at.y + .5, MG.drop.y, Math.min(1, k * 2.5)); mag.position.copy(p);
+    mag.lookAt(MG.drop.x, p.y, MG.drop.z); U.flap(MG.t, 1); ball.position.set(p.x, p.y - .35, p.z);
+    if (k >= 1) { MG.phase = 'away'; MG.t = 0; S.pos.copy(ball.position); S.vel.set(0, -1, 0); S.mode = 'flight'; S.flightT = 9; S.noEvent = true; } }
+  else if (MG.phase === 'away') { mag.position.y += dt * 4; mag.position.x += dt * 9; U.flap(MG.t, 1); if (MG.t > 3) { MG.phase = ''; mag.visible = false; MG.on = false; } }
+}
+
+/* ---------- game state ---------- */
+const CLUBS = [
+  { k: 'driver', th: 'ไดรเวอร์', v: 67, el: 11, carry: 190 },
+  { k: 'iron', th: 'เหล็ก 7', v: 52, el: 18, carry: 142 },
+  { k: 'wedge', th: 'เวดจ์', v: 34, el: 34, carry: 88 },
+  { k: 'putter', th: 'พัตเตอร์', v: 9.5, el: 0, carry: 16 }
+];
+const S = { mode: 'title', strokes: 0, pos: V(), vel: V(), last: V(), club: 0, yaw: 0, power: 0, charging: false, swingT: -1, flightT: 0, rest: 0, cam: V(), look: V(), wind: V(), events: 0, noEvent: false, holed: false, hitRoo: false };
+const PAR = 4;
+function setWind(){ const a = 4.2 + (R() - .5) * 1.4, s = 1.5 + R() * 4; S.wind.set(Math.cos(a) * s, 0, Math.sin(a) * s); }
+function distToPin(){ return Math.hypot(S.pos.x - PIN.x, S.pos.z - PIN.z); }
+function autoClub(){ const sf = surface(S.pos.x, S.pos.z), d = distToPin();
+  S.club = sf === 'green' || sf === 'fringe' && d < 25 ? 3 : d > 175 ? 0 : d > 100 ? 1 : 2; if (S.club === 0 && sf !== 'tee' && sf !== 'fairway') S.club = 1; showClub(); }
+function showClub(){ const c = CLUBS[S.club]; $('club').innerHTML = c.th + '<small>แตะเพื่อเปลี่ยนไม้</small>'; golfer.userData.setClub(c.k); placeGolfer(); }
+function resetHole(){
+  S.strokes = 0; S.holed = false; S.events = 0; MG.done = false; MG.on = false; mag.visible = false;
+  S.pos.set(TEE.x + DIR.x * .5, HT + .03, TEE.z + DIR.z * .5); S.vel.set(0, 0, 0); trail.userData.clear();
+  roos.forEach((r, i) => { r.userData.state = 'idle'; });
+  setWind(); readyShot(true); $('end').classList.add('hide');
+}
+function readyShot(first){
+  S.mode = 'aim'; S.power = 0; S.charging = false; S.swingT = -1; S.hitRoo = false; S.noEvent = false;
+  S.yaw = Math.atan2(PIN.x - S.pos.x, PIN.z - S.pos.z); autoClub();
+  ball.position.copy(S.pos); placeGolfer(); hud(); camAim(true);
+  $('shoot').classList.remove('dis');
+}
+function placeGolfer(){
+  const g = golfer; g.rotation.set(0, 0, 0); g.position.set(0, 0, 0); g.userData.swing(0); g.updateMatrixWorld(true);
+  const hl = new THREE.Vector3(); g.userData.clubHead.getWorldPosition(hl);
+  /* golfer faces +z, target is his +x: rotate so +x points along yaw */
+  const ry = S.yaw - Math.PI / 2; g.rotation.y = ry;
+  const off = V(hl.x + .05, 0, hl.z).applyAxisAngle(V(0, 1, 0), ry);
+  const gx = S.pos.x - off.x, gz = S.pos.z - off.z; g.position.set(gx, H(gx, gz), gz);
+  g.userData.swing(S.swingT < 0 ? 0 : S.swingT);
+}
+function hud(){
+  const d = distToPin(), sf = surface(S.pos.x, S.pos.z);
+  $('hTitle').textContent = `หลุม 1 · พาร์ ${PAR} · ${Math.round(LEN)} ม.`;
+  $('hLine').textContent = `ตีแล้ว ${S.strokes} · เหลือ ${d < 30 ? d.toFixed(1) : Math.round(d)} ม. · ${TH[sf]}`;
+  const ws = S.wind.length(), wa = Math.atan2(S.wind.x, S.wind.z);
+  const camYaw = Math.atan2(S.look.x - S.cam.x, S.look.z - S.cam.z);
+  $('wind').querySelector('svg').style.transform = `rotate(${(camYaw - wa) * 180 / Math.PI}deg)`;
+  $('windT').textContent = `ลม ${ws.toFixed(1)} ม./วิ`;
+}
+let toastT = 0; function toast(a, b){ const t = $('toast'); t.innerHTML = a + (b ? `<small>${b}</small>` : ''); t.classList.add('on'); toastT = 2.6; }
+
+/* ---------- shooting ---------- */
+function launch(){
+  $('tip').style.display = 'none';
+  const c = CLUBS[S.club], pw = Math.max(.03, S.power), v = c.v * (c.k === 'putter' ? pw : c.k === 'driver' ? .45 + .55 * pw : .25 + .75 * pw);
+  const miss = (pw > .97 ? (R() - .5) * .08 : 0) + (R() - .5) * .012 * (c.k === 'putter' ? .2 : 1);
+  const yaw = S.yaw + miss, el = c.el * Math.PI / 180;
+  S.vel.set(Math.sin(yaw) * Math.cos(el) * v, Math.sin(el) * v, Math.cos(yaw) * Math.cos(el) * v);
+  S.last.copy(S.pos); S.strokes++; S.flightT = 0; S.spinT = 0; S.mode = c.k === 'putter' ? 'roll' : 'flight';
+  S.pos.y += .02; trail.userData.clear(); sfx(c.k === 'putter' ? 'putt' : 'hit'); hud();
+}
+function penalty(msg){ S.strokes++; toast(msg, 'เสีย 1 แต้ม · วางลูกที่เดิม'); S.pos.copy(S.last); S.vel.set(0, 0, 0); S.mode = 'settle'; S.rest = 0; sfx('splash'); }
+const G = 9.81, KD = .0047, KL = .003;
+function stepBall(dt){
+  const p = S.pos, v = S.vel;
+  if (S.mode === 'flight') {
+    S.flightT += dt;
+    const rel = v.clone().sub(S.wind), sp = rel.length();
+    const acc = rel.multiplyScalar(-KD * sp); acc.y -= G;
+    const lift = KL * v.lengthSq() * Math.exp(-S.flightT / 5); if (v.lengthSq() > 1) { const hz = V(v.x, 0, v.z), up = V(-v.y * v.x, hz.lengthSq(), -v.y * v.z).normalize(); acc.addScaledVector(up, lift); }
+    v.addScaledVector(acc, dt); p.addScaledVector(v, dt);
+    rooHit();
+    if (!inNear(p.x, p.z, 4)) return penalty('ลูกออกนอกเขต (OB)');
+    const gy = H(p.x, p.z);
+    if (p.y < gy + BR) {
+      const sf = surface(p.x, p.z, gy);
+      if (sf === 'water') return penalty('ลูกลงทะเล!');
+      const [e, fr] = SURF[sf]; const n = T0.normal(p.x, p.z, .8, H), vn = v.dot(n);
+      p.y = gy + BR;
+      if (vn < 0) { v.addScaledVector(n, -(1 + e) * vn); const vt = v.clone().addScaledVector(n, -v.dot(n)); v.addScaledVector(vt, -fr); }
+      if (Math.abs(vn) < 2.2 || v.length() < 3) { S.mode = 'roll'; }
+      if (S.flightT > .3 && !S.landed) { const keep = { driver: .85, iron: .55, wedge: .3, putter: 1 }[CLUBS[S.club].k] * (sf === 'green' ? .8 : 1); v.x *= keep; v.z *= keep; /* backspin bite on first bounce */ S.landed = true; startle(p.x, p.z, 16); if (sf === 'bunker') sfx('sand'); else sfx('land'); }
+    }
+  } else if (S.mode === 'roll') {
+    const gy = H(p.x, p.z), sf = surface(p.x, p.z, gy);
+    if (sf === 'water') return penalty('ลูกกลิ้งลงทะเล!');
+    if (!inNear(p.x, p.z, 4)) return penalty('ลูกออกนอกเขต (OB)');
+    const n = T0.normal(p.x, p.z, .6, H), mu = SURF[sf][2];
+    const gt = V(0, -G, 0).addScaledVector(n, G * n.y);
+    v.addScaledVector(n, -v.dot(n));
+    const sp = v.length();
+    if (sp > 1e-4) v.addScaledVector(v, -Math.min(sp, mu * G * n.y * dt) / sp);
+    v.addScaledVector(gt, dt);
+    p.addScaledVector(v, dt); p.y = H(p.x, p.z) + BR;
+    rooHit();
+    /* the cup */
+    const dc = Math.hypot(p.x - PIN.x, p.z - PIN.z);
+    if (dc < .085 && v.length() < 1.9) return holed();
+    if (dc < .07 && v.length() >= 1.9) { v.multiplyScalar(.7); v.applyAxisAngle(V(0, 1, 0), (R() - .5) * 1.4); sfx('lip'); }
+    if (v.length() < .07 && gt.length() < mu * G * 1.6) { v.set(0, 0, 0); S.mode = 'settle'; S.rest = 0; }
+    S.flightT += dt; if (S.flightT > 40) { v.set(0, 0, 0); S.mode = 'settle'; S.rest = 0; }
+  }
+}
+function rooHit(){
+  if (S.hitRoo) return; const p = S.pos;
+  for (const r of roos) { const dx = p.x - r.position.x, dz = p.z - r.position.z, d = Math.hypot(dx, dz), top = r.userData.poseName === 'lie' ? .7 : 1.5;
+    if (d < .6 && p.y < r.position.y + top) { S.hitRoo = true; const nx = dx / (d || 1), nz = dz / (d || 1), vh = Math.hypot(S.vel.x, S.vel.z) * .35;
+      S.vel.set(nx * vh, Math.abs(S.vel.y) * .3 + 1.5, nz * vh); if (S.mode === 'roll') S.mode = 'flight'; S.landed = false;
+      toast('ลูกโดนจิงโจ้!', 'มันไม่เป็นไร แต่โกรธนิดหน่อย'); sfx('thump'); startle(p.x, p.z, 3); return; } }
+}
+function holed(){
+  S.holed = true; S.mode = 'holed'; S.vel.set(0, 0, 0); S.pos.set(PIN.x, H(PIN.x, PIN.z) - .06, PIN.z); sfx('cup');
+  const d = S.strokes - PAR, names = { '-3': 'อัลบาทรอส!', '-2': 'อีเกิล!', '-1': 'เบอร์ดี้!', '0': 'พาร์', '1': 'โบกี้', '2': 'ดับเบิลโบกี้' };
+  const nm = S.strokes === 1 ? 'โฮลอินวัน!!' : names[d] || `+${d}`;
+  toast(nm, `${S.strokes} ครั้ง`);
+  setTimeout(() => { $('eName').textContent = nm; $('eLine').textContent = `ลงหลุมใน ${S.strokes} ครั้ง (พาร์ ${PAR})` + (MG.done ? ' · โดนนกแม็กพายแกล้งด้วย' : ''); $('end').classList.remove('hide'); }, 2200);
+}
+
+/* ---------- camera ---------- */
+const aimDir = () => V(Math.sin(S.yaw), 0, Math.cos(S.yaw));
+function camAim(snap){
+  const put = CLUBS[S.club].k === 'putter', d = aimDir(), tall = camera.aspect < 1 ? 1.45 : 1, back = (put ? 3.2 : 6.2) * tall, up = (put ? 1.35 : 2.3) * tall;
+  const side = V(-d.z, 0, d.x), c = S.pos.clone().addScaledVector(d, -back).addScaledVector(side, (put ? .4 : 1.1) / tall); c.y = Math.max(H(c.x, c.z) + .8, S.pos.y + up);
+  const l = S.pos.clone().addScaledVector(d, put ? 10 : 40); l.y = H(l.x, l.z) + (put ? 0 : 2.5);
+  if (snap) { S.cam.copy(c); S.look.copy(l); } else { S.cam.lerp(c, .12); S.look.lerp(l, .12); }
+}
+function camFollow(dt){
+  const hv = V(S.vel.x, 0, S.vel.z); if (hv.lengthSq() < .01) hv.copy(aimDir()); hv.normalize();
+  const c = S.pos.clone().addScaledVector(hv, -14); c.y = Math.max(H(c.x, c.z) + 2, S.pos.y + 5);
+  const k = 1 - Math.exp(-dt * 2.2); S.cam.lerp(c, k); S.look.lerp(S.pos, 1 - Math.exp(-dt * 6));
+}
+
+/* ---------- input ---------- */
+let drag = null;
+$('c').addEventListener('pointerdown', e => { drag = { x: e.clientX, yaw: S.yaw }; });
+addEventListener('pointermove', e => { if (!drag || S.mode !== 'aim' || S.charging) return; const k = CLUBS[S.club].k === 'putter' ? .0025 : .004; S.yaw = drag.yaw - (e.clientX - drag.x) * k; placeGolfer(); });
+addEventListener('pointerup', () => { drag = null; });
+const startCharge = () => { if (S.mode !== 'aim') return; S.charging = true; S.chargeT = 0; ensureAudio(); };
+const release = () => { if (!S.charging) return; S.charging = false; S.mode = 'swing'; S.swingT = 0; $('shoot').classList.add('dis'); };
+$('shoot').addEventListener('pointerdown', e => { e.stopPropagation(); startCharge(); });
+$('shoot').addEventListener('pointerup', release); $('shoot').addEventListener('pointerleave', release);
+$('club').addEventListener('click', () => { if (S.mode !== 'aim') return; S.club = (S.club + 1) % 4; showClub(); });
+addEventListener('keydown', e => { if (e.repeat) return; if (e.code === 'Space') startCharge(); if (e.code === 'KeyC') $('club').click(); });
+addEventListener('keyup', e => { if (e.code === 'Space') release(); });
+const keys = {}; addEventListener('keydown', e => keys[e.code] = 1); addEventListener('keyup', e => keys[e.code] = 0);
+const WXS = [['🌅 เย็นทอง', 17.9, 'clear'], ['☀️ บ่าย', 14, 'clear'], ['🌤 เช้า', 8.3, 'hazy'], ['☁️ ครึ้ม', 15, 'overcast'], ['🌧 ฝน', 16, 'rain']];
+let wxi = 0; function applyWx(){ const [l, h, w] = WXS[wxi]; $('wx').textContent = l; W.set({ hour: h, weather: w }); }
+$('wx').addEventListener('click', () => { wxi = (wxi + 1) % WXS.length; applyWx(); });
+$('start').addEventListener('click', () => { $('title').classList.add('hide'); ensureAudio(); resetHole(); });
+$('again').addEventListener('click', resetHole);
+
+/* ---------- tiny sound kit (WebAudio, made in code) ---------- */
+let AC = null; function ensureAudio(){ if (!AC) try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} if (AC && AC.state === 'suspended') AC.resume(); }
+function sfx(k){
+  if (!AC) return; const t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain(); o.connect(g); g.connect(AC.destination);
+  const env = (a, d, v) => { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + a + d); };
+  if (k === 'hit') { o.type = 'triangle'; o.frequency.setValueAtTime(900, t); o.frequency.exponentialRampToValueAtTime(140, t + .08); env(.002, .12, .5); }
+  else if (k === 'putt') { o.type = 'sine'; o.frequency.setValueAtTime(600, t); o.frequency.exponentialRampToValueAtTime(300, t + .05); env(.002, .07, .3); }
+  else if (k === 'cup') { o.type = 'square'; o.frequency.setValueAtTime(1300, t); o.frequency.setValueAtTime(900, t + .07); o.frequency.setValueAtTime(1500, t + .14); env(.005, .3, .12); }
+  else if (k === 'warble') { o.type = 'sine'; [0, .08, .16, .24, .32].forEach((d, i) => o.frequency.setValueAtTime([1200, 1700, 1050, 1900, 1400][i], t + d)); env(.02, .45, .18); }
+  else if (k === 'thump') { o.type = 'sine'; o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(50, t + .15); env(.005, .2, .4); }
+  else if (k === 'splash' || k === 'sand') { o.type = 'sawtooth'; o.frequency.setValueAtTime(k === 'sand' ? 200 : 400, t); o.frequency.exponentialRampToValueAtTime(60, t + .3); env(.01, .35, .12); }
+  else { o.type = 'sine'; o.frequency.setValueAtTime(260, t); o.frequency.exponentialRampToValueAtTime(120, t + .06); env(.002, .08, .2); }
+  o.start(t); o.stop(t + .8);
+}
+
+/* ---------- main loop ---------- */
+let last = performance.now(), clock = 0;
+function frame(now){ requestAnimationFrame(frame); const dt = Math.min(.05, (now - last) / 1000); last = now; tick(dt); }
+function tick(dt, noRender){
+  clock += dt;
+  if (S.mode === 'aim') {
+    if (keys.ArrowLeft) { S.yaw += dt * .6; placeGolfer(); } if (keys.ArrowRight) { S.yaw -= dt * .6; placeGolfer(); }
+    if (S.charging) { S.chargeT += dt; const ph = (S.chargeT / 1.15) % 2; S.power = ph < 1 ? ph : 2 - ph; }
+    camAim(false);
+  }
+  if (S.mode === 'swing') {
+    S.swingT += dt / .95; golfer.userData.swing(Math.min(1, S.swingT));
+    if (S.swingT >= .56 && S.mode === 'swing') { S.landed = false; launch(); }
+  } else if (S.swingT >= 0 && S.swingT < 1) { S.swingT += dt / .95; golfer.userData.swing(Math.min(1, S.swingT)); }
+  if (S.mode === 'flight' || S.mode === 'roll') {
+    const n = 4; for (let i = 0; i < n; i++) { if (S.mode !== 'flight' && S.mode !== 'roll') break; stepBall(dt / n); }
+    ball.position.copy(S.pos); if (S.mode === 'flight' || S.vel.length() > 3) trail.userData.push(S.pos);
+    camFollow(dt); hud();
+  }
+  if (S.mode === 'settle') {
+    S.rest += dt; ball.position.copy(S.pos); camFollow(dt);
+    if (S.rest > 1.1) {
+      const sf = surface(S.pos.x, S.pos.z);
+      if (Math.hypot(S.pos.x - PIN.x, S.pos.z - PIN.z) < .35) { S.strokes++; toast('แตะลงหลุม', 'ระยะใกล้มาก นับเพิ่ม 1 ครั้ง'); holed(); return; }
+      startle(S.pos.x, S.pos.z, 12);
+      if (!MG.done && !S.noEvent && S.strokes >= 1 && (sf === 'fairway' || sf === 'rough') && (S.events > 0 || R() < .7) && magpieSteal()) {}
+      else { S.events++; readyShot(); }
+    }
+  }
+  if (S.mode === 'magpie') { tickMagpie(dt); S.look.lerp(mag.position, 1 - Math.exp(-dt * 4)); const c = mag.position.clone().add(V(-8, 4, 8)); c.y = Math.max(c.y, H(c.x, c.z) + 2); S.cam.lerp(c, 1 - Math.exp(-dt * 1.5)); }
+  else if (MG.on) tickMagpie(dt);
+  if (S.mode === 'holed') { const a = clock * .25; S.cam.lerp(V(PIN.x + Math.sin(a) * 9, H(PIN.x, PIN.z) + 3.5, PIN.z + Math.cos(a) * 9), .03); S.look.lerp(V(PIN.x, H(PIN.x, PIN.z) + .5, PIN.z), .1); }
+  if (S.mode === 'title') { const a = Math.sin(clock * .05) * 18; const q = fromAP(-25, -14 + a); S.cam.set(q.x, HT + 9, q.z); const l = fromAP(LEN * .7, a * .5); S.look.set(l.x, HG + 2, l.z); }
+  /* aim helpers */
+  const reach = (c, pw) => c.k === 'putter' ? 92 * pw * pw : c.carry * Math.pow(c.k === 'driver' ? .45 + .55 * pw : .25 + .75 * pw, 2);
+  const showAim = S.mode === 'aim'; ring.visible = showAim; aimDots.forEach(d => d.visible = showAim);
+  if (showAim) { const c = CLUBS[S.club], d = aimDir(), full = S.charging ? reach(c, Math.max(.03, S.power)) : c.k === 'putter' ? Math.min(distToPin(), 16) : c.carry;
+    aimDots.forEach((m, i) => { const k = (i + 1) / aimDots.length * full, x = S.pos.x + d.x * k, z = S.pos.z + d.z * k; m.position.set(x, H(x, z) + .08, z); m.scale.setScalar(c.k === 'putter' ? .35 : 1 + k / 120); });
+    const x = S.pos.x + d.x * full, z = S.pos.z + d.z * full; ring.position.set(x, H(x, z) + .1, z); ring.scale.setScalar(c.k === 'putter' ? .25 : 1 + full / 150); }
+  $('meter').querySelector('i').style.height = (S.power * 100) + '%';
+  roos.forEach(r => { P.kangarooTick(r, dt); if (r.userData.calm > 0) { r.userData.calm -= dt; if (r.userData.calm <= 0 && r.userData.state !== 'hop') { r.userData.restPose = 'graze'; r.userData.setPose('graze'); } } });
+  flag.userData.tick(clock, S.wind.length() / 5, Math.atan2(S.wind.x, S.wind.z) - Math.PI / 2);
+  sea.userData.tick(dt);
+  if (toastT > 0) { toastT -= dt; if (toastT <= 0) $('toast').classList.remove('on'); }
+  camera.position.copy(S.cam); camera.lookAt(S.look);
+  W.update(dt, camera, S.mode === 'title' ? V(GRN.x, HG, GRN.z) : S.pos);
+  if (!noRender) renderer.render(scene, camera);
+}
+applyWx(); S.pos.set(TEE.x, HT, TEE.z); placeGolfer(); ball.position.copy(S.pos);
+$('load').remove(); requestAnimationFrame(frame);
+if (Q.has('play')) { $('title').classList.add('hide'); resetHole(); }
+
+/* test hook */
+window.__g = { prof(){ const gl = renderer.getContext(), o = {}; const t0 = performance.now(); renderer.render(scene, camera); gl.finish(); o.full = performance.now() - t0;
+    const sm = renderer.shadowMap.enabled; renderer.shadowMap.enabled = false; scene.traverse(m => { if (m.material) m.material.needsUpdate = true; }); renderer.render(scene, camera); gl.finish(); const t1 = performance.now(); renderer.render(scene, camera); gl.finish(); o.noShadow = performance.now() - t1; renderer.shadowMap.enabled = sm; scene.traverse(m => { if (m.material) m.material.needsUpdate = true; });
+    veg.visible = false; const t2 = performance.now(); renderer.render(scene, camera); gl.finish(); o.noVeg = performance.now() - t2; veg.visible = true; o.calls = renderer.info.render.calls; o.tris = renderer.info.render.triangles; return o; }, S, H, surface, PIN, TEE, GRN, LEN, roos, MG, CLUBS, shoot(pw, club){ if (club != null) { S.club = club; showClub(); } S.power = pw; S.mode = 'swing'; S.swingT = 0; },
+  step(n, dt = 1 / 30, render = false){ for (let i = 0; i < n; i++) tick(dt, !(render && i === n - 1)); }, setWx(i){ wxi = i; applyWx(); }, readyShot, resetHole };
+})();
+</script>
+</body>
+</html>
