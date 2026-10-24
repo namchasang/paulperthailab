@@ -173,7 +173,8 @@ section{padding-block:88px}
 .qradio .qr-key-yt[aria-pressed="true"]{box-shadow:0 1px 0 #b46a5a,0 2px 3px rgba(0,0,0,.3);background:linear-gradient(#ffd0c6,#ef9f8f)}
 .qradio[data-yt="1"] .qr-eye i{animation:qrPulse 1.1s ease-in-out infinite}
 @keyframes qrPulse{50%{transform:scale(1.05)}0%,100%{transform:scale(.62)}}
-.qr-keys{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-top:14px}
+.qr-keys{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:14px}
+.qr-key[hidden]{display:none}
 .qr-key-live small{color:#c0392b;opacity:1}
 .qr-key{appearance:none;border:0;border-radius:8px 8px 10px 10px;padding:10px 6px 12px;background:linear-gradient(#fbf4e3,#e6d6b2);color:#3a2412;font:600 12.5px/1.2 var(--thai-display,system-ui),system-ui,sans-serif;cursor:pointer;box-shadow:0 5px 0 #a98a57,0 7px 8px rgba(0,0,0,.3);transition:transform .08s,box-shadow .08s}
 .qr-key small{display:block;font:700 10px/1 ui-monospace,monospace;opacity:.6;margin-bottom:3px}
@@ -404,7 +405,7 @@ footer a:hover{text-decoration:underline}
         </div>
         <div class="qr-keys" role="group" aria-label="Stations">
           <button type="button" class="qr-key qr-key-yt" data-st="yt" data-f="106" aria-pressed="false"><small>PLAYLIST</small>YouTube</button>
-          <button type="button" class="qr-key qr-key-yt qr-key-live" data-st="live" data-f="107.5" aria-pressed="false"><small>● LIVE 24/7</small>Kip’s Café</button>
+          <button type="button" class="qr-key qr-key-yt qr-key-live" hidden data-st="live" data-f="107.5" aria-pressed="false"><small>● LIVE 24/7</small>Kip’s Café</button>
           <button type="button" class="qr-key" data-st="seaside" data-f="88.4" aria-pressed="false"><small>88.4</small>Seaside Piano</button>
           <button type="button" class="qr-key" data-st="lofi" data-f="92.1" aria-pressed="false"><small>92.1</small>Island Lo-fi</button>
           <button type="button" class="qr-key" data-st="beats" data-f="99.5" aria-pressed="false"><small>99.5</small>Lo-fi Beats</button>
