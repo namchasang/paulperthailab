@@ -537,10 +537,10 @@ P.reg('human', { group: 'models/people', from: 'Quaternius CC0 (Universal Base C
    the chest twists with the lever, and two-bone IK puts both hands on the grip and both feet on the ground. */
 (function(){
 const P = window.PPL, V = (x, y, z) => new THREE.Vector3(x, y, z);
-const CLUB = { driver: { L: 1.12, gy: .80, A: 2.45, F: 2.5, Hg: 1.6, tw: .95, bend: .42 },
-  iron: { L: .95, gy: .78, A: 2.25, F: 2.4, Hg: 1.55, tw: .85, bend: .5 },
-  wedge: { L: .90, gy: .77, A: 1.9, F: 2.1, Hg: 1.45, tw: .7, bend: .55 },
-  putter: { L: .86, gy: .86, A: .32, F: .34, Hg: 0, tw: .06, bend: .62 } };
+const CLUB = { driver: { L: 1.12, gy: .80, A: 2.45, F: 2.5, Hg: 1.6, tw: .95, bend: .72 },
+  iron: { L: .95, gy: .78, A: 2.25, F: 2.4, Hg: 1.55, tw: .85, bend: .8 },
+  wedge: { L: .90, gy: .77, A: 1.9, F: 2.1, Hg: 1.45, tw: .7, bend: .85 },
+  putter: { L: .86, gy: .86, A: .32, F: .34, Hg: 0, tw: .06, bend: .95 } };
 const ease = x => x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x);
 P.golferHuman = (kit, o = {}) => {
   const g = kit.make({ shirt: o.shirt || '#f3f1ea', pants: o.pants || '#2b3a55', shoes: o.shoes || '#f4f4f0', hair: o.hair, skin: o.skin, height: o.height || 1.78 });
@@ -575,7 +575,7 @@ P.golferHuman = (kit, o = {}) => {
     const big = kk === 'driver', put = kk === 'putter';
     head.scale.set(put ? .1 : big ? .12 : .075, put ? .03 : big ? .055 : .04, put ? .03 : big ? .1 : .05);
     U.swing(0); };
-  let mode = 'swing', lastT = 0, lastTw = 0;
+  let mode = 'swing', lastT = 0, lastTw = 0, base = null, posed = false;
   const placeCap = () => { const hp = V(0, 0, 0), np = V(0, 0, 0); B.Head.getWorldPosition(hp); B.neck_01.getWorldPosition(np);
     const up = hp.clone().sub(np).normalize(), gq = new THREE.Quaternion(); g.getWorldQuaternion(gq);
     const fw = V(0, 0, 1).applyQuaternion(gq); const lp = g.worldToLocal(hp.clone().addScaledVector(up, .115).addScaledVector(fw, .01));
@@ -583,8 +583,11 @@ P.golferHuman = (kit, o = {}) => {
     cap.quaternion.setFromUnitVectors(V(0, 1, 0), upL); cap.rotateY(Math.atan2(upL.x, 1) * 0 + (mode === 'swing' ? -lastTw * .2 : 0)); };
 
   U.swing = t => {
-    mode = 'swing'; lastT = t; cap.visible = true; club.visible = true;
-    U.hold('Idle_Loop', .2); U.mixer.update(0);
+    const wasClip = mode !== 'swing'; if (wasClip) posed = false; mode = 'swing'; lastT = t; cap.visible = true; club.visible = true;
+    /* start every pose from the same saved base pose, so repeated calls never pile up rotations */
+    if (!base) { U.hold('Idle_Loop', .2); U.mixer.update(0); U.mixer.stopAllAction(); base = Object.values(B).map(b => [b, b.quaternion.clone(), b.position.clone()]); }
+    if (mode !== 'swing' || !posed) { U.mixer.stopAllAction(); posed = true; }
+    base.forEach(([b, q, p]) => { b.quaternion.copy(q); b.position.copy(p); });
     const root = U.root, gq = new THREE.Quaternion(); g.getWorldQuaternion(gq);
     const X = V(1, 0, 0).applyQuaternion(gq), Y = V(0, 1, 0).applyQuaternion(gq);
     /* swing angle a (lever), wrist hinge h, chest twist */
@@ -595,10 +598,10 @@ P.golferHuman = (kit, o = {}) => {
     const tw = a >= 0 ? -C.tw * a / C.A : C.tw * 1.1 * (-a / C.F);
     root.position.set(0, -.025, 0); root.updateMatrixWorld(true);
     /* posture: hip hinge, chest bend, twist */
-    HU.turn(B.pelvis, Y, tw * .35);
-    HU.turn(B.spine_01, X, C.bend * .55); HU.turn(B.spine_02, X, C.bend * .3); HU.turn(B.spine_03, X, C.bend * .15);
+    HU.turn(B.pelvis, X, C.bend * .45); HU.turn(B.pelvis, Y, tw * .35);
+    HU.turn(B.spine_01, X, C.bend * .3); HU.turn(B.spine_02, X, C.bend * .15); HU.turn(B.spine_03, X, C.bend * .1);
     HU.turn(B.spine_02, Y, tw * .45); HU.turn(B.spine_03, Y, tw * .35);
-    HU.turn(B.neck_01, X, -C.bend * .35); HU.turn(B.Head, Y, -tw * .8);
+    HU.turn(B.neck_01, X, -C.bend * .25); HU.turn(B.Head, Y, -tw * .8);
     /* feet planted, knees flexed toward the ball */
     const knee = V(0, .5, .45);
     [['l', .2], ['r', -.2]].forEach(([s, x]) => {
