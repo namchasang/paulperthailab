@@ -1,6 +1,10 @@
 /* ---------- camera ---------- */
 const aimDir = () => V(Math.sin(S.yaw), 0, Math.cos(S.yaw));
 function camAim(snap){
+  if (S.top && PV.res) { const e = PV.res.end, d = aimDir(), cx = (S.pos.x + e.x) / 2, cz = (S.pos.z + e.z) / 2, span = Math.hypot(e.x - S.pos.x, e.z - S.pos.z) + 30;
+    const h = span * .62 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * (camera.aspect < 1 ? 1 / camera.aspect * .75 : 1) + 20;
+    const c = V(cx - d.x * h * .02, H(cx, cz) + h, cz - d.z * h * .02), l = V(cx, H(cx, cz), cz);
+    if (snap) { S.cam.copy(c); S.look.copy(l); } else { S.cam.lerp(c, .15); S.look.lerp(l, .15); } return; }
   const put = CLUBS[S.club].k === 'putter', d = aimDir(), tall = camera.aspect < 1 ? 1.45 : 1, back = (put ? 3.2 : 6.2) * tall, up = (put ? 1.35 : 2.3) * tall;
   const side = V(-d.z, 0, d.x), c = S.pos.clone().addScaledVector(d, -back).addScaledVector(side, (put ? .4 : 1.1) / tall); c.y = Math.max(H(c.x, c.z) + .8, S.pos.y + up);
   const l = S.pos.clone().addScaledVector(d, put ? 10 : 40); l.y = H(l.x, l.z) + (put ? 0 : 2.5);
@@ -15,14 +19,14 @@ function camFollow(dt){
 /* ---------- input ---------- */
 let drag = null;
 $('c').addEventListener('pointerdown', e => { drag = { x: e.clientX, yaw: S.yaw }; });
-addEventListener('pointermove', e => { if (!drag || S.mode !== 'aim' || S.charging) return; const k = CLUBS[S.club].k === 'putter' ? .0025 : .004; S.yaw = drag.yaw - (e.clientX - drag.x) * k; placeGolfer(); });
+addEventListener('pointermove', e => { if (!drag || S.mode !== 'aim' || S.charging) return; const k = CLUBS[S.club].k === 'putter' ? .0025 : .004; S.yaw = drag.yaw - (e.clientX - drag.x) * k * (S.top ? .6 : 1); placeGolfer(); PV.dirty = true; });
 addEventListener('pointerup', () => { drag = null; });
 const startCharge = () => { if (S.mode !== 'aim') return; S.charging = true; S.chargeT = 0; ensureAudio(); };
 const release = () => { if (!S.charging) return; S.charging = false; S.mode = 'swing'; S.swingT = 0; $('shoot').classList.add('dis'); };
 $('shoot').addEventListener('pointerdown', e => { e.stopPropagation(); startCharge(); });
 $('shoot').addEventListener('pointerup', release); $('shoot').addEventListener('pointerleave', release);
-$('club').addEventListener('click', () => { if (S.mode !== 'aim') return; S.club = (S.club + 1) % 4; showClub(); });
-addEventListener('keydown', e => { if (e.repeat) return; if (e.code === 'Space') startCharge(); if (e.code === 'KeyC') $('club').click(); });
+$('clubs').addEventListener('click', e => { const b = e.target.closest('.cl'); if (!b || S.mode !== 'aim') return; S.club = +b.dataset.i; showClub(); });
+addEventListener('keydown', e => { if (e.repeat) return; if (e.code === 'Space') startCharge(); if (e.code === 'KeyC' && S.mode === 'aim') { S.club = (S.club + 1) % 4; showClub(); } if (e.code === 'KeyT') $('topBtn').click(); });
 addEventListener('keyup', e => { if (e.code === 'Space') release(); });
 const keys = {}; addEventListener('keydown', e => keys[e.code] = 1); addEventListener('keyup', e => keys[e.code] = 0);
 const WXS = [['🌅 เย็นทอง', 17.9, 'clear'], ['☀️ บ่าย', 14, 'clear'], ['🌤 เช้า', 8.3, 'hazy'], ['☁️ ครึ้ม', 15, 'overcast'], ['🌧 ฝน', 16, 'rain']];
@@ -45,4 +49,5 @@ function sfx(k){
   else { o.type = 'sine'; o.frequency.setValueAtTime(260, t); o.frequency.exponentialRampToValueAtTime(120, t + .06); env(.002, .08, .2); }
   o.start(t); o.stop(t + .8);
 }
+
 

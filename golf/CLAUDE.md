@@ -10,6 +10,8 @@ Live: https://namchasang.github.io/paulperthailab/golf/ (GitHub Pages of this re
   Change the library file in `lib/`, then from the repo root:
   `python3 lib/tools/libpack.py --into golf/index.html kangaroo magpie aussie-flora golfer golf-props sky-weather ocean heightfield`
   and `cd golf && python3 tools/gamekit.py build` (it re-splits). Do not edit the library parts inside game-src.
+  Order matters: build any pending game-src edits FIRST, then run libpack, then build again. Running libpack while parts
+  are edited makes gamekit stop (both changed), and a re-split renames parts and drops stale files.
 - Terrain data: `const TERRAIN` part, made by `lib/tools/terrain-pack.py -33.5598 115.0089 2540 200 out.js` (200x200 samples, 12.7 m).
 
 ## Layout (game coords: metres, +x east, -z north, sea to the west)
@@ -17,6 +19,9 @@ Live: https://namchasang.github.io/paulperthailab/golf/ (GitHub Pages of this re
 - `H(x,z)` = real ground, softened in the course corridor, shaped green/tee/bunkers. `surface()` names the lie.
 - Sea floor carved with `PPL.seaFloor` (tiles report sea as 0 m).
 - Kangaroo mob 165-223 m from the tee; they startle and hop when a ball lands near. A ball can hit one.
+- Aim helpers: `predictShot()` runs the same flight/roll physics as the real ball (wind included) and draws white flight
+  dots, gold roll dots, a landing ring and an end marker; "มุมบน" button (or T) = top-down aim camera; mini map is baked once
+  from `surface()` and redraws markers every 0.1 s; club chooser is the 2x2 grid bottom-left.
 - Magpie: once per round, after a shot rests on fairway/rough, it carries the ball 20-35 m (no penalty).
 
 ## Test

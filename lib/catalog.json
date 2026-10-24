@@ -20,7 +20,7 @@
     {"id":"kit","group":"core","status":"ready","file":"core/kit.js","deps":[],"from":"new","th":"เครื่องมือพื้นฐาน"},
     {"id":"kangaroo","group":"models/fauna","status":"ready","file":"models/fauna/kangaroo.js","deps":["kit"],"from":"rooroadrescue:035 makeRoo3","th":"จิงโจ้ ยืน/กินหญ้า/นอน/กระโดด"},
     {"id":"magpie","group":"models/fauna","status":"ready","file":"models/fauna/magpie.js","deps":["kit"],"from":"macpiemadness:024 buildMagpie","th":"นกแม็กพาย กระพือปีก"},
-    {"id":"aussie-flora","group":"models/flora","status":"ready","file":"models/flora/aussie-flora.js","deps":["kit"],"from":"new (golf)","th":"ยูคาลิปตัส เปปเปอร์มินต์ WA หญ้าต้น พุ่มชายฝั่ง หญ้ากอ หินแกรนิต + scatter"},
+    {"id":"aussie-flora","group":"models/flora","status":"ready","file":"models/flora/aussie-flora.js","deps":["kit"],"from":"new (golf)","th":"ยูคาลิปตัส เปปเปอร์มินต์ WA หญ้าต้น พุ่มชายฝั่ง หญ้ากอ กอหญ้ารัฟ หินแกรนิต + scatter (สุ่มเฉดต่อต้น)"},
     {"id":"golfer","group":"models/people","status":"ready","file":"models/people/golfer.js","deps":["kit"],"from":"new (golf)","th":"นักกอล์ฟพร้อมท่าสวิง"},
     {"id":"golf-props","group":"models/props","status":"ready","file":"models/props/golf-props.js","deps":["kit"],"from":"new (golf)","th":"ธง หลุม ที่ตั้งที ลูกกอล์ฟ เส้นทางลูก"},
     {"id":"sky-weather","group":"env","status":"ready","file":"env/sky-weather.js","deps":["kit"],"from":"new (golf)","th":"ท้องฟ้า ดวงอาทิตย์ตามเวลา เมฆ หมอก ฝน แสงเงา"},

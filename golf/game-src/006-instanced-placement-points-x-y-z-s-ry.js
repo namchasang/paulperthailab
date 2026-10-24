@@ -1,10 +1,13 @@
 /* instanced placement: points = [{x,y,z,s,ry}] */
-P.scatter = (geo, points, mat) => {
-  const m = new THREE.InstancedMesh(geo, mat || P.vmat({ roughness: .9 }), points.length), o = new THREE.Object3D();
-  points.forEach((p, i) => { o.position.set(p.x, p.y, p.z); o.rotation.set(0, p.ry || 0, 0); o.scale.setScalar(p.s || 1); o.updateMatrix(); m.setMatrixAt(i, o.matrix); });
+/* tint: {h, s, l} random jitter per instance so a stand of trees is never one flat colour */
+P.scatter = (geo, points, mat, opt = {}) => {
+  const m = new THREE.InstancedMesh(geo, mat || P.vmat({ roughness: .9 }), points.length), o = new THREE.Object3D(), R = P.rng(opt.seed || 7), c = new THREE.Color();
+  points.forEach((p, i) => { o.position.set(p.x, p.y, p.z); o.rotation.set(0, p.ry || 0, 0); o.scale.setScalar(p.s || 1); o.updateMatrix(); m.setMatrixAt(i, o.matrix);
+    if (opt.tint) { const t = opt.tint; c.setHSL(0, 0, 1); c.setRGB(1, 1, 1); const l = 1 + (R() - .5) * 2 * (t.l || 0); c.setRGB(l * (1 + (R() - .5) * (t.h || 0)), l, l * (1 + (R() - .5) * (t.h || 0) * .6)); m.setColorAt(i, c); } });
+  if (m.instanceColor) m.instanceColor.needsUpdate = true;
   m.castShadow = true; m.receiveShadow = true; return m;
 };
-['gumGeo', 'peppermintGeo', 'grassTreeGeo', 'heathGeo', 'tussockGeo', 'boulderGeo'].forEach(id => P.reg(id, { group: 'models/flora', from: 'new (golf)' }));
+['gumGeo', 'peppermintGeo', 'grassTreeGeo', 'heathGeo', 'tussockGeo', 'turfGeo', 'boulderGeo'].forEach(id => P.reg(id, { group: 'models/flora', from: 'new (golf)' }));
 })();
 /* ==== PPL golfer (simple adult rig with club; reusable for any standing person) ====
    const g = PPL.golfer({shirt:'#2f6f9f', pants:'#e8e2d0', skin:'#c99a78', cap:'#f2f2ee'});

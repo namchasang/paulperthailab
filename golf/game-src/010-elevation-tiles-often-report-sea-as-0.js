@@ -2,6 +2,11 @@
    distance from the shore (chamfer distance over the grid). Call before building meshes. */
 P.seaFloor = (T, land = .3, grade = .035, max = 30) => {
   const { n, cell, data: H } = T, D = new Float32Array(n * n).fill(1e9);
+  /* only water that reaches the edge of the map is sea; small low pockets inland (tile noise, dry swamps) become land */
+  const sea = new Uint8Array(n * n), q = [];
+  for (let i = 0; i < n; i++) for (const k of [i, (n - 1) * n + i, i * n, i * n + n - 1]) if (H[k] <= land && !sea[k]) { sea[k] = 1; q.push(k); }
+  while (q.length) { const k = q.pop(), i = k % n, j = (k / n) | 0; for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const a = i + di, b = j + dj; if (a < 0 || b < 0 || a >= n || b >= n) continue; const kk = b * n + a; if (!sea[kk] && H[kk] <= land) { sea[kk] = 1; q.push(kk); } } }
+  for (let k = 0; k < n * n; k++) if (!sea[k] && H[k] <= land) H[k] = land + .6;
   for (let k = 0; k < n * n; k++) if (H[k] > land) D[k] = 0;
   const s2 = Math.SQRT2;
   for (let pass = 0; pass < 2; pass++) {

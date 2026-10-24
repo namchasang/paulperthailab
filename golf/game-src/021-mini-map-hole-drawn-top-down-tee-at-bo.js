@@ -1,10 +1,38 @@
+/* mini map: the hole drawn top-down, tee at the bottom, green at the top */
+const MM = (() => {
+  const cv = $('mini'), cx = cv.getContext('2d'), Wp = cv.width, Hp = cv.height, A0 = -30, A1 = LEN + 40, PW = 70;
+  const sy = Hp / (A1 - A0), sx = Wp / (PW * 2);
+  const toXY = (x, z) => { const [a, p] = toAP(x, z); return [Wp / 2 + p * sx, Hp - (a - A0) * sy]; };
+  const base = document.createElement('canvas'); base.width = Wp; base.height = Hp; const b = base.getContext('2d'), img = b.createImageData(Wp, Hp);
+  const COL = { water: [46, 120, 170], beach: [221, 205, 168], native: [112, 120, 82], rough: [64, 104, 46], fairway: [104, 166, 70], fringe: [92, 160, 64], green: [126, 200, 92], tee: [110, 172, 74], bunker: [232, 214, 168] };
+  for (let j = 0; j < Hp; j++) for (let i = 0; i < Wp; i++) {
+    const a = A0 + (Hp - j) / sy, p = (i - Wp / 2) / sx, q = fromAP(a, p), sf = inNear(q.x, q.z) ? surface(q.x, q.z) : 'native', c = COL[sf] || COL.native, k = (j * Wp + i) * 4;
+    img.data[k] = c[0]; img.data[k + 1] = c[1]; img.data[k + 2] = c[2]; img.data[k + 3] = 255;
+  }
+  b.putImageData(img, 0, 0);
+  pts.pep.concat(pts.gum).forEach(t => { const [x, y] = toXY(t.x, t.z); if (x < -4 || x > Wp + 4 || y < -4 || y > Hp + 4) return; b.fillStyle = 'rgba(30,52,26,.85)'; b.beginPath(); b.arc(x, y, 2.6, 0, 7); b.fill(); });
+  const dot = (x, y, r, f, st) => { cx.beginPath(); cx.arc(x, y, r, 0, 7); cx.fillStyle = f; cx.fill(); if (st) { cx.lineWidth = 1.5; cx.strokeStyle = st; cx.stroke(); } };
+  let acc = 0;
+  return dt => {
+    acc += dt; if (acc < .1) return; acc = 0;
+    cx.drawImage(base, 0, 0);
+    roos.forEach(r => { const [x, y] = toXY(r.position.x, r.position.z); dot(x, y, 2.6, '#8a5a3a'); });
+    const r = S.mode === 'aim' && PV.res;
+    if (r) { cx.lineWidth = 2; cx.strokeStyle = 'rgba(255,255,255,.95)'; cx.setLineDash([4, 3]); cx.beginPath(); [S.pos].concat(r.fly).forEach((p, i) => { const [x, y] = toXY(p.x, p.z); i ? cx.lineTo(x, y) : cx.moveTo(x, y); }); cx.stroke();
+      cx.strokeStyle = '#ffcf5a'; cx.beginPath(); [r.land].concat(r.roll).forEach((p, i) => { const [x, y] = toXY(p.x, p.z); i ? cx.lineTo(x, y) : cx.moveTo(x, y); }); cx.stroke(); cx.setLineDash([]);
+      const [ex, ey] = toXY(r.end.x, r.end.z); dot(ex, ey, 4, 'rgba(0,0,0,0)', r.out ? '#ff6a4a' : '#ffcf5a'); }
+    const [px, py] = toXY(PIN.x, PIN.z); cx.fillStyle = '#fff'; cx.fillRect(px - .75, py - 12, 1.5, 12); cx.fillStyle = '#e0322b'; cx.fillRect(px + .75, py - 12, 7, 5);
+    if (mag.visible) { const [x, y] = toXY(mag.position.x, mag.position.z); dot(x, y, 3.2, '#111', '#fff'); }
+    const [bx, by] = toXY(S.pos.x, S.pos.z); dot(bx, by, 4.2, '#ffffff', '#1d2a12');
+  };
+})();
 /* ---------- main loop ---------- */
 let last = performance.now(), clock = 0;
 function frame(now){ requestAnimationFrame(frame); const dt = Math.min(.05, (now - last) / 1000); last = now; tick(dt); }
 function tick(dt, noRender){
   clock += dt;
   if (S.mode === 'aim') {
-    if (keys.ArrowLeft) { S.yaw += dt * .6; placeGolfer(); } if (keys.ArrowRight) { S.yaw -= dt * .6; placeGolfer(); }
+    if (keys.ArrowLeft) { S.yaw += dt * .6; placeGolfer(); PV.dirty = true; } if (keys.ArrowRight) { S.yaw -= dt * .6; placeGolfer(); PV.dirty = true; }
     if (S.charging) { S.chargeT += dt; const ph = (S.chargeT / 1.15) % 2; S.power = ph < 1 ? ph : 2 - ph; }
     camAim(false);
   }
@@ -31,12 +59,7 @@ function tick(dt, noRender){
   else if (MG.on) tickMagpie(dt);
   if (S.mode === 'holed') { const a = clock * .25; S.cam.lerp(V(PIN.x + Math.sin(a) * 9, H(PIN.x, PIN.z) + 3.5, PIN.z + Math.cos(a) * 9), .03); S.look.lerp(V(PIN.x, H(PIN.x, PIN.z) + .5, PIN.z), .1); }
   if (S.mode === 'title') { const a = Math.sin(clock * .05) * 18; const q = fromAP(-25, -14 + a); S.cam.set(q.x, HT + 9, q.z); const l = fromAP(LEN * .7, a * .5); S.look.set(l.x, HG + 2, l.z); }
-  /* aim helpers */
-  const reach = (c, pw) => c.k === 'putter' ? 92 * pw * pw : c.carry * Math.pow(c.k === 'driver' ? .45 + .55 * pw : .25 + .75 * pw, 2);
-  const showAim = S.mode === 'aim'; ring.visible = showAim; aimDots.forEach(d => d.visible = showAim);
-  if (showAim) { const c = CLUBS[S.club], d = aimDir(), full = S.charging ? reach(c, Math.max(.03, S.power)) : c.k === 'putter' ? Math.min(distToPin(), 16) : c.carry;
-    aimDots.forEach((m, i) => { const k = (i + 1) / aimDots.length * full, x = S.pos.x + d.x * k, z = S.pos.z + d.z * k; m.position.set(x, H(x, z) + .08, z); m.scale.setScalar(c.k === 'putter' ? .35 : 1 + k / 120); });
-    const x = S.pos.x + d.x * full, z = S.pos.z + d.z * full; ring.position.set(x, H(x, z) + .1, z); ring.scale.setScalar(c.k === 'putter' ? .25 : 1 + full / 150); }
+  updateAim(dt); MM(dt);
   $('meter').querySelector('i').style.height = (S.power * 100) + '%';
   roos.forEach(r => { P.kangarooTick(r, dt); if (r.userData.calm > 0) { r.userData.calm -= dt; if (r.userData.calm <= 0 && r.userData.state !== 'hop') { r.userData.restPose = 'graze'; r.userData.setPose('graze'); } } });
   flag.userData.tick(clock, S.wind.length() / 5, Math.atan2(S.wind.x, S.wind.z) - Math.PI / 2);

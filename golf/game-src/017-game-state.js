@@ -11,7 +11,9 @@ function setWind(){ const a = 4.2 + (R() - .5) * 1.4, s = 1.5 + R() * 4; S.wind.
 function distToPin(){ return Math.hypot(S.pos.x - PIN.x, S.pos.z - PIN.z); }
 function autoClub(){ const sf = surface(S.pos.x, S.pos.z), d = distToPin();
   S.club = sf === 'green' || sf === 'fringe' && d < 25 ? 3 : d > 175 ? 0 : d > 100 ? 1 : 2; if (S.club === 0 && sf !== 'tee' && sf !== 'fairway') S.club = 1; showClub(); }
-function showClub(){ const c = CLUBS[S.club]; $('club').innerHTML = c.th + '<small>แตะเพื่อเปลี่ยนไม้</small>'; golfer.userData.setClub(c.k); placeGolfer(); }
+function showClub(){ const c = CLUBS[S.club];
+  $('clubs').innerHTML = CLUBS.map((k, i) => `<button class="cl${i === S.club ? ' on' : ''}" data-i="${i}">${k.th}<small>${k.k === 'putter' ? 'บนกรีน' : 'ไกลสุด ~' + k.carry + ' ม.'}</small></button>`).join('');
+  golfer.userData.setClub(c.k); placeGolfer(); PV.dirty = true; }
 function resetHole(){
   S.strokes = 0; S.holed = false; S.events = 0; MG.done = false; MG.on = false; mag.visible = false;
   S.pos.set(TEE.x + DIR.x * .5, HT + .03, TEE.z + DIR.z * .5); S.vel.set(0, 0, 0); trail.userData.clear();
