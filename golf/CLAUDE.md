@@ -8,7 +8,7 @@ Live: https://namchasang.github.io/paulperthailab/golf/ (GitHub Pages of this re
 - Open `game-src/MAP.md`, grep, edit a part, then `python3 tools/gamekit.py build`. Never read index.html whole.
 - The block between `/* PPL-LIB-START */` and `/* PPL-LIB-END */` is generated from the shared library `../lib/`.
   Change the library file in `lib/`, then from the repo root:
-  `python3 lib/tools/libpack.py --into golf/index.html kangaroo magpie aussie-flora golfer golf-props sky-weather ocean heightfield`
+  `python3 lib/tools/libpack.py --into golf/index.html kangaroo magpie aussie-flora golfer golfer-human golf-props sky-weather ocean heightfield`
   and `cd golf && python3 tools/gamekit.py build` (it re-splits). Do not edit the library parts inside game-src.
   Order matters: build any pending game-src edits FIRST, then run libpack, then build again. Running libpack while parts
   are edited makes gamekit stop (both changed), and a re-split renames parts and drops stale files.

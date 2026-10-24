@@ -1,7 +1,10 @@
 /* ---------- hole props ---------- */
 const flag = P.flagPin({ color: '#e0322b' }); flag.position.set(PIN.x, H(PIN.x, PIN.z), PIN.z); scene.add(flag);
 const tees = P.teeMarkers('#2a6fd6'); { const q = fromAP(1.5, 0); tees.position.set(q.x, HT, q.z); tees.rotation.y = Math.atan2(PERP.x, PERP.z) + Math.PI / 2; } scene.add(tees);
-const golfer = P.golfer({ shirt: '#f3f1ea', pants: '#2b3a55', cap: '#1f6f8b' }); scene.add(golfer);
+let golfer = P.golfer({ shirt: '#f3f1ea', pants: '#2b3a55', cap: '#1f6f8b' }); scene.add(golfer);
+/* swap in the realistic golfer when its files arrive (the simple one stays if they can't load) */
+P.human.load('m').then(kit => { const g = P.golferHuman(kit, { shirt: '#f3f1ea', pants: '#2b3a55', shoes: '#f4f4f0', cap: '#1f6f8b', hair: '#2e2119' });
+  scene.remove(golfer); golfer = g; scene.add(g); g.userData.setClub(CLUBS[S.club].k); placeGolfer(); }).catch(e => console.warn('realistic golfer unavailable', e));
 const ball = P.golfBall(); ball.scale.setScalar(2.2); scene.add(ball);
 const trail = P.trail(160); scene.add(trail);
 const BR = .0214 * 2.2; /* render radius used for ground contact */

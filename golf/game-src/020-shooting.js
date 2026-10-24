@@ -8,7 +8,7 @@ function launch(){
   S.last.copy(S.pos); S.strokes++; S.flightT = 0; S.spinT = 0; S.mode = c.k === 'putter' ? 'roll' : 'flight';
   S.pos.y += .02; trail.userData.clear(); sfx(c.k === 'putter' ? 'putt' : 'hit'); hud();
 }
-function penalty(msg){ S.strokes++; toast(msg, 'เสีย 1 แต้ม · วางลูกที่เดิม'); S.pos.copy(S.last); S.vel.set(0, 0, 0); S.mode = 'settle'; S.rest = 0; sfx('splash'); }
+function penalty(msg){ golfer.userData.sad && golfer.userData.sad(); S.strokes++; toast(msg, 'เสีย 1 แต้ม · วางลูกที่เดิม'); S.pos.copy(S.last); S.vel.set(0, 0, 0); S.mode = 'settle'; S.rest = 0; sfx('splash'); }
 const G = 9.81, KD = .0047, KL = .003;
 function stepBall(dt){
   const p = S.pos, v = S.vel;
@@ -58,6 +58,7 @@ function rooHit(){
       toast('ลูกโดนจิงโจ้!', 'มันไม่เป็นไร แต่โกรธนิดหน่อย'); sfx('thump'); startle(p.x, p.z, 3); return; } }
 }
 function holed(){
+  golfer.userData.celebrate && golfer.userData.celebrate();
   S.holed = true; S.mode = 'holed'; S.vel.set(0, 0, 0); S.pos.set(PIN.x, H(PIN.x, PIN.z) - .06, PIN.z); sfx('cup');
   const d = S.strokes - PAR, names = { '-3': 'อัลบาทรอส!', '-2': 'อีเกิล!', '-1': 'เบอร์ดี้!', '0': 'พาร์', '1': 'โบกี้', '2': 'ดับเบิลโบกี้' };
   const nm = S.strokes === 1 ? 'โฮลอินวัน!!' : names[d] || `+${d}`;

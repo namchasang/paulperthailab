@@ -56,6 +56,8 @@ a{color:var(--gold)}
 <script src="models/fauna/magpie.js"></script>
 <script src="models/flora/aussie-flora.js"></script>
 <script src="models/people/golfer.js"></script>
+<script src="models/people/human.js"></script>
+<script src="models/people/golfer-human.js"></script>
 <script src="models/props/golf-props.js"></script>
 <script src="env/sky-weather.js"></script>
 <script>
@@ -90,6 +92,19 @@ const PREV = {
   'golf-props': () => { const f = P.flagPin(); holder.add(f); const t = P.teeMarkers(); t.position.z = 2; holder.add(t); frame = { dist: 6, h: 1.4, look: 1 }; anim = (tt) => f.userData.tick(tt, .8); return 'ธงพร้อมหลุม · ที่ตั้งที · ลูกกอล์ฟ · เส้นทางลูก'; },
   'sky-weather': () => { const r = P.kangaroo({ pose: 'graze' }); holder.add(r); [[-6, -8], [5, -10], [-3, 9]].forEach(([x, z], i) => { const m = new THREE.Mesh(P.peppermintGeo(i + 1), P.vmat()); m.position.set(x, 0, z); m.castShadow = true; holder.add(m); });
     frame = { dist: 16, h: 2.5, look: 3 }; showWx = true; return 'ลองกดเปลี่ยนเวลาและสภาพอากาศด้านล่าง'; },
+  human: () => { frame = { dist: 5.2, h: 1.5, look: .95 }; const tok = holder.uuid;
+    PPL.human.base = 'assets/characters/';
+    Promise.all([PPL.human.load('m'), PPL.human.load('f')]).then(([m, f]) => { if (holder.uuid !== tok || holder.children.length) return;
+      const people = [m.make({ shirt: '#f3f1ea', pants: '#2b3a55' }), f.make({ shirt: '#e86a8a', pants: '#efe9dc', hair: '#5a3a24' }), m.make({ shirt: '#2f6f9f', pants: '#d8cfb4', skin: .72, beard: true, hair: '#1a1410' })];
+      const clips = ['Idle_Loop', 'Walk_Loop', 'Yes']; people.forEach((p, i) => { p.position.x = (i - 1) * 1.1; p.rotation.y = .3; holder.add(p); p.userData.play(clips[i]); });
+      anim = (t, dt) => people.forEach(p => p.userData.update(dt)); });
+    return 'ชาย/หญิง เปลี่ยนสีเสื้อ กางเกง ผม สีผิว มีเครา · 12 ท่า: ยืน เดิน วิ่ง ดีใจ ส่ายหัว นั่ง ขับรถ คุยโทรศัพท์ เต้น'; },
+  'golfer-human': () => { frame = { dist: 4.4, h: 1.4, look: .9 }; PPL.human.base = 'assets/characters/';
+    PPL.human.load('m').then(m => { if (holder.children.length) return; const g = PPL.golferHuman(m, {}); g.rotation.y = -Math.PI / 2; holder.add(g); const b = PPL.golfBall(); b.scale.setScalar(2); holder.add(b);
+      const clubs = ['driver', 'iron', 'wedge', 'putter']; let k = 0, lastPh = 1;
+      anim = t => { const ph = (t % 2.6) / 2.6; if (ph < lastPh) g.userData.setClub(clubs[k++ % 4]); lastPh = ph; g.userData.swing(Math.min(1, ph * 1.2));
+        const h = new THREE.Vector3(); if (ph < .02) { g.userData.swing(0); g.userData.clubHead.getWorldPosition(h); b.position.set(h.x, .045, h.z); } }; });
+    return 'วงสวิงด้วย IK บนตัวละครสมจริง เปลี่ยนไม้ทุกรอบ'; },
   kit: () => { frame = { dist: 6, h: 1.4, look: .8 }; return 'ฟังก์ชันพื้นฐาน: สุ่มแบบกำหนด seed, noise, รวม geometry, ระบายสี, วัสดุ, สีแบบ sRGB → linear'; },
   ocean: () => 'ดูของจริงในเกมกอล์ฟ', heightfield: () => 'ดูของจริงในเกมกอล์ฟ', 'terrain-pack': () => 'เครื่องมือ Python ดึงความสูงจริงจาก lat/lon'
 };
