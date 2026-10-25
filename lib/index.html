@@ -59,6 +59,12 @@ a{color:var(--gold)}
 <script src="models/people/human.js"></script>
 <script src="models/people/golfer-human.js"></script>
 <script src="models/props/golf-props.js"></script>
+<script src="models/vehicles/retro-hatch.js"></script>
+<script src="models/vehicles/jet-plane.js"></script>
+<script src="models/props/freeway-sign.js"></script>
+<script src="models/props/picket-fence.js"></script>
+<script src="models/props/fountain.js"></script>
+<script src="models/buildings/verandah-shop.js"></script>
 <script src="env/sky-weather.js"></script>
 <script>
 (async function(){
@@ -105,6 +111,12 @@ const PREV = {
       anim = t => { const ph = (t % 2.6) / 2.6; if (ph < lastPh) g.userData.setClub(clubs[k++ % 4]); lastPh = ph; g.userData.swing(Math.min(1, ph * 1.2));
         const h = new THREE.Vector3(); if (ph < .02) { g.userData.swing(0); g.userData.clubHead.getWorldPosition(h); b.position.set(h.x, .045, h.z); } }; });
     return 'วงสวิงด้วย IK บนตัวละครสมจริง เปลี่ยนไม้ทุกรอบ'; },
+  'retro-hatch': () => { P.RETRO_COLOURS.slice(0, 5).forEach((c, i) => { const m = P.retroHatch({ body: c }); m.position.set((i - 2) * 1.5, 0, 0); m.rotation.y = .6; holder.add(m); }); frame = { dist: 10, h: 2.2, look: .4 }; return 'ห้าสี สองโทน หลังคาตัดสี · ใช้ใน Quokka Cafe (Fremantle, CBD, สนามบิน)'; },
+  'jet-plane': () => { const a = P.jetPlane({ tail: '#2a9a8a' }); a.rotation.y = .7; holder.add(a); frame = { dist: 16, h: 4, look: 1.2 }; return 'เครื่องบินลำตัวแคบ สายการบินสมมติ เปลี่ยนสีหางได้'; },
+  'freeway-sign': () => { const g = P.freewaySign({ route: '30', road: 'ALBANY HWY', to: [['Perth Airport', 10], ['Armadale', 26], ['Albany', 405]], strip: 'WORLD MAP →' }); holder.add(g); frame = { dist: 5.5, h: 2, look: 2 }; return 'ใส่หมายเลข ชื่อถนน เมือง และ กม. เองได้'; },
+  'picket-fence': () => { holder.add(P.picketFence([[-4, 0], [3, 0], [4, 1.5]])); frame = { dist: 7, h: 1.6, look: .5 }; return 'วางตามเส้นจุด ใช้ instancing ประหยัด · low:true สำหรับขอบใกล้กล้อง'; },
+  fountain: () => { const f = P.fountain(); holder.add(f); frame = { dist: 5, h: 2, look: 1 }; anim = t => f.userData.tick(t); return 'น้ำพุ่งขยับ · ใช้ใน Perth CBD และ Kings Park'; },
+  'verandah-shop': () => { const a = P.verandahShop({ name: 'HARBOUR BOOKS', col: '#3e6a52', signBg: '#efe3c4', signFg: '#2c4a3a', wrap: 'w' }); a.position.x = -2.6; const b = P.verandahShop({ name: 'CASA GAVIOTA', col: '#efe0c0', spanish: true, iron: '#3a2a20', roof: '#c86a3a', signBg: '#b8603a' }); b.position.x = 2.4; holder.add(a, b); frame = { dist: 17, h: 4, look: 2 }; return 'แบบ Victorian และทรงสเปน ระเบียงอ้อมมุมได้ · userData.night(n) เปิดไฟหน้าต่าง'; },
   kit: () => { frame = { dist: 6, h: 1.4, look: .8 }; return 'ฟังก์ชันพื้นฐาน: สุ่มแบบกำหนด seed, noise, รวม geometry, ระบายสี, วัสดุ, สีแบบ sRGB → linear'; },
   ocean: () => 'ดูของจริงในเกมกอล์ฟ', heightfield: () => 'ดูของจริงในเกมกอล์ฟ', 'terrain-pack': () => 'เครื่องมือ Python ดึงความสูงจริงจาก lat/lon'
 };

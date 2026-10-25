@@ -15,6 +15,9 @@ python3 lib/tools/libpack.py --into <game>/index.html kangaroo sky-weather ...  
 The game needs the markers `/* PPL-LIB-START */` and `/* PPL-LIB-END */` inside a `<script>` after three.js.
 Dependencies (kit first) are added automatically. For a game in another repo, copy the generated block in.
 
+## Approved assets (Paul OK)
+Items with `"approved"` in catalog.json passed Paul's phone test in a game. `"style"` is `3d` (low-poly: buildings, vehicles, props) or `sprite` (pixel billboard: plants, people, animals), per the Quokka art rule.
+
 ## Add or move an item
 1. Put the code in the right folder as a self-contained IIFE that uses `window.PPL` helpers, ends with `P.reg(id, {...})`.
 2. Add or update its catalog entry (`status: ready`, `file`, `deps`, `from`, `th`).

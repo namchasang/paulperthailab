@@ -1,6 +1,6 @@
 {
  "name": "Paul Perth Library (PPL)",
- "version": "0.2",
+ "version": "0.3",
  "about": "Shared building blocks for every Paul Perth game. ready = in lib/ now; planned = still inside a game, move it here the next time that game is worked on.",
  "groups": {
   "core": "helpers every item needs (random, noise, merge, paint, materials)",
@@ -346,6 +346,93 @@
    "status": "planned",
    "from": "paulperthailab tools/fb-cards.py (Kanit, Pixelify Sans)",
    "th": "ฟอนต์ สี โลโก้ การ์ดโพสต์"
+  },
+  {
+   "id": "retro-hatch",
+   "group": "models/vehicles",
+   "status": "ready",
+   "file": "models/vehicles/retro-hatch.js",
+   "deps": [
+    "kit"
+   ],
+   "from": "quokka-cafe: makeCar retro",
+   "th": "รถเล็กเรโทรสองสี หลังคาดำ ไฟกลม (3d · Paul อนุมัติ)",
+   "style": "3d",
+   "approved": "2026-10-25"
+  },
+  {
+   "id": "jet-plane",
+   "group": "models/vehicles",
+   "status": "ready",
+   "file": "models/vehicles/jet-plane.js",
+   "deps": [
+    "kit"
+   ],
+   "from": "quokka-cafe: AIR.makePlane",
+   "th": "เครื่องบินลำตัวแคบ ปีกลู่ เครื่องยนต์ใต้ปีก ล้อลงจอด (3d · Paul อนุมัติ)",
+   "style": "3d",
+   "approved": "2026-10-25"
+  },
+  {
+   "id": "freeway-sign",
+   "group": "models/props",
+   "status": "ready",
+   "file": "models/props/freeway-sign.js",
+   "deps": [
+    "kit"
+   ],
+   "from": "quokka-cafe: roadSign",
+   "th": "ป้ายทางหลวงสีเขียว โล่หมายเลข ชื่อถนน เมืองและ กม. (3d · Paul อนุมัติ)",
+   "style": "3d",
+   "approved": "2026-10-25"
+  },
+  {
+   "id": "picket-fence",
+   "group": "models/props",
+   "status": "ready",
+   "file": "models/props/picket-fence.js",
+   "deps": [
+    "kit"
+   ],
+   "from": "quokka-cafe: fenceRun",
+   "th": "รั้วซี่ขาวบนกำแพงบล็อกหินทราย (3d · Paul อนุมัติ)",
+   "style": "3d",
+   "approved": "2026-10-25"
+  },
+  {
+   "id": "fountain",
+   "group": "models/props",
+   "status": "ready",
+   "file": "models/props/fountain.js",
+   "deps": [
+    "kit"
+   ],
+   "from": "quokka-cafe: city2 fountain",
+   "th": "น้ำพุหินสองชั้น น้ำพุ่งขยับได้ (3d · Paul อนุมัติ)",
+   "style": "3d",
+   "approved": "2026-10-25"
+  },
+  {
+   "id": "verandah-shop",
+   "group": "models/buildings",
+   "status": "ready",
+   "file": "models/buildings/verandah-shop.js",
+   "deps": [
+    "kit"
+   ],
+   "from": "quokka-cafe: vic()",
+   "th": "ตึกแถว Victorian/สเปน ระเบียงเหล็กฉลุ ไฟหน้าต่างกลางคืน (3d · Paul อนุมัติ)",
+   "style": "3d",
+   "approved": "2026-10-25"
+  },
+  {
+   "id": "world-map",
+   "group": "systems",
+   "status": "planned",
+   "from": "quokka-cafe: wmBuild (world map engine)",
+   "th": "แผนที่โลกแบบ RPG ขับรถระหว่างเมือง หาทางอัตโนมัติ ขึ้นเฟอร์รี่ (sprite/2D · Paul อนุมัติ)",
+   "style": "sprite",
+   "approved": "2026-10-25"
   }
  ]
 }
