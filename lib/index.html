@@ -71,7 +71,7 @@ a{color:var(--gold)}
 (async function(){
 const P = PPL, $ = id => document.getElementById(id);
 const cat = await fetch('catalog.json').then(r => r.json());
-const GN = { 'core': 'พื้นฐาน', 'models/fauna': 'สัตว์', 'models/flora': 'ต้นไม้ พืช หิน', 'models/people': 'คน', 'models/vehicles': 'รถ', 'models/buildings': 'อาคาร', 'models/props': 'ของประกอบฉาก', 'env': 'ท้องฟ้า แสง อากาศ น้ำ', 'terrain': 'ภูมิประเทศ', 'systems': 'ระบบเกม', 'audio': 'เสียงและเพลง', 'brand': 'แบรนด์' };
+const GN = { 'core': 'พื้นฐาน', 'models/fauna': 'สัตว์', 'models/flora': 'ต้นไม้ พืช หิน', 'models/people': 'คน', 'models/vehicles': 'รถ', 'models/buildings': 'อาคาร', 'scenes': 'ฉากเต็ม', 'models/props': 'ของประกอบฉาก', 'env': 'ท้องฟ้า แสง อากาศ น้ำ', 'terrain': 'ภูมิประเทศ', 'systems': 'ระบบเกม', 'audio': 'เสียงและเพลง', 'brand': 'แบรนด์' };
 const ready = cat.items.filter(i => i.status === 'ready').length;
 $('count').textContent = `พร้อมใช้ ${ready} · รอย้ายจากเกมเดิม ${cat.items.length - ready} · v${cat.version}`;
 
@@ -119,6 +119,8 @@ const PREV = {
   'picket-fence': () => { holder.add(P.picketFence([[-4, 0], [3, 0], [4, 1.5]])); frame = { dist: 7, h: 1.6, look: .5 }; return 'วางตามเส้นจุด ใช้ instancing ประหยัด · low:true สำหรับขอบใกล้กล้อง'; },
   fountain: () => { const f = P.fountain(); holder.add(f); frame = { dist: 5, h: 2, look: 1 }; anim = t => f.userData.tick(t); return 'น้ำพุ่งขยับ · ใช้ใน Perth CBD และ Kings Park'; },
   'verandah-shop': () => { const a = P.verandahShop({ name: 'HARBOUR BOOKS', col: '#3e6a52', signBg: '#efe3c4', signFg: '#2c4a3a', wrap: 'w' }); a.position.x = -2.6; const b = P.verandahShop({ name: 'CASA GAVIOTA', col: '#efe0c0', spanish: true, iron: '#3a2a20', roof: '#c86a3a', signBg: '#b8603a' }); b.position.x = 2.4; holder.add(a, b); frame = { dist: 17, h: 4, look: 2 }; return 'แบบ Victorian และทรงสเปน ระเบียงอ้อมมุมได้ · userData.night(n) เปิดไฟหน้าต่าง'; },
+  'perth-overworld': () => { window.open('scenes/perth-overworld/', '_blank'); return '<a href="scenes/perth-overworld/" target="_blank">เปิดเล่นโลก 3D (แท็บใหม่)</a> · Terrain: Terrain Tiles on AWS'; },
+  'town-models': () => { window.open('scenes/town-models/', '_blank'); return '<a href="scenes/town-models/" target="_blank">เปิดดูโมเดลเมือง (แท็บใหม่)</a>'; },
   kit: () => { frame = { dist: 6, h: 1.4, look: .8 }; return 'ฟังก์ชันพื้นฐาน: สุ่มแบบกำหนด seed, noise, รวม geometry, ระบายสี, วัสดุ, สีแบบ sRGB → linear'; },
   ocean: () => 'ดูของจริงในเกมกอล์ฟ', heightfield: () => 'ดูของจริงในเกมกอล์ฟ', 'terrain-pack': () => 'เครื่องมือ Python ดึงความสูงจริงจาก lat/lon'
 };

@@ -1,6 +1,6 @@
 {
  "name": "Paul Perth Library (PPL)",
- "version": "0.4",
+ "version": "0.5",
  "about": "Shared building blocks for every Paul Perth game. ready = in lib/ now; planned = still inside a game, move it here the next time that game is worked on.",
  "groups": {
   "core": "helpers every item needs (random, noise, merge, paint, materials)",
@@ -14,7 +14,8 @@
   "terrain": "real-elevation ground, ground colour, roads and paths",
   "systems": "menus, scores, ranking, shop, licence, save, touch input, Look Lab",
   "audio": "music generators and sound effects made in code",
-  "brand": "fonts, colours, logo, store and Facebook card templates"
+  "brand": "fonts, colours, logo, store and Facebook card templates",
+  "scenes": "whole playable scenes and viewers built from library parts (open them directly)"
  },
  "items": [
   {
@@ -444,6 +445,28 @@
    ],
    "from": "rooroadrescue:035 makeCar3",
    "th": "รถ 6 คันจาก Roo Road Rescue: กระบะ V8, 4x4, ไฮบริด, แฮทช์, แคมเปอร์, SUV (3d · Paul อนุมัติ)",
+   "style": "3d",
+   "approved": "2026-10-25"
+  },
+  {
+   "id": "perth-overworld",
+   "group": "scenes",
+   "status": "ready",
+   "file": "scenes/perth-overworld/index.html",
+   "deps": [],
+   "from": "quokka-cafe overworld prototype",
+   "th": "โลก 3D Fremantle ถึงสนามบินจากแผนที่จริง เดิน/ขับรถ 10 ชั้น (3d+sprite · Paul อนุมัติ)",
+   "style": "3d",
+   "approved": "2026-10-25"
+  },
+  {
+   "id": "town-models",
+   "group": "scenes",
+   "status": "ready",
+   "file": "scenes/town-models/index.html",
+   "deps": [],
+   "from": "quokka-cafe town models",
+   "th": "โมเดลเมืองย่อส่วน 7 เมือง 10 ชั้น (3d+sprite · Paul อนุมัติ)",
    "style": "3d",
    "approved": "2026-10-25"
   }
