@@ -1,5 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}body{margin:0}</style></head><body>
-<title>Quokka Town Models</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}body{margin:0}<<title>Quokka Town Models</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=M+PLUS+Rounded+1c:wght@500;800&display=swap">
 <style>
@@ -110,7 +109,7 @@ const base=(draw,opts)=>{opts=opts||{};const S=40;
   return{X:x=>(x+S/2)/S*256,Z:z=>(z+S/2)/S*256,k:256/S};};
 // seven-shade grass, sand, paving painted on the base canvas
 const GRASS=['#3a5e2c','#4a7232','#5a863a','#6e9a44','#86ae52','#a2c068','#b8d07a'],SANDS=['#b8a476','#ccb886','#dcc898','#e8d8aa','#f4e6be'];
-const fill=(g,col,shape,noise)=>{g.save();g.beginPath();shape(g);g.closePath();g.clip();g.fillStyle=col[3]||col;g.fillRect(0,0,256,256);if(noise)for(let i=0;i<2400;i++){g.fillStyle=col[(Math.random()*col.length)|0];g.fillRect(Math.random()*256|0,Math.random()*256|0,1,1);}g.restore();};
+const fill=(g,col,shape,noise)=>{g.save();g.beginPath();shape(g);g.closePath();g.clip();g.fillStyle=Array.isArray(col)?col[Math.floor(col.length/2)]:col;g.fillRect(0,0,256,256);if(noise)for(let i=0;i<2400;i++){g.fillStyle=col[(Math.random()*col.length)|0];g.fillRect(Math.random()*256|0,Math.random()*256|0,1,1);}g.restore();};
 const poly=pts=>g=>pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));
 // roads: flat strips with lane marks
 const road=(x1,z1,x2,z2,w,o)=>{o=o||{};const L=Math.hypot(x2-x1,z2-z1),a=Math.atan2(z2-z1,x2-x1);const m=flat('roads',L,w,o.col||'#4a4d55',(x1+x2)/2,(z1+z2)/2,o.y||.035,-a);
@@ -197,6 +196,85 @@ const TOWNS={
    for(let x=-14;x<16;x+=7)lamp(x,7,2.4);}}
 };
 const ORDER=['island','freo','cbd','sp','hi','vp','air'];
+// ---------- WA road-trip towns (shared with Roo Road Rescue's Indian Ocean Drive and Lucky Bay routes) ----------
+const mound=(L,x,z,rx,h,rz,c)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(1,20,10,0,Math.PI*2,0,Math.PI/2),M(c,{flatShading:false}));m.scale.set(rx,h,rz);m.position.set(x,0,z);return tag(m,L);};
+const rock=(L,x,z,s,c)=>{const m=new THREE.Mesh(new THREE.DodecahedronGeometry(s,1),M(c||'#a8a49c'));m.scale.set(1,.7,1.1);m.position.set(x,s*.45,z);m.rotation.set(r(),r(),r());return tag(m,L);};
+const pinnacle=(x,z,h)=>{const g=new THREE.Group();const c=pick(['#e0c070','#d8b868','#e8cc80','#c8a858']);const a=new THREE.Mesh(new THREE.CylinderGeometry(h*.1,h*.2,h,7),M(c));a.position.y=h/2;g.add(a);const t=new THREE.Mesh(new THREE.DodecahedronGeometry(h*.13,0),M(c));t.position.y=h;g.add(t);g.position.set(x,0,z);g.rotation.y=r()*6;return tag(g,'mark');};
+const emu=(x,z)=>sprite('life',(g)=>{g.fillStyle='#5a4a3a';g.fillRect(2,4,7,5);g.fillRect(8,0,2,6);g.fillStyle='#3a5a8a';g.fillRect(8,1,2,2);g.fillStyle='#2a2a2a';g.fillRect(3,9,1,4);g.fillRect(6,9,1,4);},11,13,.6,.72,x,0,z);
+const dolphin=(x,z)=>sprite('life',(g)=>{g.fillStyle='#7a8a9a';g.fillRect(1,4,10,3);g.fillRect(5,2,2,2);g.fillRect(10,3,2,2);},13,8,.9,.55,x,.05,z);
+const whale=(x,z)=>sprite('life',(g)=>{g.fillStyle='#3a4450';g.fillRect(1,5,18,4);g.fillRect(15,2,4,3);g.fillStyle='#d8e8f0';g.fillRect(3,0,1,5);g.fillRect(5,1,1,4);},20,10,2.2,1.1,x,-.1,z);
+const cow=(x,z)=>sprite('life',(g)=>{g.fillStyle='#f6f2e8';g.fillRect(1,2,10,5);g.fillStyle='#1c1c1e';g.fillRect(3,2,3,3);g.fillRect(8,4,2,2);g.fillRect(10,1,2,3);g.fillRect(2,7,1,3);g.fillRect(9,7,1,3);},13,10,.8,.6,x,0,z);
+const karri=(x,z,sc)=>sprite('plants',(g)=>{g.fillStyle='#e8e2d6';g.fillRect(14,14,4,34);g.fillStyle='#c8bca8';g.fillRect(17,14,1,34);const P2=TREEC.gum[0];for(let k=0;k<50;k++){const a=Math.random()*6.28,d=Math.sqrt(Math.random())*11,px=16+Math.cos(a)*d,py=10+Math.sin(a)*d*.7;g.fillStyle=P2[Math.max(0,Math.min(6,Math.round(5-(py-2)/4+Math.random())))];g.beginPath();g.arc(px,py,2.4,0,7);g.fill();}},32,48,2.8*(sc||1),4.2*(sc||1),x,0,z);
+const grassTree=(x,z)=>sprite('plants',(g)=>{g.fillStyle='#2a2420';g.fillRect(5,8,3,8);const F=['#4a6436','#5e7a3a','#7a944a'];for(let k=0;k<16;k++){const a=-Math.PI*.95+k/15*Math.PI*.9;for(let t=0;t<1;t+=.12){g.fillStyle=F[k%3];g.fillRect(6+Math.cos(a)*6*t|0,8+Math.sin(a)*6*t+t*t*3|0,1,2);}}g.fillStyle='#6a5a3a';g.fillRect(6,0,1,8);},13,16,.9,1.1,x,0,z);
+const heath=(x,z)=>sprite('plants',(g)=>{const P2=['#55653d','#6a7a52','#7e8a5e','#9c9468'];for(let k=0;k<22;k++){g.fillStyle=P2[k%4];g.beginPath();g.arc(8+(Math.random()-.5)*12,7+(Math.random()-.5)*5,1.8,0,7);g.fill();}if(Math.random()<.4){g.fillStyle=pick(['#f6d84a','#e86a8a','#f6f2e8']);for(let k=0;k<5;k++)g.fillRect(2+Math.random()*12|0,3+Math.random()*6|0,1,1);}},16,12,1,.7,x,0,z);
+const vineRow=(x,z,len)=>{for(let k=0;k<len;k+=.8)sprite('plants',(g)=>{g.fillStyle='#6a4a30';g.fillRect(5,6,1,6);const P2=['#3e6a2a','#4e7e34','#62923e','#78a64a'];for(let i=0;i<14;i++){g.fillStyle=P2[i%4];g.fillRect(1+Math.random()*9|0,1+Math.random()*6|0,2,2);}if(Math.random()<.5){g.fillStyle='#5a2a5a';g.fillRect(3,6,2,2);g.fillRect(7,5,2,2);}},11,12,.8,.85,x+k,0,z);cyl('props',.03,.03,.9,'#8a7a62',x-.2,.45,z,5);cyl('props',.03,.03,.9,'#8a7a62',x+len,.45,z,5);};
+const camper=(x,z,ry)=>{const g=new THREE.Group();const b=new THREE.Mesh(new THREE.BoxGeometry(1.4,.8,.62),M('#f2f2ee'));b.position.y=.5;g.add(b);const s=new THREE.Mesh(new THREE.BoxGeometry(1.42,.12,.64),M('#1f8a8a'));s.position.y=.45;g.add(s);const w=new THREE.Mesh(new THREE.BoxGeometry(.3,.26,.6),M('#9cb6c6'));w.position.set(.5,.7,0);g.add(w);g.position.set(x,0,z);g.rotation.y=ry||0;tag(g,'veh');};
+const ute=(x,z,ry,c)=>{const g=carM(c||'#b8211c');g.children.slice(1,3).forEach(m=>{m.scale.x=.6;m.position.x=.12;});g.position.set(x,0,z);g.rotation.y=ry||0;tag(g,'veh');};
+const shed=(x,z,w,d,c,roofc,name,o)=>{bld(x,z,w,d,1.5,c,roofc||'#a8acb0',Object.assign({rh:.7},o||{}));if(name)sign('build',name,pick(['#1d3a6e','#3e6a52','#8a3a2a']),'#f6efd8',Math.min(w-.3,name.length*.16+.4),x,1.15,z+d/2+.02);};
+Object.assign(TOWNS,{
+ lancelin:{name:'Lancelin',note:'White sand dunes, a little jetty, crays and kite surfers on the Indian Ocean Drive',build(){
+   base(g=>{fill(g,SANDS.concat(['#f6f0dc','#fbf7ea']),poly([[70,0],[256,0],[256,256],[60,256],[56,200],[66,120]]),1);fill(g,GRASS,poly([[180,0],[256,0],[256,256],[170,256],[160,160]]),1);g.fillStyle='#d8d2c4';g.fillRect(150,40,90,60);},{title:'LANCELIN'});
+   [[-2,-12,6,1.6,4],[4,-5,4,1.2,3],[-3,2,5,1.9,4],[6,8,4,1.4,3],[0,13,5,1.5,3.5]].forEach(([x,z,rx,h,rz])=>mound('ground',x,z,rx,h,rz,'#efe6cc'));
+   road(4,-17,4,17,1.3,{foot:1});road(4,-9,19,-9,1.2);jetty(-11,-4,8,-Math.PI/2);
+   [['CRAY SHACK','#c8344a'],['DUNE SURF','#2f6fb0'],['LANCELIN STORE','#3e6a52'],['FISH & CHIPS','#e8a33a']].forEach(([n,c],i)=>shed(8+(i%2)*5,-13+Math.floor(i/2)*5,4,2.6,pick(['#efe3c4','#f6f2e8','#e8e4d8']),pick(['#a8acb0','#b8562e']),n,{aw:c}));
+   for(let i=0;i<6;i++)bld(14+(i%2)*3.5,1+Math.floor(i/2)*4,2.6,2.2,1.3,pick(['#efe3c4','#b8d4d8','#f2dc96','#e8e4d8']),pick(['#a8acb0','#2f5a7a','#b8562e']));
+   const tw=cyl('mark',.25,.3,4,'#f6f6f0',-6,2.2,-10,8);cone('mark',.4,.6,'#c8344a',-6,4.4,-10,8,0);// little navigation light on the dunes
+   [[-8,6],[-6,12],[12,12],[16,-4],[18,8]].forEach(([x,z])=>tree(x,z,'gum',1.1));for(let i=0;i<14;i++)heath(10+Math.random()*9,-16+Math.random()*32);for(let i=0;i<5;i++)grassTree(16+Math.random()*3,-14+i*6);
+   for(let i=0;i<8;i++)person(-2+Math.random()*8,-14+Math.random()*28);for(let i=0;i<3;i++)dolphin(-15+i*2,-12+i*7);
+   ute(-1,-6,.6,'#f6f6f0');ute(2,4,-.4,'#e8a33a');car(4.3,-2,Math.PI/2);camper(9,-8.4,0);boat(-15,-4,0,'#c8344a');boat(-17,8,.7,'#f6f6f0',1);boat(-14,14,-.3,'#e86a1a',1);
+   for(let k=0;k<3;k++){const kt=new THREE.Mesh(new THREE.ConeGeometry(.6,.2,3),M(pick(['#e8343a','#f6d84a','#2fb0c8'])));kt.rotation.x=Math.PI/2;kt.position.set(-14+k*3,4+k,-8+k*6);tag(kt,'veh');}
+   for(let z=-14;z<16;z+=6)lamp(5.4,z);bench(-9,-6,Math.PI/2);}},
+ pinnacles:{name:'The Pinnacles · Cervantes',note:'Limestone spires in yellow sand at Nambung, the desert loop drive, emus and roos at sunset',build(){
+   base(g=>{fill(g,['#c89a50','#d0a458','#d8ae62','#e0b86a','#e8c274'],poly([[0,0],[256,0],[256,256],[0,256]]),1);fill(g,['#55653d','#6a7a52','#7e8a5e'],poly([[0,0],[256,0],[256,40],[0,60]]),1);fill(g,['#55653d','#6a7a52','#7e8a5e'],poly([[0,210],[256,190],[256,256],[0,256]]),1);},{title:'THE PINNACLES · NAMBUNG'});
+   const loop=[[-14,-8],[-4,-12],[8,-10],[14,-2],[10,8],[0,12],[-10,10],[-15,2],[-14,-8]];for(let i=1;i<loop.length;i++)road(loop[i-1][0],loop[i-1][1],loop[i][0],loop[i][1],1,{col:'#b8823e',noLine:1});road(0,-20,-4,-12,1,{col:'#b8823e',noLine:1});
+   for(let i=0;i<150;i++){const x=-18+r()*36,z=-12+r()*25;if(loop.some((p,k)=>k&&Math.hypot(x-p[0],z-p[1])<1.8))continue;pinnacle(x,z,.6+r()*2.2);}
+   shed(10,-16,6,2.4,'#d8c4a0','#8a7a6a','PINNACLES DESERT CENTRE');shed(-12,-16,4,2.2,'#f6f2e8','#c8344a','CRAY SHACK · CERVANTES');
+   for(let i=0;i<22;i++)heath(-18+Math.random()*36,(i%2?-17:16)+Math.random()*3);for(let i=0;i<5;i++)grassTree(-16+i*8,15);
+   for(let i=0;i<6;i++)roo(-12+Math.random()*24,-8+Math.random()*16);for(let i=0;i<3;i++)emu(-6+i*5,4+i);for(let i=0;i<6;i++)person(-6+Math.random()*12,-12+Math.random()*3);
+   car(-4,-12.4,0.3,'#1f3f66');camper(6,-10.3,.2);ute(12,0,1.6,'#b8211c');for(let x=-4;x<16;x+=5)lamp(x,-13.6,1.2);}},
+ esperance:{name:'Esperance · Lucky Bay',note:'The whitest sand in Australia, turquoise water, granite headlands and kangaroos on the beach',build(){
+   base(g=>{fill(g,['#fbf9f2','#f6f4ea','#fffdf6'],poly([[0,256],[0,150],[60,120],[130,110],[200,120],[256,140],[256,256]]),1);fill(g,['#55653d','#6a7a52','#7e8a5e','#9c9468'],poly([[0,256],[0,200],[90,175],[180,180],[256,190],[256,256]]),1);},{title:'ESPERANCE · LUCKY BAY'});
+   const sea=BAG.water[0];sea.material=new THREE.MeshStandardMaterial({color:lin('#2fb8c8'),roughness:.12,metalness:.1,transparent:true,opacity:.85});
+   [[-16,2,3,'#b8a898'],[-14,5,2,'#a89888'],[17,4,3.4,'#b8a898'],[15,8,2,'#c8b8a8'],[-12,14,2.6,'#a89888']].forEach(([x,z,s,c])=>{rock('mark',x,z,s,c);});
+   mound('ground',-15,4,6,3,5,'#a89888');mound('ground',16,6,6,3.4,5,'#b8a898');
+   road(-2,20,4,10,1.1,{col:'#8a8478',noLine:1});for(let i=0;i<6;i++)camper(-8+i*3.2,15,(i%2)*.4);shed(8,14,4,2.4,'#f2e6c8','#a8acb0','LUCKY BAY CAMP');
+   for(let i=0;i<30;i++)heath(-18+Math.random()*36,12+Math.random()*7);for(let i=0;i<10;i++)roo(-10+Math.random()*20,-1+Math.random()*7);for(let i=0;i<8;i++)person(-8+Math.random()*16,0+Math.random()*6);
+   whale(-4,-12);dolphin(8,-6);dolphin(10,-8);boat(2,-14,.4,'#f6f6f0',1);car(1,17,.5,'#565d63');ute(6,18,-.3,'#f6f6f0');for(let x=-6;x<12;x+=6)lamp(x,12.6,1.3);}},
+ busselton:{name:'Busselton',note:'The long timber jetty with its little train, the underwater observatory, beach huts and the foreshore',build(){
+   base(g=>{fill(g,GRASS,poly([[0,256],[0,160],[256,150],[256,256]]),1);fill(g,SANDS,poly([[0,160],[256,150],[256,168],[0,178]]),1);g.fillStyle='#d8d2c4';g.fillRect(0,210,256,46);},{title:'BUSSELTON'});
+   const J=new THREE.Group();const d=new THREE.Mesh(new THREE.BoxGeometry(1.2,.12,30),M('#b98552'));d.position.set(0,.5,-15);J.add(d);for(let k=0;k<30;k+=1.5)[-.55,.55].forEach(o=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,1.4,6),M('#7a5a3a'));p.position.set(o,0,-k);J.add(p);});J.position.set(-3,0,0);tag(J,'roads');// the long jetty
+   cyl('mark',1.1,1.1,1.6,'#f6f6f0',-3,1.1,-19.5,14);cyl('mark',1.2,1.2,.2,'#2f6fb0',-3,2,-19.5,14);sign('mark','UNDERWATER OBSERVATORY','#2f6fb0','#ffffff',2.4,-3,2.5,-18.3);
+   const tr=new THREE.Group();[0,1,2].forEach(k=>{const c=new THREE.Mesh(new THREE.BoxGeometry(.5,.45,1),M(k?'#f6f2e8':'#c8344a'));c.position.set(0,.8,-k*1.1);tr.add(c);});tr.position.set(-3,0,-8);tag(tr,'veh');
+   const HUT=['#e86a8a','#2fb8c8','#f6d84a','#3ec46a','#e86a1a','#9478d4','#f6f2e8'];HUT.forEach((c,i)=>{bld(4+i*1.6,1.8,1.2,1.1,1,c,'#f6f2e8',{rh:.5});});// beach huts
+   shed(-12,6,5,2.6,'#f2e6c8','#3e6a52','JETTY CAFÉ',{aw:'#3e6a52'});shed(12,9,6,2.6,'#e8d8b0','#b8562e','FORESHORE MARKETS');for(let i=0;i<6;i++)bld(-14+i*5.6,15,4.6,2.6,1.8,pick(['#efe3c4','#f2e6c8','#e8d0a0']),'flat',{aw:pick(['#c8344a','#2f5a8a','#3e7d5c'])});
+   road(-20,11,20,11,1.4,{foot:1});[[-16,4],[-8,4],[0,4],[8,4],[16,4],[-18,8],[18,7]].forEach(([x,z],i)=>i%2?palm(x,z,1.1):tree(x,z,'green',1.3));
+   for(let i=0;i<20;i++)person(-16+Math.random()*32,1+Math.random()*6);for(let i=0;i<4;i++)person(-3+(Math.random()-.5)*.6,-2-i*5);dolphin(4,-10);dolphin(-10,-14);boat(8,-12,.5,'#f6f6f0',1);boat(-12,-8,-.3,'#1d3a6e');
+   car(-10,10.6,0);car(4,11.4,Math.PI);camper(14,10.6,0);for(let x=-16;x<20;x+=6)lamp(x,9.6);for(let k=3;k<28;k+=6)lamp(-2.3,-k,1);}},
+ albany:{name:'Albany',note:'A deep harbour among granite hills, heritage streets, a sailing ship and whales in the bay',build(){
+   base(g=>{fill(g,GRASS,poly([[0,256],[0,90],[80,110],[150,100],[256,70],[256,256]]),1);fill(g,SANDS,poly([[150,100],[256,70],[256,84],[160,112]]),1);g.fillStyle='#d8d2c4';g.fillRect(20,130,140,80);},{title:'ALBANY'});
+   mound('ground',13,11,8,2.4,6,'#6a7a4a');mound('ground',-13,16,6,1.8,4,'#6a7a4a');[[10,7,1.8],[14,9,2.2],[11,12,1.6],[-12,15,1.6],[16,4,1.4],[17,13,1.8]].forEach(([x,z,s])=>{const m=rock('mark',x,z,s,'#b0aca2');m.position.y+=Math.max(0,2.4*(1-((x-13)/8)**2-((z-11)/6)**2))*.8;});
+   road(-18,2,6,2,1.4,{foot:1});road(-6,2,-6,14,1.3,{foot:1});
+   [['TOWN HALL','#efe3c4'],['YORK ST POST','#e2d2a8'],['HARBOUR HOTEL','#f2e6c8'],['BOOKS & TEA','#d8b890']].forEach(([n,c],i)=>{bld(-16+i*4.2,5.2,3.6,2.4,2.2,c,i%2?'flat':'#5a5a62',{aw:i%2?'#2c4a3a':null});sign('build',n,'#2c4a3a','#f6e8c8',2.6,-16+i*4.2,2.5,6.42);});
+   cyl('mark',.5,.5,3.6,'#e2d2a8',-17,3.2,9,8);cone('mark',.7,1.4,'#5a5a62',-17,5.7,9,4);// clock tower
+   const ship=new THREE.Group();const h=new THREE.Mesh(new THREE.BoxGeometry(1.4,.6,5),M('#5a3a22'));h.position.y=.2;ship.add(h);[-1.4,.4,2].forEach(z=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,4,6),M('#3a2a1a'));m.position.set(0,2.2,z);ship.add(m);const sl=new THREE.Mesh(new THREE.PlaneGeometry(1.6,1.3),M('#f2ead8',{side:THREE.DoubleSide}));sl.position.set(0,2.6,z);sl.rotation.y=Math.PI/2;ship.add(sl);});ship.position.set(-8,0,-8);ship.rotation.y=.3;tag(ship,'mark');// a sailing brig replica
+   jetty(4,-2,7,Math.PI);for(let i=0;i<4;i++)boat(6+i*2.4,-10-(i%2)*2,.2,pick(['#1d3a6e','#c8344a','#f6f6f0']),i%2);whale(-14,-14);whale(10,-17);
+   [[-2,10],[2,14],[-16,13],[18,16],[-10,12]].forEach(([x,z])=>tree(x,z,'green',1.3));for(let i=0;i<16;i++)heath(4+Math.random()*16,6+Math.random()*12);for(let i=0;i<10;i++)person(-17+Math.random()*16,2.6+Math.random()*1.4);
+   car(-12,1.6,0);ute(-2,2.4,Math.PI,'#565d63');car(-6.3,10,Math.PI/2);for(let x=-16;x<6;x+=5)lamp(x,.6);pointL(-8,3,-8);}},
+ margaret:{name:'Margaret River wine country',note:'Vineyard rows over rolling hills, a cellar door, karri forest, a cheese barn, cows and surf at the river mouth',build(){
+   base(g=>{fill(g,GRASS,poly([[0,0],[256,0],[256,256],[0,256]]),1);fill(g,SANDS,poly([[0,0],[40,0],[30,256],[0,256]]),1);g.fillStyle='#8a6a48';for(let j=0;j<10;j++)g.fillRect(90,40+j*9,120,3);},{title:'MARGARET RIVER · WINE COUNTRY'});
+   const sea=BAG.water[0];sea.scale.set(1,1,1);mound('ground',10,10,7,.8,6,'#86ae52');
+   for(let j=0;j<10;j++)vineRow(-1,-13+j*1.8,14);
+   bld(-8,-9,6,3,2.2,'#e8dcc0','#5a3a22',{rh:1.3,aw:'#5a3a22'});sign('mark','WOODPECKER ESTATE · CELLAR DOOR','#3a2a1a','#f6e8c8',3.6,-8,1.9,-7.45);
+   for(let k=0;k<5;k++)cyl('props',.28,.28,.5,'#7a4a2a',-11+k*.7,.25,-6.6,10,{rx:Math.PI/2});
+   shed(-8,6,5,2.6,'#f6f2e8','#c8344a','CHEESE BARN');shed(-8,13,4.4,2.4,'#5a3a22','#3a2a1a','COCOA COTTAGE');
+   road(-12,-17,-12,18,1.2,{foot:0});road(-12,0,14,0,1,{col:'#8a8478',noLine:1});
+   for(let i=0;i<16;i++)karri(14+Math.random()*5,-16+Math.random()*32,1+Math.random()*.4);for(let i=0;i<6;i++)tree(-4+i*3,16,'gum',1.1);
+   for(let i=0;i<6;i++)cow(2+Math.random()*10,6+Math.random()*7);for(let i=0;i<10;i++)person(-10+Math.random()*5,-8+Math.random()*3);for(let i=0;i<3;i++)person(-17,-10+i*8);
+   fill;boat(-18,-6,0,'#f6f6f0',1);for(let k=0;k<3;k++){const w2=new THREE.Mesh(new THREE.BoxGeometry(.4,.25,6),M('#f4f8f8'));w2.position.set(-17+k*.9,.08,k*3-3);tag(w2,'water');}// surf lines at the river mouth
+   car(-12.4,-4,Math.PI/2,'#565d63');ute(-11.6,8,-Math.PI/2,'#b8211c');camper(-12.4,14,Math.PI/2);for(let z=-14;z<18;z+=6)lamp(-13.4,z,1.4);pointL(-8,2,-7);}}
+});
+ORDER.push('lancelin','pinnacles','esperance','busselton','albany','margaret');
+
 // ---------- UI ----------
 let cur='freo',time='day',tint=false;const on=LAYERS.map(()=>true);
 ORDER.forEach(id=>{const b=document.createElement('button');b.type='button';b.textContent=TOWNS[id].name.split(' ·')[0];b.onclick=()=>{cur=id;build();};b.dataset.t=id;$('towns').appendChild(b);});
@@ -241,5 +319,4 @@ let last=performance.now();function frame(now){const dt=Math.min(.05,(now-last)/
 requestAnimationFrame(frame);
 })();
 </script>
-
 </body></html>
