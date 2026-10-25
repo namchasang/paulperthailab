@@ -1,6 +1,6 @@
 {
  "name": "Paul Perth Library (PPL)",
- "version": "0.3",
+ "version": "0.4",
  "about": "Shared building blocks for every Paul Perth game. ready = in lib/ now; planned = still inside a game, move it here the next time that game is worked on.",
  "groups": {
   "core": "helpers every item needs (random, noise, merge, paint, materials)",
@@ -204,8 +204,8 @@
    "id": "cars",
    "group": "models/vehicles",
    "status": "planned",
-   "from": "rooroadrescue:035 makeCar3 + macpiemadness:011 carModel busModel vanModel truckModel",
-   "th": "รถยนต์ รถบัส รถตู้ รถบรรทุก (ชื่อสมมติ)"
+   "from": "macpiemadness:011 carModel busModel vanModel truckModel",
+   "th": "รถบัส รถตู้ รถบรรทุก จาก Magpie Madness (ชื่อสมมติ)"
   },
   {
    "id": "sydney-house",
@@ -432,6 +432,19 @@
    "from": "quokka-cafe: wmBuild (world map engine)",
    "th": "แผนที่โลกแบบ RPG ขับรถระหว่างเมือง หาทางอัตโนมัติ ขึ้นเฟอร์รี่ (sprite/2D · Paul อนุมัติ)",
    "style": "sprite",
+   "approved": "2026-10-25"
+  },
+  {
+   "id": "rrr-cars",
+   "group": "models/vehicles",
+   "status": "ready",
+   "file": "models/vehicles/rrr-cars.js",
+   "deps": [
+    "kit"
+   ],
+   "from": "rooroadrescue:035 makeCar3",
+   "th": "รถ 6 คันจาก Roo Road Rescue: กระบะ V8, 4x4, ไฮบริด, แฮทช์, แคมเปอร์, SUV (3d · Paul อนุมัติ)",
+   "style": "3d",
    "approved": "2026-10-25"
   }
  ]
