@@ -61,6 +61,18 @@
    "th": "ยูคาลิปตัส เปปเปอร์มินต์ WA หญ้าต้น พุ่มชายฝั่ง หญ้ากอ กอหญ้ารัฟ หินแกรนิต + scatter (สุ่มเฉดต่อต้น)"
   },
   {
+   "id": "lowpoly-garden",
+   "group": "models/flora",
+   "status": "ready",
+   "file": "models/flora/lowpoly-garden.js",
+   "deps": [
+    "kit"
+   ],
+   "from": "new (Paul reference sheets, Oct 2026)",
+   "th": "พืช low-poly 30 แบบ: เฟิร์น บัว เถา ไอวี่ กก เดซี่ แปลงดอก ลาเวนเดอร์ สน รั้วต้นไม้ พุ่มดอก",
+   "style": "3d"
+  },
+  {
    "id": "golfer",
    "group": "models/people",
    "status": "ready",

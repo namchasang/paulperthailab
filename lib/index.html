@@ -55,6 +55,7 @@ a{color:var(--gold)}
 <script src="models/fauna/kangaroo.js"></script>
 <script src="models/fauna/magpie.js"></script>
 <script src="models/flora/aussie-flora.js"></script>
+<script src="models/flora/lowpoly-garden.js"></script>
 <script src="models/people/golfer.js"></script>
 <script src="models/people/human.js"></script>
 <script src="models/people/golfer-human.js"></script>
@@ -93,6 +94,7 @@ const PREV = {
     anim = (t, dt) => holder.children.forEach(r => P.kangarooTick(r, dt)); return 'ยืน / กินหญ้า / นอน · มีท่ากระโดดหนี'; },
   magpie: () => { const m = P.magpie(); m.position.y = 1; m.scale.setScalar(2); holder.add(m); frame = { dist: 3.2, h: 1.4, look: 1 }; anim = t => { m.userData.flap(t, .6 + .4 * Math.sin(t)); m.position.y = 1 + Math.sin(t * 2) * .1; }; return 'กระพือปีก / หุบปีก'; },
   'aussie-flora': () => { [[P.gumGeo, 11, -9], [P.peppermintGeo, 1, -2], [P.grassTreeGeo, 21, 3], [P.heathGeo, 31, 5], [P.tussockGeo, 41, 6.5], [P.boulderGeo, 51, 8.5]].forEach(([f, s, x]) => { const m = new THREE.Mesh(f(s), P.vmat({ roughness: .9 })); m.position.x = x; m.castShadow = true; holder.add(m); }); frame = { dist: 26, h: 6, look: 3 }; return 'ยูคาลิปตัส · เปปเปอร์มินต์ WA · หญ้าต้น · พุ่มชายฝั่ง · หญ้ากอ · หินแกรนิต'; },
+  'lowpoly-garden': () => { const ids = Object.keys(P.LP_GARDEN); ids.forEach((id, i) => { const m = P.lpGarden(id, { seed: 7 + i }); const big = /pine|round-tree/.test(id); m.position.set((i % 6 - 2.5) * 2.2, 0, (Math.floor(i / 6) - 2) * 2.2); m.scale.setScalar(big ? .55 : 1); holder.add(m); }); frame = { dist: 15, h: 9, look: 0 }; return 'พืช low-poly 30 แบบ: เฟิร์น บัว เถาวัลย์ ไอวี่ กก เดซี่ แปลงดอกไม้ ลาเวนเดอร์ สน ต้นพุ่มกลม รั้วต้นไม้ พุ่มดอก · ใช้ P.lpGarden(id)'; },
   golfer: () => { const g = P.golfer({ shirt: '#f3f1ea', pants: '#2b3a55', cap: '#1f6f8b' }); g.rotation.y = -Math.PI / 2; holder.add(g); const b = P.golfBall(); b.scale.setScalar(2); holder.add(b);
     frame = { dist: 4.2, h: 1.3, look: .9 }; const clubs = ['driver', 'iron', 'wedge', 'putter']; let k = 0;
     anim = (t) => { const ph = (t % 2.6) / 2.6; if (ph < .02) { g.userData.setClub(clubs[k++ % 4]); } g.userData.swing(Math.min(1, ph * 1.25)); }; return 'วงสวิงครบ 4 ไม้ ไดรเวอร์ เหล็ก เวดจ์ พัตเตอร์'; },
@@ -143,14 +145,14 @@ function select(it, el){
   ctl();
 }
 /* list grouped by group, ready first */
-const list = $('list'); let first = null;
+const list = $('list'); let first = null, want = null;
 Object.keys(cat.groups).forEach(g => {
   const its = cat.items.filter(i => i.group === g).sort((a, b) => (a.status === 'ready' ? 0 : 1) - (b.status === 'ready' ? 0 : 1)); if (!its.length) return;
   const h = document.createElement('div'); h.className = 'grp'; h.textContent = GN[g] || g; list.appendChild(h);
   its.forEach(it => { const d = document.createElement('div'); d.className = 'it' + (it.status === 'ready' ? ' ready' : ''); d.innerHTML = `<span class="dot"></span><span><b>${it.th}</b><small>${it.id}${it.status === 'ready' ? '' : ' · รอย้าย'}</small></span>`;
-    d.onclick = () => select(it, d); list.appendChild(d); if (!first && it.id === 'kangaroo') first = [it, d]; });
+    d.onclick = () => select(it, d); list.appendChild(d); if (!first && it.id === 'kangaroo') first = [it, d]; if (location.hash.slice(1) === it.id) want = [it, d]; });
 });
-if (first) select(...first);
+if (want || first) select(...(want || first));
 /* loop: slow orbit */
 let t = 0, last = performance.now(), drag = null, yaw = .5;
 $('c').addEventListener('pointerdown', e => drag = { x: e.clientX, y: yaw }); addEventListener('pointerup', () => drag = null);
