@@ -56,6 +56,7 @@ a{color:var(--gold)}
 <script src="models/fauna/magpie.js"></script>
 <script src="models/flora/aussie-flora.js"></script>
 <script src="models/flora/lowpoly-garden.js"></script>
+<script src="models/buildings/pxkit.js"></script>
 <script src="models/people/golfer.js"></script>
 <script src="models/people/human.js"></script>
 <script src="models/people/golfer-human.js"></script>
@@ -95,6 +96,12 @@ const PREV = {
   magpie: () => { const m = P.magpie(); m.position.y = 1; m.scale.setScalar(2); holder.add(m); frame = { dist: 3.2, h: 1.4, look: 1 }; anim = t => { m.userData.flap(t, .6 + .4 * Math.sin(t)); m.position.y = 1 + Math.sin(t * 2) * .1; }; return 'กระพือปีก / หุบปีก'; },
   'aussie-flora': () => { [[P.gumGeo, 11, -9], [P.peppermintGeo, 1, -2], [P.grassTreeGeo, 21, 3], [P.heathGeo, 31, 5], [P.tussockGeo, 41, 6.5], [P.boulderGeo, 51, 8.5]].forEach(([f, s, x]) => { const m = new THREE.Mesh(f(s), P.vmat({ roughness: .9 })); m.position.x = x; m.castShadow = true; holder.add(m); }); frame = { dist: 26, h: 6, look: 3 }; return 'ยูคาลิปตัส · เปปเปอร์มินต์ WA · หญ้าต้น · พุ่มชายฝั่ง · หญ้ากอ · หินแกรนิต'; },
   'lowpoly-garden': () => { const ids = Object.keys(P.LP_GARDEN); ids.forEach((id, i) => { const m = P.lpGarden(id, { seed: 7 + i }); const big = /pine|round-tree/.test(id); m.position.set((i % 6 - 2.5) * 2.2, 0, (Math.floor(i / 6) - 2) * 2.2); m.scale.setScalar(big ? .55 : 1); holder.add(m); }); frame = { dist: 15, h: 9, look: 0 }; return 'พืช low-poly 30 แบบ: เฟิร์น บัว เถาวัลย์ ไอวี่ กก เดซี่ แปลงดอกไม้ ลาเวนเดอร์ สน ต้นพุ่มกลม รั้วต้นไม้ พุ่มดอก · ใช้ P.lpGarden(id)'; },
+  'pxkit': () => { const T = c => { const t = new THREE.CanvasTexture(c); t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; t.encoding = THREE.sRGBEncoding; return new THREE.MeshLambertMaterial({ map: t }); };
+    [['#efe3c4', 'stone', '#b85434', 'tile', -3.4], ['#f2c8a0', 'plaster', '#4e6a86', 'slate', 0], ['#a8c8d8', 'board', '#3f7a5a', 'tin', 3.4]].forEach(([b, k, rc, rk, x], i) => {
+      const f = T(PXK.wall(3, 1.9, { base: b, kind: k, win: 1, seed: 3 + i })), s = T(PXK.wall(2.4, 1.9, { base: b, kind: k, win: 1, shutter: '#3d7a78', seed: 9 + i })), top = new THREE.MeshLambertMaterial({ color: b });
+      const w = new THREE.Mesh(new THREE.BoxGeometry(3, 1.9, 2.4), [s, s, top, top, f, f]); w.position.set(x, .95, 0); w.castShadow = true; holder.add(w);
+      const r = new THREE.Mesh(new THREE.CylinderGeometry(1.75, 1.75, 3.4, 3), [T(PXK.roof(9.1, 3.4, { base: rc, kind: rk, across: true })), T(PXK.wall(3.5, 3.5, { base: '#e8dcc0', kind: 'stone', win: 0 })), top]); r.rotation.z = Math.PI / 2; r.scale.set(1, 1, .7); r.position.set(x, 2.35, 0); r.castShadow = true; holder.add(r); });
+    frame = { dist: 17, h: 5.5, look: 1.4 }; return 'ชุดชิ้นส่วนตึกพิกเซล: ผนังหิน ปูน อิฐ ไม้ · หลังคากระเบื้อง สเลต สังกะสี · หน้าต่าง ประตู คิ้ว มุมหิน มอส ไอวี่ · ใช้ใน Quokka Cafe (?pxb)'; },
   golfer: () => { const g = P.golfer({ shirt: '#f3f1ea', pants: '#2b3a55', cap: '#1f6f8b' }); g.rotation.y = -Math.PI / 2; holder.add(g); const b = P.golfBall(); b.scale.setScalar(2); holder.add(b);
     frame = { dist: 4.2, h: 1.3, look: .9 }; const clubs = ['driver', 'iron', 'wedge', 'putter']; let k = 0;
     anim = (t) => { const ph = (t % 2.6) / 2.6; if (ph < .02) { g.userData.setClub(clubs[k++ % 4]); } g.userData.swing(Math.min(1, ph * 1.25)); }; return 'วงสวิงครบ 4 ไม้ ไดรเวอร์ เหล็ก เวดจ์ พัตเตอร์'; },

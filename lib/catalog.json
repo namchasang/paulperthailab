@@ -481,6 +481,16 @@
    "th": "โมเดลเมืองย่อส่วน 7 เมือง 10 ชั้น (3d+sprite · Paul อนุมัติ)",
    "style": "3d",
    "approved": "2026-10-25"
+  },
+  {
+   "id": "pxkit",
+   "group": "models/buildings",
+   "status": "ready",
+   "file": "models/buildings/pxkit.js",
+   "deps": [],
+   "from": "Quokka Cafe ?pxb (Paul ref, Oct 2026)",
+   "th": "ชุดชิ้นส่วนตึกพิกเซล: ผนัง หลังคา หน้าต่าง ประตู คิ้ว",
+   "style": "3d"
   }
  ]
 }
