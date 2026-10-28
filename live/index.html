@@ -51,8 +51,8 @@ html,body{margin:0;height:100%;background:#0b1014;overflow:hidden}
 (function(){'use strict';
 // ---------- options: ?st=lofi|crystal|seaside|breeze  ?vol=0-100  ?h=18 (test hour)  ?rain=1 ----------
 const Q=new URLSearchParams(location.search);
-const STATION=['lofi','beats','crystal','seaside','breeze'].includes(Q.get('st'))?Q.get('st'):'lofi';
-const FREQ={seaside:'88.4',lofi:'92.1',beats:'99.5',crystal:'96.9',breeze:'103.5'};
+const STATION=['lofi','beats','citypop','sleep','crystal','seaside','breeze'].includes(Q.get('st'))?Q.get('st'):'lofi';
+const FREQ={seaside:'88.4',lofi:'92.1',beats:'99.5',citypop:'101.7',sleep:'90.3',crystal:'96.9',breeze:'103.5'};
 const W=480,H=270,cv=document.getElementById('c');let g=cv.getContext('2d');g.imageSmoothingEnabled=false;
 // fit the 1920x1080 stage to the window
 const stage=document.getElementById('stage');
