@@ -1744,7 +1744,10 @@ $('#bExport').onclick = () => {
   modal(`<h2>ส่งออกเกมเป็นไฟล์เดียว</h2><p style="margin:0">ได้ไฟล์ HTML ไฟล์เดียว (${kb} KB) เปิดเล่นได้ทั้งมือถือและคอม เอาขึ้น GitHub Pages ได้ทันที หรือส่งให้ Claude ใส่ระบบเพิ่ม</p>
     <div class="row"><button class="b main" id="xDl">ดาวน์โหลด .html</button><button class="b" id="xCopy">คัดลอก HTML</button><button class="b" data-close>ปิด</button></div><textarea id="xt" readonly>${html.slice(0, 4000).replace(/</g, '&lt;')}\n…</textarea>
     <p class="mono" style="margin:0">ถ้าดาวน์โหลดไม่ได้ (บางหน้าต่างบล็อกไว้) ให้เปิดตัวแก้ฉากจากลิงก์ GitHub Pages หรือกดคัดลอก HTML ไปวางในไฟล์</p>`);
-  $('#xDl').onclick = () => { try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = (($('#sName').value || 'game').replace(/[^\w฀-๿-]+/g, '-')) + '.html'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { toast('ดาวน์โหลดไม่ได้ในหน้านี้'); } };
+  $('#xDl').onclick = async () => { const fn = (($('#sName').value || 'game').replace(/[^\w฀-๿-]+/g, '-')) + '.html';
+    const dl = window.claude && window.claude.use ? await window.claude.use('downloads').catch(() => null) : null;
+    if (dl) { try { await dl.save({ filename: fn, data: html }); toast('บันทึกไฟล์แล้ว'); } catch (e) { if (e && e.code !== 'declined') toast('ดาวน์โหลดไม่ได้: ' + (e.message || e.code)); } return; }
+    try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = fn; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { toast('ดาวน์โหลดไม่ได้ในหน้านี้'); } };
   $('#xCopy').onclick = () => (navigator.clipboard ? navigator.clipboard.writeText(html) : Promise.reject()).then(() => toast('คัดลอก HTML แล้ว'), () => toast('คัดลอกไม่ได้ในหน้านี้'));
 };
 /* ---------- play test ---------- */
