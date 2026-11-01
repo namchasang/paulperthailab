@@ -57,6 +57,7 @@ a{color:var(--gold)}
 <script src="models/flora/aussie-flora.js"></script>
 <script src="models/flora/lowpoly-garden.js"></script>
 <script src="models/buildings/pxkit.js"></script>
+<script src="models/buildings/hd-pixel-set.js"></script>
 <script src="models/people/golfer.js"></script>
 <script src="models/people/human.js"></script>
 <script src="models/people/golfer-human.js"></script>
@@ -102,6 +103,9 @@ const PREV = {
       const w = new THREE.Mesh(new THREE.BoxGeometry(3, 1.9, 2.4), [s, s, top, top, f, f]); w.position.set(x, .95, 0); w.castShadow = true; holder.add(w);
       const r = new THREE.Mesh(new THREE.CylinderGeometry(1.75, 1.75, 3.4, 3), [T(PXK.roof(9.1, 3.4, { base: rc, kind: rk, across: true })), T(PXK.wall(3.5, 3.5, { base: '#e8dcc0', kind: 'stone', win: 0 })), top]); r.rotation.z = Math.PI / 2; r.scale.set(1, 1, .7); r.position.set(x, 2.35, 0); r.castShadow = true; holder.add(r); });
     frame = { dist: 17, h: 5.5, look: 1.4 }; return 'ชุดชิ้นส่วนตึกพิกเซล: ผนังหิน ปูน อิฐ ไม้ · หลังคากระเบื้อง สเลต สังกะสี · หน้าต่าง ประตู คิ้ว มุมหิน มอส ไอวี่ · ใช้ใน Quokka Cafe (?pxb)'; },
+  'hd-pixel-set': () => { const L = [['hd-jp-corner', -16, -4], ['hd-thai-shophouse', -8, -6], ['hd-perth-victorian', 0, -4.5], ['hd-cafe-wood', 9, -3], ['hd-gum', -15, 6], ['hd-sakura', -9, 6], ['hd-palm', -3, 6], ['hd-bush', 2, 6.5], ['hd-grass', 6, 6.5], ['hd-rock', 10, 6.5]];
+    L.forEach(([id, x, z]) => { const g = P.hd(id); g.position.set(x, 0, z); g.traverse(o => { if (o.isMesh) o.castShadow = true; }); holder.add(g); }); frame = { dist: 30, h: 9, look: 2.5 };
+    return 'ตึก 4 แบบ + ธรรมชาติ 6 แบบ วาดลายที่ 32 px/ม. ดูคมสุดในโหมด HD พิกเซล · <a href="../engine/lab/hd/" target="_blank">เปิด HD Pixel Lab</a>'; },
   golfer: () => { const g = P.golfer({ shirt: '#f3f1ea', pants: '#2b3a55', cap: '#1f6f8b' }); g.rotation.y = -Math.PI / 2; holder.add(g); const b = P.golfBall(); b.scale.setScalar(2); holder.add(b);
     frame = { dist: 4.2, h: 1.3, look: .9 }; const clubs = ['driver', 'iron', 'wedge', 'putter']; let k = 0;
     anim = (t) => { const ph = (t % 2.6) / 2.6; if (ph < .02) { g.userData.setClub(clubs[k++ % 4]); } g.userData.swing(Math.min(1, ph * 1.25)); }; return 'วงสวิงครบ 4 ไม้ ไดรเวอร์ เหล็ก เวดจ์ พัตเตอร์'; },

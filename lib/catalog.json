@@ -493,6 +493,33 @@
    "style": "3d"
   },
   {
+   "id": "hd-pixel-set",
+   "group": "models/buildings",
+   "status": "ready",
+   "style": "3d",
+   "file": "models/buildings/hd-pixel-set.js",
+   "deps": [
+    "kit",
+    "pxkit"
+   ],
+   "from": "Paul Engine HD Look Lab (Nov 2026)",
+   "th": "ชุด HD พิกเซล 32 px/ม.: ตึก 4 แบบ (หัวมุมญี่ปุ่น ตึกแถวไทย วิกตอเรียน Perth คาเฟ่ไม้) และธรรมชาติ 6 แบบ",
+   "items": [
+    "hd-jp-corner",
+    "hd-thai-shophouse",
+    "hd-perth-victorian",
+    "hd-cafe-wood",
+    "hd-gum",
+    "hd-sakura",
+    "hd-palm",
+    "hd-bush",
+    "hd-grass",
+    "hd-rock"
+   ],
+   "lab": "../engine/lab/hd/",
+   "note": "รอ Paul ทดสอบบนมือถือก่อนใส่ในเกมจริง"
+  },
+  {
    "id": "paul-engine",
    "group": "systems",
    "status": "ready",
