@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HD Pixel Lab</title>
+<meta name="description" content="Look Lab ของ Paul Engine: เทียบ asset เดิมกับชุด HD พิกเซล 32 พิกเซลต่อเมตร">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500&family=IBM+Plex+Mono&display=swap">
+<style>
+:root{--ink:#15141b;--bench:#1e1c26;--rule:#3a3647;--text:#efeae0;--dim:#a39db3;--lime:#9be02f;--blue:#2f6bdc;color-scheme:dark}
+html,body{margin:0;height:100%;background:var(--ink);color:var(--text);font:15px/1.4 "Mitr",system-ui,sans-serif;overflow:hidden}
+#v{position:fixed;inset:0}
+.bar{position:fixed;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));display:flex;gap:6px;flex-wrap:wrap;align-items:center;pointer-events:none}
+.bar>*{pointer-events:auto}
+#top{top:max(10px,env(safe-area-inset-top,0px))}#bot{bottom:max(10px,env(safe-area-inset-bottom,0px))}
+.seg{display:flex;background:var(--bench);border:2px solid var(--rule)}
+button{font:inherit;color:var(--text);background:transparent;border:0;padding:7px 11px;cursor:pointer;min-height:36px}
+.seg button+button{border-left:2px solid var(--rule)}
+button[aria-pressed=true]{background:var(--blue);color:#fff}
+button:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.tag{background:var(--bench);border:2px solid var(--rule);padding:6px 10px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--dim)}
+.tag b{color:var(--lime);font-weight:400}
+label.t{display:flex;gap:8px;align-items:center;background:var(--bench);border:2px solid var(--rule);padding:4px 10px;min-height:36px;box-sizing:border-box}
+input[type=range]{width:min(42vw,220px);accent-color:var(--lime)}
+#lab{position:fixed;left:0;top:0;pointer-events:none;font:12px "IBM Plex Mono",monospace}
+#lab span{position:absolute;transform:translate(-50%,0);background:#15141bcc;border:1px solid var(--rule);padding:1px 6px;white-space:nowrap;color:var(--text)}
+#lab[hidden]{display:none}
+</style></head><body>
+<div id="v"></div><div id="lab"></div>
+<div class="bar" id="top">
+  <div class="seg" role="group" aria-label="ชุด asset"><button id="aOld" aria-pressed="false">asset เดิม</button><button id="aHD" aria-pressed="true">HD ใหม่</button></div>
+  <div class="seg" role="group" aria-label="ภาพ"><button data-look="smooth">3D</button><button data-look="pixel">พิกเซลเดิม</button><button data-look="hd" aria-pressed="true">HD พิกเซล</button></div>
+  <span class="tag" id="info"></span>
+</div>
+<div class="bar" id="bot">
+  <label class="t">🕑 <input type="range" id="time" min="5" max="23.5" step=".25" value="15"><span id="tl">15:00</span></label>
+  <div class="seg"><button id="rl" aria-label="หมุนซ้าย">⟲</button><button id="rr" aria-label="หมุนขวา">⟳</button><button id="zo" aria-label="ซูมออก">−</button><button id="zi" aria-label="ซูมเข้า">+</button></div>
+  <div class="seg"><button id="nm" aria-pressed="false">ป้ายชื่อ</button></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../../../lib/core/kit.js"></script>
+<script src="../../../lib/models/flora/aussie-flora.js"></script>
+<script src="../../../lib/models/buildings/verandah-shop.js"></script>
+<script src="../../../lib/models/buildings/pxkit.js"></script>
+<script src="../../paul-engine.js"></script>
+<script src="../../pe-assets.js"></script>
+<script src="../../pe-hd.js"></script>
+<script>
+(function(){
+'use strict';
+const $ = s => document.querySelector(s);
+/* one plaza, two asset sets on the same spots (old -> new) */
+const SPOTS = [
+  ['shop-front', 'hd-jp-corner', -8.5, -5, 0, 'ร้านหัวมุมญี่ปุ่น', { t: 'まるや', c: '#f2f1ec' }],
+  ['restaurant', 'hd-thai-shophouse', -1, -6, 0, 'ตึกแถวไทย', { t: 'ข้าวแกงแม่ศรี' }],
+  ['verandah-shop', 'hd-perth-victorian', 7.5, -5.5, 0, 'ร้านวิกตอเรียน Perth', {}],
+  ['house', 'hd-cafe-wood', 9, 6.5, 0, 'คาเฟ่ไม้', {}],
+  ['ppl-gum', 'hd-gum', -11, 4, 0, 'ยูคาลิปตัส', {}], ['tree-round', 'hd-sakura', -4, 3.5, 0, 'ซากุระ', {}],
+  ['palm', 'hd-palm', 3.5, 4, 0, 'มะพร้าว', {}], ['bush', 'hd-bush', -7, 7.5, 0, 'พุ่มไม้ดอก', {}],
+  ['flowerbed', 'hd-grass', 0, 8, 0, 'กอหญ้า', {}], ['rock', 'hd-rock', -12.5, 9.5, 0, 'หินริมน้ำ', {}],
+  ['bush', 'hd-bush', 13.5, -1, 1, '', { seed: 3 }], ['flowerbed', 'hd-grass', 5, 0.5, 0, '', { seed: 21 }],
+  ['tree-round', 'hd-sakura', 14, 2.5, 1, '', { seed: 9 }], ['rock', 'hd-rock', -10, 10.8, 1, '', { seed: 30 }]];
+const COMMON = [['tile-paving', -8, -1], ['tile-paving', -4, -1], ['tile-paving', 0, -1], ['tile-paving', 4, -1], ['tile-paving', 8, -1], ['tile-paving', 12, -1],
+  ['tile-water', -14, 11], ['tile-water', -10, 13], ['tile-water', -14, 13], ['tile-water', -6, 13], ['tile-water', -2, 13], ['street-lamp', -4.5, 0.6], ['street-lamp', 5.5, 0.6], ['bench', 0.5, 1.6], ['person', -2, 0], ['person', 2.5, -0.5], ['bicycle', -6, -1.8]];
+const has = id => !!PE.assets[id];
+function scene(hd) {
+  const objs = COMMON.filter(o => has(o[0])).map(([a, x, z]) => ({ a, x, z, r: 0 }));
+  SPOTS.forEach(([o, n, x, z, r, , opt]) => { const a = hd ? n : o; if (has(a)) objs.push(Object.assign({ a, x, z, r }, opt)); });
+  return { v: 1, name: 'HD Lab', ground: { w: 34, d: 28, color: '#93a37a' }, time: +$('#time').value, objects: objs, paths: [] };
+}
+const W = new PE.World($('#v'), { mode: 'pixel', palette: 64, hueShift: true, preserve: true });
+window.__w = W;
+const LOOKS = { smooth: { mode: 'smooth' }, pixel: { mode: 'pixel', px: 0, palette: 40, hue: false }, hd: { mode: 'pixel', px: 2, palette: 64, hue: true } };
+let look = 'hd', hd = true;
+function setLook(k) {
+  look = k; const L = LOOKS[k]; document.querySelectorAll('[data-look]').forEach(b => b.setAttribute('aria-pressed', b.dataset.look === k));
+  if (L.mode === 'pixel') { W.palette = L.palette; W.hueShift = L.hue; W._palDirty = true; if (W.px !== L.px) W.setPixel(L.px); }
+  W.setMode(L.mode); info();
+}
+function load() { W.load(scene(hd)); W.setView({ yaw8: W.view.yaw8 || 0, zoom: W.view.zoom || 1.9, tx: -1, tz: 0 }); W.setTime(+$('#time').value); W._palDirty = true; info(); }
+function info() { $('#info').innerHTML = (hd ? '<b>HD</b> 32 px/ม.' : 'asset เดิม') + ' · ' + (look === 'smooth' ? '3D' : 'พิกเซล ×' + W.sc + ' · ' + W.palette + ' สี'); }
+$('#aOld').onclick = () => { hd = false; $('#aOld').setAttribute('aria-pressed', true); $('#aHD').setAttribute('aria-pressed', false); load(); };
+$('#aHD').onclick = () => { hd = true; $('#aHD').setAttribute('aria-pressed', true); $('#aOld').setAttribute('aria-pressed', false); load(); };
+document.querySelectorAll('[data-look]').forEach(b => b.onclick = () => setLook(b.dataset.look));
+const fmt = t => (t | 0) + ':' + String(Math.round((t % 1) * 60)).padStart(2, '0');
+$('#time').oninput = e => { W.setTime(+e.target.value); W._palDirty = true; $('#tl').textContent = fmt(+e.target.value); };
+$('#rl').onclick = () => W.turn(-1); $('#rr').onclick = () => W.turn(1); $('#zi').onclick = () => W.zoomBy(1.25); $('#zo').onclick = () => W.zoomBy(.8);
+const lab = $('#lab'); lab.hidden = true;
+$('#nm').onclick = () => { lab.hidden = !lab.hidden; $('#nm').setAttribute('aria-pressed', !lab.hidden); };
+W.controls(() => {}, {});
+load(); setLook('hd');
+W.run(() => {
+  if (lab.hidden) return; let h = '';
+  SPOTS.forEach(s => { if (!s[5]) return; const p = W.toScreen({ x: s[2], z: s[3] }, 0.3); h += `<span style="left:${p[0] | 0}px;top:${p[1] | 0}px">${s[5]}</span>`; }); lab.innerHTML = h;
+});
+})();
+</script></body></html>

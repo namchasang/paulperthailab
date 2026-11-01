@@ -8,6 +8,7 @@ Editor: https://namchasang.github.io/paulperthailab/engine/editor/ · Samples: `
 | --- | --- |
 | `paul-engine.js` | Core: `PE.World` (scene from JSON, iso camera, time of day, shadows, night glow, movers, picking), smooth + true-pixel renderer, asset registry, thumbnails, `PE.UI` bubbles/pops, sounds, save |
 | `pe-assets.js` | ~80 assets in metres (tiles, buildings, service points, nature, props, cars, people, markers) + wrappers for PPL models |
+| `pe-hd.js` | HD pixel set (Look Lab, waiting for Paul's OK): 4 buildings + 6 nature pieces painted at 32 px/m with PXKIT (`lib/models/buildings/pxkit.js`), cut-out leaf cards, night windows via emissive maps. Compare page: `engine/lab/hd/` |
 | `pe-shop.js` | Shop-management template `PE.Shop` and `PE.boot(scene, element)` |
 | `pe-samples.js` | Sample scenes: `cafe` (Rottnest), `gas` (Osaka, pixel look), `thai` (Perth Thai restaurant), `blank` |
 | `editor.src.html` | Scene editor source. Build with `python3 engine/tools/pack.py` → `editor/index.html` (GitHub Pages) and `editor/artifact.html` (Claude artifact) |
@@ -31,6 +32,7 @@ Load order: three.js r128 → `lib/core/kit.js` (+ PPL models) → `paul-engine.
 PE.reg('my-thing', { name:'ของใหม่', cat:'prop', snap:.5, tint:true, defaults:{c:'#d43a2c'},
   build(o){ const g=new THREE.Group(); PE.B(g,1,1,1,o.c,0,.5,0); PE.light(g,0,1.2,0); return g; } });
 ```
+Pixel skins: give a material `emissiveMap` + mesh `userData.emis` for night glow; cut-out cards need `material.userData.mask` (white = solid) so the pixel outline pass sees their shape. `PE.World({hueShift:true})` warms lights and cools shadows before the palette step.
 Helpers: `PE.B` box, `PE.C` cylinder, `PE.S` blob, `PE.roof` gable roof, `PE.glowBox` (day/night colour), `PE.light` (night point light), `PE.panel` + `PE.textTex` (signs).
 Service roles: `role:'counter'` (walk-in customers) or `role:'pump'` (cars), `serve:[dx,dz]` = where the customer stands. Markers `spawn-walk` / `spawn-car` set where customers come from.
 `fit:{h|len|w}` scales a model to real size (used for PPL models with their own units).

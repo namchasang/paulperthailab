@@ -72,7 +72,7 @@ function lerpHex(a, b, f) { return cA.set(a).lerp(cB.set(b), f).getHex(); }
 PE.World = class {
   constructor(host, opt = {}) {
     this.host = host; this.opt = opt; this.time = 12; this.mode = opt.mode || 'smooth'; this.px = opt.px || 0; this.palette = opt.palette || 40;
-    this.outline = opt.outline !== false; this.dither = opt.dither !== false; this.shadows = opt.shadows !== false;
+    this.outline = opt.outline !== false; this.dither = opt.dither !== false; this.hueShift = !!opt.hueShift; this.shadows = opt.shadows !== false;
     this.view = { yaw8: 0, zoom: 1, tx: 0, tz: 0, size: 18 }; this.nodes = []; this.paths = []; this.movers = []; this.hidden = {}; this.editor = !!opt.editor;
     this.groundSize = [48, 36]; this.groundColor = '#a6b58a'; this.ticks = []; this.t = 0; this._lit = null; this._palDirty = true; this.nid = 1;
     if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
@@ -213,6 +213,7 @@ PE.World = class {
       this._lit = lit; this._litCount = this.nodes.length; const srcs = [];
       this.scene.traverse(o => {
         if (o.userData.glow) { const [dc, nc] = o.userData.glow; o.material.color = P.lin(lit ? nc : dc); }
+        if (o.userData.emis) [].concat(o.material).forEach(m => { if (m.emissiveMap) m.emissiveIntensity = lit ? o.userData.emis : 0; });
         if (o.userData.light) { o.updateMatrixWorld(); srcs.push([o.getWorldPosition(new T.Vector3()), o.userData.light]); }
       });
       srcs.sort((p, q) => p[0].distanceToSquared(v3.set(this.view.tx, 0, this.view.tz)) - q[0].distanceToSquared(v3.set(this.view.tx, 0, this.view.tz)));
@@ -228,18 +229,20 @@ PE.World = class {
     this._pixel(); this.dirty = false;
   }
   _idMat(g) { if (!this.idMats.has(g)) { const m = new T.MeshBasicMaterial({ color: new T.Color((g & 255) / 255, ((g >> 8) & 255) / 255, (((g >> 16) & 127) + 17) / 255), toneMapped: false }); this.idMats.set(g, m); } return this.idMats.get(g); }
+  _idCut(g, m) { const k = g + ':' + m.uuid; this._cuts = this._cuts || new Map(); if (!this._cuts.has(k)) { const b = this._idMat(g); this._cuts.set(k, new T.MeshBasicMaterial({ color: b.color, alphaMap: (m.userData && m.userData.mask) || m.map, alphaTest: m.alphaTest, side: m.side, toneMapped: false })); } return this._cuts.get(k); }
+  _depthCut(m) { this._dcuts = this._dcuts || new Map(); if (!this._dcuts.has(m.uuid)) this._dcuts.set(m.uuid, new T.MeshDepthMaterial({ depthPacking: T.RGBADepthPacking, map: m.map, alphaTest: m.alphaTest, side: m.side })); return this._dcuts.get(m.uuid); }
   _pixel() {
     const R = this.R, S = this.scene, pw = this.pw, ph = this.ph, list = [];
-    S.traverse(o => { if (o.isMesh || o.isLineSegments || o.isPoints) { let g = o, id = 0; while (g && !id) { id = g.userData.nid || g.userData.mid; g = g.parent; } list.push([o, o.material, o.userData.ghost || o.isLineSegments || o.isPoints ? this.GHOST : this._idMat(id || 1)]); } });
+    S.traverse(o => { if (o.isMesh || o.isLineSegments || o.isPoints) { let g = o, id = 0; while (g && !id) { id = g.userData.nid || g.userData.mid; g = g.parent; } const m = o.material, cut = m && m.alphaTest > 0 && m.map; list.push([o, m, o.userData.ghost || o.isLineSegments || o.isPoints ? this.GHOST : cut ? this._idCut(id || 1, m) : this._idMat(id || 1), cut ? this._depthCut(m) : null]); } });
     R.setClearColor(this.sky, 1); R.setRenderTarget(this.rtC); R.render(S, this.cam); R.readRenderTargetPixels(this.rtC, 0, 0, pw, ph, this.bufC);
     const sb = S.background; list.forEach(([o, m, im]) => o.material = im); R.setClearColor(0, 0); R.setRenderTarget(this.rtI); R.render(S, this.cam); R.readRenderTargetPixels(this.rtI, 0, 0, pw, ph, this.bufI);
-    list.forEach(([o, m, im]) => o.material = im === this.GHOST ? this.GHOST : this.depthMat); R.setRenderTarget(this.rtD); R.render(S, this.cam); R.readRenderTargetPixels(this.rtD, 0, 0, pw, ph, this.bufD);
+    list.forEach(([o, m, im, dc]) => o.material = im === this.GHOST ? this.GHOST : dc || this.depthMat); R.setRenderTarget(this.rtD); R.render(S, this.cam); R.readRenderTargetPixels(this.rtD, 0, 0, pw, ph, this.bufD);
     list.forEach(([o, m]) => o.material = m); R.setRenderTarget(null); S.background = sb;
     this._post();
   }
   _post() {
     const W = this.pw, H = this.ph, N = W * H, C = this.bufC, I = this.bufI, D = this.bufD; const id = this._id && this._id.length === N ? this._id : (this._id = new Int32Array(N)), dep = this._dep && this._dep.length === N ? this._dep : (this._dep = new Float32Array(N)), rgb = this._rgb && this._rgb.length === N * 3 ? this._rgb : (this._rgb = new Uint8ClampedArray(N * 3));
-    for (let y = 0; y < H; y++) { const ry = (H - 1 - y) * W; for (let x = 0; x < W; x++) { const s = (ry + x) * 4, i = y * W + x; id[i] = I[s + 3] ? ((I[s + 2] << 16) | (I[s + 1] << 8) | I[s]) : 0; dep[i] = (D[s] / 16777216 + D[s + 1] / 65536 + D[s + 2] / 256 + D[s + 3]) / 255; rgb[i * 3] = C[s]; rgb[i * 3 + 1] = C[s + 1]; rgb[i * 3 + 2] = C[s + 2]; } }
+    for (let y = 0; y < H; y++) { const ry = (H - 1 - y) * W; for (let x = 0; x < W; x++) { const s = (ry + x) * 4, i = y * W + x; id[i] = I[s + 3] ? ((I[s + 2] << 16) | (I[s + 1] << 8) | I[s]) : 0; dep[i] = (D[s] / 16777216 + D[s + 1] / 65536 + D[s + 2] / 256 + D[s + 3]) / 255; rgb[i * 3] = C[s]; rgb[i * 3 + 1] = C[s + 1]; rgb[i * 3 + 2] = C[s + 2]; if (this.hueShift && id[i]) { const L = (C[s] * .3 + C[s + 1] * .59 + C[s + 2] * .11) / 255 - .5; rgb[i * 3] = C[s] + L * 26; rgb[i * 3 + 1] = C[s + 1] + L * 6; rgb[i * 3 + 2] = C[s + 2] - L * 30; } } }
     if (this._palDirty || !this.pal || this.pal.length !== this.palette || Math.abs(this.time - (this._palT || 0)) > .6) { this._palT = this.time; this.pal = PE.kmeans(rgb, this.palette); this._palDirty = false; this.cache = new Int16Array(1 << 18).fill(-1); }
     const pal = this.pal, cache = this.cache, out = this.img.data, BAY = PE.BAYER, dith = this.dither, ol = this.outline;
     const near = (r, g, b) => { r = r < 0 ? 0 : r > 255 ? 255 : r; g = g < 0 ? 0 : g > 255 ? 255 : g; b = b < 0 ? 0 : b > 255 ? 255 : b; const k = ((r >> 2) << 12) | ((g >> 2) << 6) | (b >> 2); let q = cache[k]; if (q < 0) { let bd = 1e12; for (let j = 0; j < pal.length; j++) { const p = pal[j], dd = (p[0] - r) ** 2 * .3 + (p[1] - g) ** 2 * .59 + (p[2] - b) ** 2 * .11; if (dd < bd) { bd = dd; q = j; } } cache[k] = q; } return q; };

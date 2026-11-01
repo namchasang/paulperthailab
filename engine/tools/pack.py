@@ -6,8 +6,8 @@ import os, re, json
 HERE = os.path.dirname(os.path.abspath(__file__)); ENG = os.path.dirname(HERE); ROOT = os.path.dirname(ENG)
 PPL = ['core/kit.js', 'models/fauna/kangaroo.js', 'models/fauna/magpie.js', 'models/vehicles/retro-hatch.js', 'models/vehicles/rrr-cars.js',
        'models/buildings/verandah-shop.js', 'models/props/fountain.js', 'models/props/freeway-sign.js', 'models/vehicles/jet-plane.js',
-       'models/flora/aussie-flora.js', 'models/flora/lowpoly-garden.js']
-OWN = ['paul-engine.js', 'pe-assets.js', 'pe-shop.js', 'pe-samples.js']
+       'models/flora/aussie-flora.js', 'models/flora/lowpoly-garden.js', 'models/buildings/pxkit.js']
+OWN = ['paul-engine.js', 'pe-assets.js', 'pe-hd.js', 'pe-shop.js', 'pe-samples.js']
 def scripts():
     out = []
     for f in PPL: out.append(('lib/' + f, open(os.path.join(ROOT, 'lib', f), encoding='utf-8').read()))
