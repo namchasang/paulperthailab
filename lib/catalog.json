@@ -491,6 +491,17 @@
    "from": "Quokka Cafe ?pxb (Paul ref, Oct 2026)",
    "th": "ชุดชิ้นส่วนตึกพิกเซล: ผนัง หลังคา หน้าต่าง ประตู คิ้ว",
    "style": "3d"
+  },
+  {
+   "id": "paul-engine",
+   "group": "systems",
+   "status": "ready",
+   "file": "../engine/paul-engine.js",
+   "deps": [
+    "kit"
+   ],
+   "from": "new (Nov 2026): engine/ — World, smooth + true-pixel renderer, ~80 assets, scene editor, shop template",
+   "th": "Paul Engine: เอนจิน + ตัวแก้ฉาก + เทมเพลตบริหารร้าน"
   }
  ]
 }

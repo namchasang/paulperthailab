@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Paul Engine</title>
+<meta name="description" content="Paul Engine: เอนจินเกมของ Paul Perth AI Lab สร้างฉาก 3D และ true pixel art บนเว็บ แล้วส่งออกเป็นเกมเล่นได้ทันที">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500&family=IBM+Plex+Mono&display=swap">
+<style>
+:root{--ink:#15141b;--bench:#1e1c26;--rule:#3a3647;--text:#efeae0;--dim:#a39db3;--lime:#9be02f;--blue:#2f6bdc;color-scheme:dark}
+body{margin:0;background:var(--ink);color:var(--text);font:16px/1.6 "Mitr",system-ui,sans-serif}
+.w{max-width:1040px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px));display:grid;gap:28px}
+h1{margin:0;font-size:clamp(34px,7vw,56px);font-weight:500;line-height:1.05;text-wrap:balance}h1 b{color:var(--lime);font-weight:500}
+h2{margin:0 0 10px;font-size:20px;font-weight:500}p{margin:0;max-width:65ch}.dim{color:var(--dim)}
+.btns{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-block;text-decoration:none;color:var(--text);background:var(--bench);border:2px solid var(--rule);padding:9px 16px}.btn.main{background:var(--blue);border-color:#4c86f0}.btn:focus-visible{outline:2px solid var(--lime)}
+.hero img{width:100%;border:2px solid var(--rule);display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{background:var(--bench);border:2px solid var(--rule);display:grid;align-content:start}.card img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;border-bottom:2px solid var(--rule)}.card div{padding:12px 14px;display:grid;gap:6px}
+ol{margin:0;padding-left:22px;display:grid;gap:6px}code{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--lime)}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--dim)}
+</style></head><body><main class="w">
+<header style="display:grid;gap:14px">
+  <span class="mono">Paul Perth AI Lab · v0.1 · พ.ย. 2026</span>
+  <h1>Paul <b>Engine</b></h1>
+  <p>เอนจินเกมบนเว็บของ Paul Perth AI Lab: วางฉากด้วยเมาส์หรือนิ้ว เลือกภาพแบบ 3D ปกติหรือ true pixel art ปรับเวลากลางวันกลางคืน แล้วกดเล่นเป็นเกมบริหารร้านได้ทันที ส่งออกเป็นไฟล์เกมไฟล์เดียว</p>
+  <div class="btns"><a class="btn main" href="editor/">เปิดตัวแก้ฉาก</a><a class="btn" href="play/gas/">เล่น KAZE Station</a><a class="btn" href="play/cafe/">เล่น Quokka Jetty Cafe</a><a class="btn" href="play/thai/">เล่น แซ่บอีหลี</a></div>
+</header>
+<section class="hero"><img src="img/editor.jpg" alt="ตัวแก้ฉาก Paul Engine: ชั้นของด้านซ้าย ฉากคาเฟ่ริมท่าเรือตรงกลาง แผงตั้งค่าด้านขวา"></section>
+<section><h2>เกมตัวอย่างที่ทำจากเอนจินนี้</h2><div class="grid">
+  <a class="card btn" style="padding:0" href="play/gas/"><img src="img/gas.jpg" alt="ปั๊มน้ำมัน KAZE แบบ true pixel art"><div><b>KAZE Station</b><span class="dim">ปั๊มน้ำมันชานเมืองโอซาก้า ภาพ true pixel art รถเข้ามาเติมน้ำมัน</span></div></a>
+  <a class="card btn" style="padding:0" href="play/thai/"><img src="img/thai.jpg" alt="ร้านอาหารไทยแซ่บอีหลีใน Perth"><div><b>แซ่บอีหลี · Zap-ily</b><span class="dim">ร้านอาหารอีสานใน Perth ขายส้มตำ ลาบ ไก่ย่าง</span></div></a>
+  <a class="card btn" style="padding:0" href="play/cafe/"><img src="img/cafe.jpg" alt="คาเฟ่ริมท่าเรือบนเกาะ Rottnest"><div><b>Quokka Jetty Cafe</b><span class="dim">คีออสกาแฟริมท่าเรือ Rottnest มีควอกก้าเดินเล่น</span></div></a>
+</div></section>
+<section><h2>ใช้งานยังไง</h2><ol>
+  <li>เปิดตัวแก้ฉาก เลือก "ใหม่ / ตัวอย่าง" หรือเริ่มจากฉากว่าง</li>
+  <li>เลือกของจากชั้นซ้าย (พื้น อาคาร จุดบริการ ต้นไม้ รถ คน) แล้วแตะพื้นเพื่อวาง · ลากเพื่อระบายพื้น · R หมุน</li>
+  <li>วาง "จุดบริการ" อย่างน้อย 1 จุด (เคาน์เตอร์ คีออส แผง หรือตู้จ่ายน้ำมัน) และจุดลูกค้าเข้า</li>
+  <li>กด ▶ เล่นทดสอบ แล้ว "ส่งออกเกม" ได้ไฟล์ HTML ไฟล์เดียว เอาขึ้นเว็บหรือส่งให้ Claude ทำต่อ</li>
+</ol></section>
+<section><h2>สำหรับ Claude และนักพัฒนา</h2><p class="dim">โค้ดอยู่ใน <code>engine/</code> ของ repo <code>namchasang/paulperthailab</code> ใช้ three.js r128 กับคลัง asset กลาง <a class="btn" style="padding:0 6px" href="../lib/">Paul Perth Library</a> อ่านวิธีเพิ่ม asset และรูปแบบไฟล์ฉากได้ใน <code>engine/README.md</code></p></section>
+<footer class="mono">แบรนด์ ร้าน และรถในเกมตัวอย่างเป็นแบบสมมติทั้งหมด</footer>
+</main></body></html>

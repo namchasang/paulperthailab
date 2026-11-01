@@ -1,0 +1,297 @@
+<title>Paul Engine Editor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a level-editor workbench. Asset shelf left, the live scene in the middle, inspector right; on phones the side panels become drawers. Single dark workshop look on purpose. */
+:root{
+  --ink:#15141b; --bench:#1e1c26; --shelf:#26232f; --rule:#3a3647; --text:#efeae0; --dim:#a39db3;
+  --lime:#9be02f; --blue:#2f6bdc; --amber:#ffc23a; --red:#ff5a46; --cyan:#58e1ff;
+  --ui:"Mitr",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--ink);color:var(--text);font:14px/1.4 var(--ui);overflow:hidden}
+#app{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr;grid-template-columns:260px 1fr 280px;grid-template-areas:"top top top" "left view right"}
+header{grid-area:top;display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:calc(6px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) 6px max(10px,env(safe-area-inset-left,0px));background:var(--bench);border-bottom:2px solid var(--rule)}
+.brand{font-weight:500;letter-spacing:.02em;margin-right:6px;white-space:nowrap}.brand b{color:var(--lime);font-weight:500}
+#sName{font:inherit;color:inherit;background:var(--ink);border:2px solid var(--rule);padding:4px 8px;width:200px;min-width:0}
+button,select,input{font:inherit;color:inherit}
+.b{background:var(--shelf);border:2px solid var(--rule);padding:4px 10px;cursor:pointer;white-space:nowrap}
+.b:hover{border-color:#57506b}.b.on{border-color:var(--lime);color:var(--lime)}.b.main{background:var(--blue);border-color:#4c86f0}.b.play{background:#2f7a3a;border-color:var(--lime)}
+.b:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--cyan);outline-offset:1px}
+.sp{flex:1}
+aside{background:var(--bench);overflow:auto;min-width:0}
+#left{grid-area:left;border-right:2px solid var(--rule);display:flex;flex-direction:column}
+#right{grid-area:right;border-left:2px solid var(--rule);padding:10px 12px;display:grid;gap:14px;align-content:start}
+#view{grid-area:view;position:relative;overflow:hidden;background:#000}
+#stage{position:absolute;inset:0}
+.tools{display:flex;gap:4px;padding:8px;border-bottom:2px solid var(--rule);flex-wrap:wrap}
+.cats{display:flex;gap:4px;padding:8px;flex-wrap:wrap;border-bottom:2px solid var(--rule)}
+.cats button{background:none;border:1px solid var(--rule);padding:2px 8px;cursor:pointer;font-size:13px}.cats button.on{background:var(--lime);color:var(--ink);border-color:var(--lime)}
+#shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;padding:8px;align-content:start}
+.asset{background:var(--shelf);border:2px solid var(--rule);padding:4px 2px 5px;cursor:pointer;display:grid;justify-items:center;gap:2px;font-size:11.5px;line-height:1.2;text-align:center;min-width:0}
+.asset img{width:60px;height:60px;image-rendering:auto}.asset .ph{width:60px;height:60px;background:repeating-linear-gradient(45deg,#2c2937 0 6px,#26232f 6px 12px)}
+.asset.on{border-color:var(--lime);background:#2c3a1f}.asset span{overflow:hidden;text-overflow:ellipsis;max-width:100%;white-space:nowrap}
+h3{margin:0 0 6px;font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.f{display:grid;grid-template-columns:90px 1fr;gap:6px 8px;align-items:center;font-size:13px}
+.f input[type=text],.f input[type=number],.f select{background:var(--ink);border:2px solid var(--rule);padding:3px 6px;min-width:0;width:100%}
+.f input[type=range]{width:100%;accent-color:var(--lime)}
+.sw{display:flex;gap:4px;flex-wrap:wrap}.sw button{width:22px;height:22px;border:2px solid var(--rule);cursor:pointer;padding:0}.sw button.on{border-color:#fff}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.layers{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;font-size:13px}.layers label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.mono{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.paths{display:grid;gap:6px}.pathrow{display:grid;grid-template-columns:auto 1fr auto auto;gap:6px;align-items:center;background:var(--shelf);border:1px solid var(--rule);padding:4px 6px;font-size:12.5px}
+.pathrow select,.pathrow input{background:var(--ink);border:1px solid var(--rule);padding:1px 4px;width:100%}
+.hint{position:absolute;left:12px;bottom:12px;max-width:min(520px,calc(100% - 24px));background:#15141bd9;border:1px solid var(--rule);padding:6px 10px;font-size:12.5px;color:var(--dim);pointer-events:none}
+.hint b{color:var(--text);font-weight:500}
+.vbtns{position:absolute;right:12px;top:12px;display:grid;gap:6px}
+.vbtns .b{width:40px;height:36px;padding:0;background:#1e1c26e6}
+.modal{position:fixed;inset:0;background:#000a;display:grid;place-items:center;z-index:20;padding:16px}
+.modal .box{background:var(--bench);border:2px solid var(--rule);width:min(640px,100%);max-height:90vh;overflow:auto;padding:16px;display:grid;gap:10px}
+.modal textarea{width:100%;min-height:240px;background:var(--ink);color:var(--text);border:2px solid var(--rule);font:12px/1.4 var(--mono);padding:8px}
+.modal h2{margin:0;font-size:18px;font-weight:500}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}.cards button{text-align:left;background:var(--shelf);border:2px solid var(--rule);padding:10px;cursor:pointer;display:grid;gap:3px}.cards button small{color:var(--dim)}
+#play{position:fixed;inset:0;z-index:30}#playX{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:31}
+#toast{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:var(--bench);border:2px solid var(--lime);padding:6px 12px;z-index:5}
+.mtog{display:none}
+@media (max-width:900px){
+  #app{grid-template-columns:1fr;grid-template-areas:"top" "view"}
+  aside{position:fixed;top:auto;bottom:0;left:0;right:0;max-height:55vh;z-index:10;border:0;border-top:2px solid var(--lime);padding-bottom:env(safe-area-inset-bottom,0px)}
+  aside:not(.open){display:none!important}
+  .mtog{display:inline-block}
+  #sName{width:130px}
+}
+</style>
+
+<div id="app">
+  <header>
+    <span class="brand">Paul Engine <b>Editor</b></span>
+    <input id="sName" aria-label="ชื่อฉาก" value="ฉากใหม่">
+    <button class="b mtog" id="mLeft">ของ</button><button class="b mtog" id="mRight">ตั้งค่า</button>
+    <button class="b" id="bNew">ใหม่ / ตัวอย่าง</button>
+    <button class="b" id="bSave">บันทึก</button>
+    <button class="b" id="bOpen">เปิด</button>
+    <button class="b" id="bJson">JSON</button>
+    <button class="b" id="bUndo" title="ย้อนกลับ (Ctrl+Z)">↶</button>
+    <span class="sp"></span>
+    <button class="b main" id="bExport">ส่งออกเกม</button>
+    <button class="b play" id="bPlay">▶ เล่นทดสอบ</button>
+  </header>
+  <aside id="left">
+    <div class="tools" role="toolbar" aria-label="เครื่องมือ">
+      <button class="b on" data-tool="select" title="เลือก / ย้าย (V)">เลือก·ย้าย</button>
+      <button class="b" data-tool="place" title="วางของที่เลือก (B)">วาง</button>
+      <button class="b" data-tool="path" title="วาดทางเดิน/ถนน (P)">ทางเดิน</button>
+    </div>
+    <div class="cats" id="cats"></div>
+    <div id="shelf"></div>
+  </aside>
+  <div id="view">
+    <div id="stage"></div>
+    <div class="vbtns">
+      <button class="b" id="vRotL" title="หมุนซ้าย (Q)">⟲</button><button class="b" id="vRotR" title="หมุนขวา (E)">⟳</button>
+      <button class="b" id="vZin" title="ซูมเข้า">＋</button><button class="b" id="vZout" title="ซูมออก">－</button>
+      <button class="b" id="vMode" title="สลับภาพปกติ / พิกเซล">PX</button>
+    </div>
+    <div class="hint" id="hint"></div>
+    <div id="toast" hidden></div>
+  </div>
+  <aside id="right">
+    <section id="insp"></section>
+    <section><h3>ฉาก</h3>
+      <div class="f">
+        <span>กว้าง × ลึก</span><div class="row" style="flex-wrap:nowrap"><input type="number" id="gW" min="12" max="160" step="4"><input type="number" id="gD" min="12" max="160" step="4"></div>
+        <span>สีพื้น</span><input type="color" id="gC" style="width:100%;height:28px;border:2px solid var(--rule);background:var(--ink)">
+        <span>เวลา <span class="mono" id="tL"></span></span><input type="range" id="tS" min="0" max="23.9" step=".1">
+        <span>ภาพ</span><select id="sMode"><option value="smooth">3D ปกติ</option><option value="pixel">True pixel art</option></select>
+        <span>จำนวนสี</span><input type="range" id="sPal" min="8" max="64" step="4">
+        <span>ขอบ / Dither</span><div class="row"><label><input type="checkbox" id="sOut"> ขอบ 1px</label><label><input type="checkbox" id="sDit"> dither</label></div>
+        <span>เทมเพลต</span><select id="sTpl"><option value="shop">บริหารร้าน</option><option value="viewer">เดินชมฉาก</option></select>
+      </div>
+    </section>
+    <section><h3>ชั้น (เปิด/ปิด)</h3><div class="layers" id="layers"></div></section>
+    <section><h3>ทางเดินและถนน</h3><div class="paths" id="paths"></div><p class="mono" id="pathHelp" style="margin:6px 0 0">ใช้เครื่องมือ "ทางเดิน" แตะจุดบนพื้นทีละจุด แล้วกด Enter หรือปุ่มจบเส้น</p></section>
+    <section><h3>เกมบริหารร้าน</h3><p class="mono" style="margin:0" id="gameInfo"></p></section>
+  </aside>
+</div>
+<div class="modal" id="modal" hidden><div class="box" id="mbox"></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!--PE-SCRIPTS-->
+<script>
+(function(){
+'use strict';
+const $ = s => document.querySelector(s), T = THREE;
+PE.injectCss();
+const W = new PE.World($('#stage'), { editor: true, preserve: false });
+let tool = 'select', cat = 'building', cur = null, sel = null, ghost = null, ghostRot = 0, pathPts = [], pathLine = null, selBox = null, hist = [], dragging = false, paint = false, lastPaint = '';
+const KEY = 'pe-editor-scenes';
+
+/* ---------- history ---------- */
+function snap() { hist.push(JSON.stringify(W.toJSON())); if (hist.length > 60) hist.shift(); }
+function undo() { if (!hist.length) return toast('ไม่มีอะไรให้ย้อน'); const v = Object.assign({}, W.view); W.load(JSON.parse(hist.pop())); W.setView(v); select(null); syncScene(); }
+/* ---------- asset shelf ---------- */
+function drawCats() { $('#cats').innerHTML = PE.CATS.filter(([k]) => PE.list(k).length).map(([k, n]) => `<button data-cat="${k}" class="${k === cat ? 'on' : ''}">${n}</button>`).join(''); }
+function drawShelf() {
+  const list = PE.list(cat); $('#shelf').innerHTML = list.map(a => `<button class="asset${cur === a.id ? ' on' : ''}" data-a="${a.id}" title="${a.name} (${a.id})"><span class="ph" data-th="${a.id}"></span><span>${a.name}</span></button>`).join('');
+  let i = 0; const next = () => { const el = $('#shelf').querySelector('[data-th]'); if (!el) return; const id = el.dataset.th; try { const img = new Image(); img.alt = ''; img.src = PE.thumb(id, 120); el.replaceWith(img); } catch (e) { el.removeAttribute('data-th'); } if (++i < 200) setTimeout(next, 0); }; next();
+}
+$('#cats').onclick = e => { const b = e.target.closest('[data-cat]'); if (!b) return; cat = b.dataset.cat; drawCats(); drawShelf(); };
+$('#shelf').onclick = e => { const b = e.target.closest('[data-a]'); if (!b) return; cur = b.dataset.a; setTool('place'); drawShelf(); makeGhost(); if (innerWidth <= 900) $('#left').classList.remove('open'); };
+/* ---------- tools ---------- */
+function setTool(t) { tool = t; document.querySelectorAll('[data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === t)); if (t !== 'place') clearGhost(); else makeGhost(); if (t !== 'path') endPath(false); hint(); }
+document.querySelector('.tools').onclick = e => { const b = e.target.closest('[data-tool]'); if (b) setTool(b.dataset.tool); };
+function hint() {
+  const h = { select: '<b>เลือก·ย้าย</b> แตะของเพื่อเลือก ลากของที่เลือกเพื่อย้าย · ลากพื้นเพื่อเลื่อนกล้อง · R หมุน · Delete ลบ · Ctrl+D ทำซ้ำ',
+    place: cur ? `<b>วาง: ${PE.assets[cur].name}</b> แตะพื้นเพื่อวาง${PE.assets[cur].cat === 'ground' ? ' (ลากเพื่อระบายพื้นต่อกัน)' : ''} · R หมุน · Esc เลิก` : 'เลือกของจากชั้นซ้ายก่อน',
+    path: `<b>ทางเดิน</b> แตะพื้นทีละจุด (${pathPts.length} จุด) · Enter จบเส้น · Esc ยกเลิก` };
+  $('#hint').innerHTML = h[tool];
+}
+function makeGhost() { clearGhost(); if (!cur || tool !== 'place') return; ghost = PE.make(cur, {}); ghost.traverse(m => { if (m.isMesh) m.castShadow = false; }); ghost.rotation.y = ghostRot * Math.PI / 2; ghost.visible = false; W.scene.add(ghost); W.dirty = true; }
+function clearGhost() { if (ghost) { W.scene.remove(ghost); ghost = null; W.dirty = true; } }
+const snapTo = (v, s) => Math.round(v / s) * s;
+function snapPos(p, id) { const s = (PE.assets[id] && PE.assets[id].snap) || .5; return [snapTo(p.x, s), snapTo(p.z, s)]; }
+/* ---------- selection ---------- */
+function select(n) {
+  sel = n; if (selBox) { W.scene.remove(selBox); selBox = null; }
+  if (n) { selBox = new T.BoxHelper(n, 0x9be02f); selBox.material.toneMapped = false; selBox.userData.noId = true; W.scene.add(selBox); }
+  drawInsp(); W.dirty = true;
+}
+function drawInsp() {
+  const el = $('#insp'); if (!sel) { el.innerHTML = `<h3>ของที่เลือก</h3><p class="mono" style="margin:0">ยังไม่ได้เลือก · ใช้เครื่องมือ "เลือก·ย้าย" แล้วแตะของในฉาก</p>`; return; }
+  const s = sel.userData.spec, d = PE.assets[s.a];
+  el.innerHTML = `<h3>ของที่เลือก</h3><div class="f"><span>ชนิด</span><span>${d.name}<br><span class="mono">${d.id}${d.role ? ' · ' + d.role : ''}</span></span>
+    <span>ตำแหน่ง</span><span class="mono">x ${(+s.x).toFixed(1)} · z ${(+s.z).toFixed(1)}</span>
+    ${d.tint ? `<span>สี</span><div class="sw">${(d.colors || ['#ffffff', '#d43a2c', '#2f73b0', '#3f8f3c', '#e9b62c', '#18181c']).map(c => `<button style="background:${c}" data-col="${c}" class="${(s.c || (d.defaults || {}).c) === c ? 'on' : ''}" aria-label="สี ${c}"></button>`).join('')}<input type="color" id="iCol" value="${s.c || (d.defaults || {}).c || '#ffffff'}" style="width:28px;height:22px;border:2px solid var(--rule);padding:0;background:none"></div>` : ''}
+    ${d.text ? `<span>ข้อความ</span><input type="text" id="iTxt" value="${(s.t || (d.defaults || {}).t || '').replace(/"/g, '&quot;')}">` : ''}
+    <span>ขนาด</span><input type="range" id="iScale" min=".5" max="2.5" step=".1" value="${s.s || 1}"></div>
+    <div class="row" style="margin-top:8px"><button class="b" id="iRot">หมุน 90°</button><button class="b" id="iDup">ทำซ้ำ</button><button class="b" id="iDel" style="border-color:var(--red)">ลบ</button></div>`;
+  el.querySelectorAll('[data-col]').forEach(b => b.onclick = () => patch({ c: b.dataset.col }));
+  const ic = $('#iCol'); if (ic) ic.onchange = () => patch({ c: ic.value });
+  const it = $('#iTxt'); if (it) it.onchange = () => patch({ t: it.value });
+  $('#iScale').onchange = e => patch({ s: +e.target.value });
+  $('#iRot').onclick = () => patch({ r: ((sel.userData.spec.r || 0) + 1) % 4 }); $('#iDup').onclick = dup; $('#iDel').onclick = del;
+}
+function patch(p) { if (!sel) return; snap(); const m = W.update(sel, p); select(m); }
+function del() { if (!sel) return; snap(); W.remove(sel); select(null); syncScene(); }
+function dup() { if (!sel) return; snap(); const s = Object.assign({}, sel.userData.spec); s.x += 2; s.z += 2; select(W.add(s)); }
+/* ---------- paths ---------- */
+function drawPathLine() {
+  if (pathLine) { W.scene.remove(pathLine); pathLine = null; } if (pathPts.length < 1) { W.dirty = true; return; }
+  const g = new T.BufferGeometry().setFromPoints(pathPts.map(p => new T.Vector3(p[0], .15, p[1]))); pathLine = new T.Line(g, new T.LineBasicMaterial({ color: 0x58e1ff, toneMapped: false })); pathLine.userData.noId = true; W.scene.add(pathLine); W.dirty = true;
+}
+function endPath(keep) { if (keep && pathPts.length >= 2) { snap(); W.paths.push({ kind: $('#pKind') ? $('#pKind').value : 'walk', pts: pathPts.slice(), n: 3 }); W.spawnMovers(); toast('เพิ่มเส้นทางแล้ว'); } pathPts = []; drawPathLine(); drawPaths(); hint(); }
+function drawPaths() {
+  $('#paths').innerHTML = W.paths.map((p, i) => `<div class="pathrow"><span class="mono">#${i + 1}</span><select data-pk="${i}"><option value="walk"${p.kind === 'walk' ? ' selected' : ''}>คนเดิน</option><option value="car"${p.kind === 'car' ? ' selected' : ''}>รถ</option><option value="animal"${p.kind === 'animal' ? ' selected' : ''}>สัตว์</option></select><input type="number" min="1" max="12" value="${p.n || 3}" data-pn="${i}" aria-label="จำนวน" style="width:44px"><button class="b" data-pd="${i}" aria-label="ลบเส้นทาง">✕</button></div>`).join('')
+    + (tool === 'path' ? `<div class="row"><select id="pKind" class="b"><option value="walk">คนเดิน</option><option value="car">รถ</option><option value="animal">สัตว์</option></select><button class="b" id="pEnd">จบเส้น (${pathPts.length})</button></div>` : '');
+  const pe = $('#pEnd'); if (pe) pe.onclick = () => endPath(true);
+}
+$('#paths').addEventListener('change', e => { const k = e.target.dataset.pk, n = e.target.dataset.pn; if (k !== undefined) { snap(); W.paths[k].kind = e.target.value; W.spawnMovers(); } if (n !== undefined) { snap(); W.paths[n].n = +e.target.value; W.spawnMovers(); } });
+$('#paths').addEventListener('click', e => { const d = e.target.closest('[data-pd]'); if (d) { snap(); W.paths.splice(+d.dataset.pd, 1); W.spawnMovers(); drawPaths(); } });
+/* ---------- scene panel ---------- */
+function syncScene() {
+  $('#sName').value = (W.meta && W.meta.name) || 'ฉากใหม่'; $('#gW').value = W.groundSize[0]; $('#gD').value = W.groundSize[1]; $('#gC').value = W.groundColor;
+  $('#tS').value = W.time; $('#tL').textContent = fmtT(W.time); $('#sMode').value = W.mode; $('#sPal').value = W.palette; $('#sOut').checked = W.outline; $('#sDit').checked = W.dither;
+  $('#sTpl').value = (W.meta && W.meta.template) || 'shop'; $('#vMode').classList.toggle('on', W.mode === 'pixel'); drawPaths(); gameInfo();
+}
+function gameInfo() { const pts = W.nodes.filter(n => ['counter', 'pump'].includes(PE.assets[n.userData.asset].role)).length, sp = W.nodes.filter(n => PE.assets[n.userData.asset].role === 'spawn').length;
+  $('#gameInfo').textContent = pts ? `จุดบริการ ${pts} จุด · จุดลูกค้าเข้า ${sp} จุด${sp ? '' : ' (ไม่มี: ลูกค้าจะมาจากขอบหน้า)'} · ใช้เทมเพลตบริหารร้านได้` : 'ยังไม่มีจุดบริการ: วาง "เคาน์เตอร์ขาย" "คีออส" "แผงขายของ" หรือ "ตู้จ่ายน้ำมัน" จากหมวดจุดบริการ'; }
+const fmtT = h => String(Math.floor(h)).padStart(2, '0') + ':' + String(Math.round(h % 1 * 60)).padStart(2, '0');
+$('#sName').onchange = e => { W.meta = W.meta || {}; W.meta.name = e.target.value; };
+$('#gW').onchange = $('#gD').onchange = () => { snap(); W.setGround(+$('#gW').value || 40, +$('#gD').value || 30); };
+$('#gC').oninput = e => W.setGround(W.groundSize[0], W.groundSize[1], e.target.value);
+$('#tS').oninput = e => { W.setTime(+e.target.value); $('#tL').textContent = fmtT(W.time); };
+$('#sMode').onchange = e => { W.setMode(e.target.value); syncScene(); };
+$('#sPal').onchange = e => { W.palette = +e.target.value; W._palDirty = true; W.dirty = true; };
+$('#sOut').onchange = e => { W.outline = e.target.checked; W.dirty = true; }; $('#sDit').onchange = e => { W.dither = e.target.checked; W.dirty = true; };
+$('#sTpl').onchange = e => { W.meta = W.meta || {}; W.meta.template = e.target.value; };
+$('#layers').innerHTML = PE.CATS.map(([k, n]) => `<label><input type="checkbox" data-l="${k}" checked> ${n}</label>`).join('');
+$('#layers').onchange = e => { const k = e.target.dataset.l; if (k) W.setHidden(k, !e.target.checked); };
+/* ---------- view buttons ---------- */
+$('#vRotL').onclick = () => W.turn(-1); $('#vRotR').onclick = () => W.turn(1); $('#vZin').onclick = () => W.zoomBy(1.25); $('#vZout').onclick = () => W.zoomBy(.8);
+$('#vMode').onclick = () => { W.setMode(W.mode === 'pixel' ? 'smooth' : 'pixel'); syncScene(); };
+$('#mLeft').onclick = () => { $('#right').classList.remove('open'); $('#left').classList.toggle('open'); };
+$('#mRight').onclick = () => { $('#left').classList.remove('open'); $('#right').classList.toggle('open'); };
+/* ---------- pointer ---------- */
+function placeAt(p) {
+  const [x, z] = snapPos(p, cur), key = cur + x + ',' + z; if (key === lastPaint) return; lastPaint = key;
+  const [gw, gd] = W.groundSize; if (Math.abs(x) > gw / 2 + 2 || Math.abs(z) > gd / 2 + 2) return;
+  if (PE.assets[cur].cat === 'ground') { const old = W.nodes.find(n => n.userData.spec.a.startsWith('tile') && Math.abs(n.position.x - x) < .1 && Math.abs(n.position.z - z) < .1); if (old) W.remove(old); }
+  W.add({ a: cur, x, z, r: ghostRot }); gameInfo();
+}
+W.controls(e => {
+  const p = W.pickGround(e.clientX, e.clientY);
+  if (tool === 'place' && cur && p) { snap(); lastPaint = ''; placeAt(p); PE.sfx.tap(); }
+  else if (tool === 'select') { select(W.pickNode(e.clientX, e.clientY)); }
+  else if (tool === 'path' && p) { pathPts.push([+p.x.toFixed(1), +p.z.toFixed(1)]); drawPathLine(); drawPaths(); hint(); }
+}, {
+  ignore: e => e.target.closest('.vbtns,.hint'),
+  hover: e => { if (tool === 'place' && ghost) { const p = W.pickGround(e.clientX, e.clientY); if (p) { const [x, z] = snapPos(p, cur); ghost.position.set(x, 0, z); ghost.visible = true; W.dirty = true; } } },
+  drag: (e, prev) => {
+    if (tool === 'select' && sel) { if (!dragging) { const hit = W.pickNode(prev[0], prev[1]); if (hit !== sel) return false; snap(); dragging = true; } const p = W.pickGround(e.clientX, e.clientY); if (p) { const [x, z] = snapPos(p, sel.userData.spec.a); W.move(sel, x, z); selBox.update(); drawInsp(); } return true; }
+    if (tool === 'place' && cur && PE.assets[cur].cat === 'ground') { if (!paint) { snap(); paint = true; lastPaint = ''; } const p = W.pickGround(e.clientX, e.clientY); if (p) placeAt(p); return true; }
+    return false;
+  },
+  dragEnd: () => { dragging = false; paint = false; }
+});
+addEventListener('keydown', e => {
+  if (e.target.matches('input,textarea,select')) return; const k = e.key.toLowerCase();
+  if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); return; }
+  if ((e.ctrlKey || e.metaKey) && k === 'd') { e.preventDefault(); dup(); return; }
+  if (k === 'v') setTool('select'); else if (k === 'b') setTool('place'); else if (k === 'p') setTool('path');
+  else if (k === 'q') W.turn(-1); else if (k === 'e') W.turn(1);
+  else if (k === 'r') { if (tool === 'place') { ghostRot = (ghostRot + 1) % 4; if (ghost) { ghost.rotation.y = ghostRot * Math.PI / 2; W.dirty = true; } } else if (sel) patch({ r: ((sel.userData.spec.r || 0) + 1) % 4 }); }
+  else if (k === 'delete' || k === 'backspace') del();
+  else if (k === 'enter' && tool === 'path') endPath(true);
+  else if (k === 'escape') { if (tool === 'path') endPath(false); else if (tool === 'place') setTool('select'); else select(null); }
+});
+/* ---------- files ---------- */
+function modal(html) { $('#mbox').innerHTML = html; $('#modal').hidden = false; }
+$('#modal').onclick = e => { if (e.target.id === 'modal' || e.target.closest('[data-close]')) $('#modal').hidden = true; };
+function loadScene(s) { snap(); W.load(s); select(null); syncScene(); $('#modal').hidden = true; }
+$('#bNew').onclick = () => modal(`<h2>เริ่มจากฉากตัวอย่าง</h2><div class="cards">${Object.entries(PE.SAMPLES).map(([k, s]) => `<button data-s="${k}"><b>${s.name}</b><small>${k === 'blank' ? 'พื้นว่าง วางของเองทั้งหมด' : 'เปิดแล้วกด ▶ เล่นทดสอบได้ทันที'}</small></button>`).join('')}</div><div class="row"><button class="b" data-close>ปิด</button></div>`);
+$('#mbox').addEventListener('click', e => {
+  const s = e.target.closest('[data-s]'); if (s) loadScene(PE.SAMPLES[s.dataset.s].build());
+  const o = e.target.closest('[data-open]'); if (o) { const all = PE.store.get(KEY, {}); if (all[o.dataset.open]) loadScene(all[o.dataset.open]); }
+  const d = e.target.closest('[data-del]'); if (d) { const all = PE.store.get(KEY, {}); delete all[d.dataset.del]; PE.store.set(KEY, all); $('#bOpen').click(); }
+});
+$('#bSave').onclick = () => { const all = PE.store.get(KEY, {}), s = W.toJSON(); s.name = $('#sName').value || s.name; all[s.name] = s; toast(PE.store.set(KEY, all) ? 'บันทึก "' + s.name + '" ในเบราว์เซอร์นี้แล้ว' : 'บันทึกไม่ได้ในเบราว์เซอร์นี้ ใช้ปุ่ม JSON คัดลอกเก็บแทน'); };
+$('#bOpen').onclick = () => { const all = PE.store.get(KEY, {}), ks = Object.keys(all); modal(`<h2>ฉากที่บันทึกไว้</h2>${ks.length ? `<div class="cards">${ks.map(k => `<button data-open="${k.replace(/"/g, '&quot;')}"><b>${k}</b><small>${all[k].objects.length} ชิ้น</small></button>`).join('')}</div><p class="mono">ลบ: ${ks.map(k => `<button class="b" data-del="${k.replace(/"/g, '&quot;')}">${k} ✕</button>`).join(' ')}</p>` : '<p class="mono">ยังไม่มีฉากที่บันทึกในเบราว์เซอร์นี้</p>'}<div class="row"><button class="b" data-close>ปิด</button></div>`); };
+$('#bJson').onclick = () => { modal(`<h2>JSON ของฉาก</h2><p class="mono" style="margin:0">คัดลอกไปเก็บ หรือวาง JSON ที่มีแล้วกดโหลด (ใช้ส่งต่อให้ Claude ทำเกมต่อได้)</p><textarea id="jt">${JSON.stringify(W.toJSON(), null, 1).replace(/</g, '&lt;')}</textarea><div class="row"><button class="b" id="jCopy">คัดลอก</button><button class="b main" id="jLoad">โหลด JSON นี้</button><button class="b" data-close>ปิด</button></div>`);
+  $('#jCopy').onclick = () => copy($('#jt').value); $('#jLoad').onclick = () => { try { loadScene(JSON.parse($('#jt').value)); toast('โหลดแล้ว'); } catch (e) { toast('JSON ไม่ถูกต้อง: ' + e.message); } }; };
+function copy(t) { (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast('คัดลอกแล้ว'), () => { const ta = $('#jt') || $('#xt'); if (ta) { ta.focus(); ta.select(); } toast('กด Ctrl+C เพื่อคัดลอก'); }); }
+/* ---------- export a playable single-file game ---------- */
+function gameHtml() {
+  const s = W.toJSON(); s.name = $('#sName').value || s.name; const scripts = [...document.querySelectorAll('script[data-pe]')].map(x => '<script>' + x.textContent.replace(/<\/script/gi, '<\\/script') + '<\/script>').join('\n');
+  return `<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>${s.name.replace(/</g, '')}</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500&display=swap"><style>html,body{margin:0;height:100%;background:#14121c}#game{position:fixed;inset:0}</style></head><body><div id="game"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>
+${scripts}
+<script>PE.boot(${JSON.stringify(s).replace(/</g, '\\u003c')}, document.getElementById('game'));<\/script></body></html>`;
+}
+$('#bExport').onclick = () => {
+  const html = gameHtml(), kb = Math.round(html.length / 1024);
+  modal(`<h2>ส่งออกเกมเป็นไฟล์เดียว</h2><p style="margin:0">ได้ไฟล์ HTML ไฟล์เดียว (${kb} KB) เปิดเล่นได้ทั้งมือถือและคอม เอาขึ้น GitHub Pages ได้ทันที หรือส่งให้ Claude ใส่ระบบเพิ่ม</p>
+    <div class="row"><button class="b main" id="xDl">ดาวน์โหลด .html</button><button class="b" id="xCopy">คัดลอก HTML</button><button class="b" data-close>ปิด</button></div><textarea id="xt" readonly>${html.slice(0, 4000).replace(/</g, '&lt;')}\n…</textarea>
+    <p class="mono" style="margin:0">ถ้าดาวน์โหลดไม่ได้ (บางหน้าต่างบล็อกไว้) ให้เปิดตัวแก้ฉากจากลิงก์ GitHub Pages หรือกดคัดลอก HTML ไปวางในไฟล์</p>`);
+  $('#xDl').onclick = () => { try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = (($('#sName').value || 'game').replace(/[^\w฀-๿-]+/g, '-')) + '.html'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { toast('ดาวน์โหลดไม่ได้ในหน้านี้'); } };
+  $('#xCopy').onclick = () => (navigator.clipboard ? navigator.clipboard.writeText(html) : Promise.reject()).then(() => toast('คัดลอก HTML แล้ว'), () => toast('คัดลอกไม่ได้ในหน้านี้'));
+};
+/* ---------- play test ---------- */
+let game = null;
+$('#bPlay').onclick = () => {
+  const s = W.toJSON(); s.name = $('#sName').value || s.name; const host = document.createElement('div'); host.id = 'play'; document.body.appendChild(host);
+  W.stop(); game = PE.boot(s, host); const x = document.createElement('button'); x.className = 'b'; x.id = 'playX'; x.textContent = '■ กลับไปแก้ฉาก'; document.body.appendChild(x);
+  x.onclick = () => { game.destroy(); host.remove(); x.remove(); game = null; loop(); };
+};
+/* ---------- misc ---------- */
+let tt = 0; function toast(s) { const t = $('#toast'); t.textContent = s; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2600); }
+function loop() { W.run(); }
+/* start: last autosave, else the cafe sample */
+const auto = PE.store.get('pe-editor-autosave', null);
+W.load(auto && auto.objects ? auto : PE.SAMPLES.cafe.build()); syncScene(); drawCats(); drawShelf(); setTool('select'); select(null); loop();
+setInterval(() => { if (!game) PE.store.set('pe-editor-autosave', W.toJSON()); }, 5000);
+if (location.hash === '#debug') window.__ed = { W, PE, select, setTool };
+})();
+</script>
