@@ -4,7 +4,6 @@
 const RADIO={ctx:null,master:null,rev:null,st:'off',vol:.5,timer:null,next:0,step:0,bar:0,nodes:[],wave:null,crackle:null};
 const RSTATIONS={
  seaside:{name:'Seaside Piano',desc:'Gentle piano and soft waves, like a slow morning on the jetty.',bpm:72},
- citypop:{name:'City Pop',desc:'30 original city pop tracks: bright 80s pop with funky bass, claps, synths and brass for night drives and good moods.',bpm:108},
  sleep:{name:'Sleep Lo-fi',desc:'30 slow, soft tracks for sleep and rest, with the sea, rain or a quiet room underneath.',bpm:56},
  beats:{name:'Lo-fi Beats',desc:'30 original lo-fi hip hop tracks for work and study: jazzy chords, boom-bap drums, vinyl crackle.',bpm:86},
  lofi:{name:'Island Lo-fi',desc:'30 original lo-fi tracks: 15 to study and work to, 15 slow ones with soft rain on the roof.',bpm:78},
@@ -338,6 +337,7 @@ function hpCompile(tr){const R=lfRng(tr.seed),ev=[],bar4=4,sw=tr.sw;
     bar+=n;});
   const beats=used*bar4+1;ev.push({b:0,k:'bed',kind:'crackle',d:beats});
   ev.sort((a,b)=>a.b-b.b);return{ev,beats};}
+// City Pop is off the radio for now (Paul, Nov 2026): the tracks stay here; add citypop back to RSTATIONS and TSTN to bring it back.
 // ---------- City Pop: 30 original city pop tracks (bright 80s pop with funk bass and synths) ----------
 // Major 7th chords, a slap-style bass that walks in 16ths, funky drums with hand claps, cutting guitar,
 // brass stabs into the chorus and a lead on synth, sax, e-piano bells or flute.
@@ -530,7 +530,7 @@ function slPlay(tr,e,t,spb){
   else lfPlay(tr,e,t,spb);}
 // Track stations: Crystal Harbour and Island Lo-fi play composed tracks in order.
 function crPlay(tr,e,t,spb){if(e.k==='lead'){(tr.lead==='flute'?flute:tr.lead==='oboe'?oboe:bell)(t,e.n,e.d*spb*.95,e.v*1.6);}else if(e.k==='bell')bell(t,e.n,e.d*spb,e.v*1.4);else if(e.k==='harp')harp(t,e.n,e.v);else if(e.k==='piano')piano(t,e.n,e.d*spb,e.v*1.4);else if(e.k==='bass')bass(t,e.n,e.d*spb,e.v*.65);else if(e.k==='strings')strings(t,e.ns,e.d*spb,e.v*.8);else if(e.k==='hat')hat(t,e.v*.6);}
-const TSTN={crystal:{list:CRYSTAL,compile:crCompile,play:crPlay},lofi:{list:LOFI,compile:lfCompile,play:lfPlay},beats:{list:HOP,compile:hpCompile,play:hpPlay},citypop:{list:CITY,compile:cpCompile,play:cpPlay},sleep:{list:SLEEP,compile:slCompile,play:slPlay}};
+const TSTN={crystal:{list:CRYSTAL,compile:crCompile,play:crPlay},lofi:{list:LOFI,compile:lfCompile,play:lfPlay},beats:{list:HOP,compile:hpCompile,play:hpPlay},sleep:{list:SLEEP,compile:slCompile,play:slPlay}};
 function tsOf(){return TSTN[RADIO.st]||TSTN.crystal;}
 function crStart(i,t0){const T=tsOf(),L=T.list;const tr=L[((i%L.length)+L.length)%L.length];RADIO.trk=L.indexOf(tr);RADIO.trkSt=RADIO.st;RADIO.cr=T.compile(tr);RADIO.crI=0;RADIO.crT0=t0!=null?t0:RADIO.ctx.currentTime+.15;RADIO.crSpb=60/tr.bpm;RADIO.crLoops=0;
   if(QCR.onTrack)QCR.onTrack();}
