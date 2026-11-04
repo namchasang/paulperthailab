@@ -84,6 +84,8 @@ textarea,input[type=text],input[type=datetime-local]{width:100%;background:var(-
 .guide ol{margin:10px 0 4px;padding-left:22px;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--dim)}
 .guide li b{color:var(--fg);font-weight:600}
 .guide li em{font-style:normal;color:var(--go1)}
+.steps-ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;color:var(--dim)}
+.steps-ol em,.guide li em{font-style:normal;color:var(--go1)}
 .btn.sm{padding:4px 10px;font-size:12.5px;border-radius:9px;margin-left:6px}
 .auto{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 16px;cursor:pointer}
 .auto input{position:absolute;opacity:0;width:1px;height:1px}
@@ -148,7 +150,7 @@ textarea,input[type=text],input[type=datetime-local]{width:100%;background:var(-
       <div><div class="eyebrow" id="eyebrow">EP04</div><h1 id="title">คืนนี้เหงาไกลบ้านไหม?</h1></div>
       <div class="steps" id="steps"></div>
     </div>
-    <label class="auto" id="autobox"><input type="checkbox" id="auto" role="switch"><span class="sw" aria-hidden="true"></span><span><b id="auto-t">ให้ Claude ทำตอนนี้ให้: ปิดอยู่</b><small id="auto-sub">เปิดแล้ว Claude จะทำเสียง ทำวิดีโอ Avatar ใน Kling (ใช้เครดิตราว 120) และตัดต่อให้เอง ในรอบตรวจถัดไป (ทุกชั่วโมง) ต้องเปิดคอมกับ Chrome ไว้ ส่วนการโพสต์ยังรอคุณอนุมัติเสมอ</small></span></label>
+    <label class="auto" id="autobox"><input type="checkbox" id="auto" role="switch"><span class="sw" aria-hidden="true"></span><span><b id="auto-t">ให้ Claude ทำตอนนี้ให้: ปิดอยู่</b><small id="auto-sub">เปิดแล้ว Claude จะทำเสียง ทำ Lip Sync ใน Kling (ราว 15 เครดิตต่อตอน ครั้งแรกบวกคลิปพื้นฐานอีกราว 50) และตัดต่อให้เอง ในรอบตรวจถัดไป (ทุกชั่วโมง) ต้องเปิดคอมกับ Chrome ไว้ ส่วนการโพสต์ยังรอคุณอนุมัติเสมอ</small></span></label>
     <div class="grid">
       <div class="col">
         <section class="card" id="c-script">
@@ -174,25 +176,41 @@ textarea,input[type=text],input[type=datetime-local]{width:100%;background:var(-
         </section>
 
         <section class="card" id="c-video">
-          <h2><span class="num">3</span>วิดีโอนาราพูด <span class="tool">Kling · Avatar</span></h2>
+          <h2><span class="num">3</span>วิดีโอนาราพูด <span class="tool">Kling · Lip Sync แบบประหยัด</span></h2>
+          <div class="bar" id="basebox">
+            <div class="row"><b style="font-size:14px">คลิปพื้นฐาน (ทำครั้งเดียว ใช้ทุกตอน)</b><span class="spacer"></span><span class="pill" id="base-pill"><i></i><span>ยังไม่มี</span></span></div>
+            <ol class="steps-ol">
+              <li>Kling → <em>Video Generation</em> → โหมด <em>First frame</em> ใส่ภาพนาราปิดปาก <button class="btn sm" type="button" data-dl="master">บันทึกภาพนารา</button></li>
+              <li>วาง prompt ด้านล่าง ตั้งค่า 720p · 10s · 1 แล้วกด Generate (ราว 50 เครดิต)</li>
+              <li>อัปโหลดคลิปที่ได้ในช่องนี้ Claude จะต่อให้ยาว 15 วินาที แล้วเก็บไว้ใช้ทุกตอน</li>
+            </ol>
+            <pre class="en" id="baseprompt"></pre>
+            <div class="row"><span class="spacer"></span><button class="btn" type="button" data-copy="baseprompt">คัดลอก prompt คลิปพื้นฐาน</button></div>
+            <label class="file" id="f-base"><input type="file" id="in-base" accept="video/mp4,.mp4"><span>⤒</span><span id="fl-base">อัปโหลดคลิปพื้นฐานจาก Kling (.mp4)</span></label>
+            <span class="status" id="st-base"></span>
+          </div>
           <details class="guide" open>
-            <summary>วิธีทำ Avatar ใน Kling ทีละขั้น</summary>
+            <summary>ทำ Lip Sync ของตอนนี้ (ราว 15 เครดิต)</summary>
             <ol>
-              <li><b>เปิดโหมด Avatar</b> ใน Kling ไปที่ <em>AI Human</em> (หรือปุ่ม Tools ข้างช่อง prompt) แล้วเลือก <em>Avatar</em> ที่มุมล่างซ้าย</li>
-              <li><b>ใส่ภาพนารา</b> ในช่อง <em>Character</em> ใช้ภาพปิดปากยิ้มบาง ๆ ภาพเดิมทุกตอน <button class="btn sm" type="button" id="dl-master">บันทึกภาพนารา</button></li>
-              <li><b>ใส่เสียง</b> ในช่องเสียง ใช้ไฟล์ที่ดาวน์โหลดจาก Google AI Studio (ยาวไม่เกิน 15 วินาที ถ้าเกิน ส่งให้ Claude ตัดช่วงเงียบก่อน)</li>
-              <li><b>วาง prompt</b> ด้านล่างในช่อง <em>Character Performance</em></li>
-              <li><b>ตั้งค่า</b> 1080p · 1 แล้วกด <em>Generate</em> (ประมาณ 120 เครดิต)</li>
-              <li><b>เช็กปากก่อนดาวน์โหลด</b> ดูบนมือถือว่าฟันไม่เป็นแผ่นขาว และปากไม่อ้ากว้างเกินไป ถ้าไม่ผ่าน กด Generate ใหม่อีกรอบ</li>
+              <li><b>เปิด Lip Sync</b> ใน Kling ไปที่ <em>AI Human</em> แล้วเลือก <em>Lip Sync</em></li>
+              <li><b>ใส่คลิปพื้นฐาน 15 วินาที</b> <button class="btn sm" type="button" data-dl="base" id="dl-base">บันทึกคลิปพื้นฐาน</button></li>
+              <li><b>ใส่เสียงของตอนนี้</b> แบบอัปโหลดเสียง (ไม่ใช้เสียงอ่านของ Kling เพราะไม่มีภาษาไทย)</li>
+              <li><b>กด Generate</b> แล้วเช็กปากบนมือถือ ฟันต้องไม่เป็นแผ่นขาว ปากไม่อ้ากว้างเกินไป</li>
               <li><b>ดาวน์โหลด mp4</b> แล้วอัปโหลดในช่องด้านล่าง จากนั้นไปขั้นที่ 4</li>
             </ol>
             <span class="status" id="st-dl"></span>
           </details>
-          <div class="bar">
-            <div class="row"><span class="chip"><em>โหมด</em> Avatar</span><span class="chip"><em>Character</em> ภาพนาราปิดปาก</span><span class="chip"><em>เสียง</em> voice ของตอนนี้</span><span class="chip"><em>คุณภาพ</em> 1080p · 1</span><span class="chip"><em>เครดิต</em> ~120</span></div>
-            <pre class="en" id="perf"></pre>
-            <div class="row"><span class="note">วางในช่อง Character Performance</span><span class="spacer"></span><button class="btn go" type="button" data-copy="perf">คัดลอก prompt</button></div>
-          </div>
+          <details class="guide">
+            <summary>แบบสำรอง: Avatar (ราว 120 เครดิต ใช้เมื่อ Lip Sync ออกมาไม่ดี)</summary>
+            <ol>
+              <li><b>เปิดโหมด Avatar</b> ใน <em>AI Human</em> แล้วเลือก <em>Avatar</em></li>
+              <li><b>Character</b> ใส่ภาพนาราปิดปาก <button class="btn sm" type="button" data-dl="master">บันทึกภาพนารา</button></li>
+              <li><b>เสียง</b> ใส่ไฟล์เสียงของตอนนี้</li>
+              <li><b>Character Performance</b> วาง prompt ด้านล่าง ตั้งค่า 1080p · 1 แล้วกด Generate</li>
+            </ol>
+            <pre class="en" id="perf" style="margin:8px 0"></pre>
+            <div class="row"><span class="spacer"></span><button class="btn" type="button" data-copy="perf">คัดลอก prompt Avatar</button></div>
+          </details>
           <label class="file" id="f-video"><input type="file" id="in-video" accept="video/mp4,.mp4"><span>⤒</span><span id="fl-video">อัปโหลดคลิปจาก Kling (.mp4 ไม่เกิน 20 MB)</span></label>
           <span class="status" id="st-video"></span>
         </section>
@@ -235,6 +253,7 @@ const $=s=>document.querySelector(s);
 const STAGES=[['script','สคริปต์'],['voice','เสียง'],['video','วิดีโอ'],['edit','ตัดต่อ'],['review','ตรวจ'],['scheduled','ตั้งเวลาแล้ว'],['posted','ลงแล้ว']];
 const LABEL={script:'รอทำเสียง',voice:'รอทำวิดีโอ',video:'รอตัดต่อ',edit:'Claude กำลังตัดต่อ',review:'รอคุณตรวจ',fix:'ขอแก้',approved:'อนุมัติแล้ว',scheduled:'ตั้งเวลาแล้ว',posted:'ลงแล้ว'};
 const TONE={review:'wait',fix:'bad',edit:'wait',approved:'ok',scheduled:'ok',posted:'ok'};
+const BASEP="The woman listens calmly with a gentle closed-mouth smile, looking into the camera, small natural head movements, soft blink, candle flames flicker, steam rises from the tea cup, camera almost still with a very slow push-in, warm cozy light, photorealistic";
 const PERF="She speaks warmly and calmly to the camera like a late-evening podcast host, small subtle natural lip movements, mouth opens only slightly, soft gentle smile between phrases, small natural head nods, occasional slow blink, hands resting still on the desk, keeps eye contact with the camera, camera almost still, warm cozy candlelight";
 let db=null, assets=null, cfg={voice:{speaker:'Sulafat',temperature:0.7,style:'Say softly and warmly, slow and calm:',model:'Gemini 3.8 Flash TTS'}}, eps=[], cur=null, loaded=false;
 let downloads=null, lib=[], view='studio', libFilter='all';
@@ -255,6 +274,7 @@ function libItems(){
     if(e.videoAsset)push({assetId:e.videoAsset,kind:'video',title:n+' · คลิป Kling',ep:e.id,createdAt:e.updatedAt});
     if(e.voiceAsset)push({assetId:e.voiceAsset,kind:'voice',title:n+' · เสียงนารา',ep:e.id,createdAt:e.updatedAt});});
   if(cfg.masterAsset)push({assetId:cfg.masterAsset,kind:'image',title:'ภาพต้นแบบนารา (ปิดปาก ใช้ใน Kling)'});
+  if(cfg.baseVideoAsset)push({assetId:cfg.baseVideoAsset,kind:'video',title:'คลิปพื้นฐานนารา 15 วินาที (ใช้ Lip Sync ทุกตอน)'});
   return out.sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
 }
 function extOf(k,ct){return ct==='image/png'?'.png':ct==='image/jpeg'?'.jpg':k==='voice'?'.webm':'.mp4';}
@@ -317,8 +337,12 @@ function render(){
   if(document.activeElement!==$('#lines'))$('#lines').value=(e.lines||[]).join('\n');
   const on=!!e.auto;$('#auto').checked=on;$('#autobox').classList.toggle('on',on);$('#auto').disabled=!db;
   $('#auto-t').textContent='ให้ Claude ทำตอนนี้ให้: '+(on?'เปิดอยู่':'ปิดอยู่');
-  $('#auto-sub').textContent=on?(e.autoLog?('ล่าสุด: '+e.autoLog):'Claude จะเริ่มในรอบตรวจถัดไป (ทุกชั่วโมง) เปิดคอมกับ Chrome ไว้ด้วย · ปิดสวิตช์เพื่อหยุด'):'เปิดแล้ว Claude จะทำเสียง ทำวิดีโอ Avatar ใน Kling (ใช้เครดิตราว 120) และตัดต่อให้เอง ในรอบตรวจถัดไป (ทุกชั่วโมง) ต้องเปิดคอมกับ Chrome ไว้ ส่วนการโพสต์ยังรอคุณอนุมัติเสมอ';
-  $('#tts').textContent=ttsText(e);$('#perf').textContent=PERF;
+  $('#auto-sub').textContent=on?(e.autoLog?('ล่าสุด: '+e.autoLog):'Claude จะเริ่มในรอบตรวจถัดไป (ทุกชั่วโมง) เปิดคอมกับ Chrome ไว้ด้วย · ปิดสวิตช์เพื่อหยุด'):'เปิดแล้ว Claude จะทำเสียง ทำ Lip Sync ใน Kling (ราว 15 เครดิตต่อตอน ครั้งแรกบวกคลิปพื้นฐานอีกราว 50) และตัดต่อให้เอง ในรอบตรวจถัดไป (ทุกชั่วโมง) ต้องเปิดคอมกับ Chrome ไว้ ส่วนการโพสต์ยังรอคุณอนุมัติเสมอ';
+  $('#tts').textContent=ttsText(e);$('#perf').textContent=PERF;$('#baseprompt').textContent=BASEP;
+  const bp=$('#base-pill');const hasBase=!!cfg.baseVideoAsset;bp.className='pill '+(hasBase?'ok':cfg.baseRawAsset?'wait':'');
+  bp.querySelector('span').textContent=hasBase?'พร้อมใช้ 15 วินาที':cfg.baseRawAsset?'รอ Claude ต่อเป็น 15 วินาที':'ยังไม่มี';
+  $('#f-base').classList.toggle('has',!!cfg.baseRawAsset);$('#fl-base').textContent=cfg.baseRawAsset?'มีคลิปพื้นฐานแล้ว · แตะเพื่อเปลี่ยน':'อัปโหลดคลิปพื้นฐานจาก Kling (.mp4)';
+  $('#dl-base').disabled=!hasBase;$('#in-base').disabled=!assets;
   const v=cfg.voice;const vc=$('#voicechips');vc.textContent='';
   [['รุ่น',v.model],['เสียง',v.speaker],['Temperature',String(v.temperature)],['ผู้พูด','1 คน']].forEach(([a,b])=>{const c=document.createElement('span');c.className='chip';c.innerHTML='<em></em> <span></span>';c.querySelector('em').textContent=a;c.querySelector('span').textContent=b;vc.appendChild(c);});
   fileBox('voice',e.voiceAsset,'ไฟล์เสียง');fileBox('video',e.videoAsset,'คลิป Kling');
@@ -381,16 +405,25 @@ async function upload(kind,file){
   }catch(err){st.className='status err';
     st.textContent=err&&err.message==='convert'?'เบราว์เซอร์นี้แปลงไฟล์เสียงไม่ได้ ส่งไฟล์ในแชต Claude แทน':err&&err.message==='long'?'เสียงยาวเกิน 30 วินาที ลองตัดสคริปต์ให้สั้นลง':err&&err.code==='too_large'?'ไฟล์ใหญ่เกิน 20 MB ส่งในแชต Claude แทน':'อัปโหลดไม่ได้ ('+(err&&err.code||'ลองใหม่')+') ส่งไฟล์ในแชต Claude แทนได้';}
 }
-$('#dl-master').onclick=async()=>{const st=$('#st-dl');st.className='status';
-  if(!cfg.masterAsset){st.className='status err';st.textContent='ยังโหลดภาพไม่ได้ ลองใหม่อีกครั้ง';return;}
+document.querySelectorAll('[data-dl]').forEach(btn=>btn.onclick=async()=>{const st=$('#st-dl');st.className='status';
+  const which=btn.dataset.dl;const id=which==='base'?cfg.baseVideoAsset:cfg.masterAsset;
+  if(!id){st.className='status err';st.textContent=which==='base'?'ยังไม่มีคลิปพื้นฐาน':'ยังโหลดภาพไม่ได้ ลองใหม่อีกครั้ง';return;}
   try{if(!downloads)downloads=await window.claude.use('downloads');}catch(e){downloads=null;}
-  if(!downloads){st.textContent='บันทึกไม่ได้ในหน้านี้ กดค้างที่ภาพทางขวาแล้วเลือกบันทึกรูป';return;}
-  try{const r=await fetch('/_blob/'+cfg.masterAsset);const data=await r.blob();await downloads.save({filename:'nara-master-lipsync.png',data});st.className='status ok';st.textContent='บันทึกภาพนาราแล้ว';}
-  catch(e){st.textContent='ไม่ได้บันทึก กดค้างที่ภาพทางขวาแล้วเลือกบันทึกรูปแทนได้';}
-};
+  if(!downloads){st.textContent='บันทึกไม่ได้ในหน้านี้ เปิดแท็บคลังไฟล์แล้วกดค้างที่ไฟล์เพื่อบันทึก';return;}
+  try{const r=await fetch('/_blob/'+id);const data=await r.blob();await downloads.save({filename:which==='base'?'nara-base-15s.mp4':'nara-master-lipsync.png',data});st.className='status ok';st.textContent='บันทึกแล้ว';}
+  catch(e){st.textContent='ยังไม่ได้บันทึก';}
+});
 $('#in-voice').onchange=e=>{const f=e.target.files[0];if(f)upload('voice',f);e.target.value='';};
 $('#in-video').onchange=e=>{const f=e.target.files[0];if(f)upload('video',f);e.target.value='';};
 $('#auto').onchange=ev=>{const on=ev.target.checked;save(cur,{auto:on,autoAt:new Date().toISOString(),...(on?{}:{autoLog:''})},'#st-script',on?'เปิดให้ Claude ทำแล้ว':'ปิดแล้ว Claude จะไม่ทำตอนนี้ต่อ');};
+$('#in-base').onchange=async ev=>{const f=ev.target.files[0];ev.target.value='';if(!f)return;const st=$('#st-base');st.className='status';
+  if(f.size>20*1024*1024){st.className='status err';st.textContent='ไฟล์ใหญ่เกิน 20 MB ส่งในแชต Claude แทน';return;}
+  try{st.textContent='กำลังอัปโหลด…';const res=await assets.upload(f,{type:'video/mp4'});
+    await db.collection('config').doc('show').update({baseRawAsset:res.id,baseVideoAsset:null,baseAt:new Date().toISOString()});
+    await db.collection('library').add({assetId:res.id,kind:'video',title:'คลิปพื้นฐานนารา 10 วินาที (จาก Kling)',createdAt:new Date().toISOString()});
+    st.className='status ok';st.textContent='อัปโหลดแล้ว · บอก Claude ในแชตว่า "ต่อคลิปพื้นฐาน" หรือเปิดสวิตช์ของตอนไว้';}
+  catch(err){st.className='status err';st.textContent='อัปโหลดไม่ได้ ('+(err&&err.code||'ลองใหม่')+')';}
+};
 $('#in-lib').onchange=async ev=>{const f=ev.target.files[0];ev.target.value='';if(!f)return;const st=$('#st-lib');st.className='status';
   if(!db||!assets){st.className='status err';st.textContent='ยังเชื่อมต่อคลังไฟล์ไม่ได้';return;}
   try{let blob=f,type=f.type,kind='other';
