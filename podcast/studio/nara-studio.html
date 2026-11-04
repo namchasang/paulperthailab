@@ -85,10 +85,39 @@ textarea,input[type=text],input[type=datetime-local]{width:100%;background:var(-
 .guide li b{color:var(--fg);font-weight:600}
 .guide li em{font-style:normal;color:var(--go1)}
 .btn.sm{padding:4px 10px;font-size:12.5px;border-radius:9px;margin-left:6px}
+.auto{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 16px;cursor:pointer}
+.auto input{position:absolute;opacity:0;width:1px;height:1px}
+.auto .sw{flex:none;width:46px;height:26px;border-radius:999px;background:var(--todo);position:relative;transition:background .2s}
+.auto .sw::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
+.auto input:checked+.sw{background:linear-gradient(135deg,var(--go1),var(--go2))}
+.auto input:checked+.sw::after{transform:translateX(20px)}
+.auto input:focus-visible+.sw{outline:2px solid var(--go1);outline-offset:2px}
+.auto b{display:block;font-weight:600;font-size:15px}
+.auto small{display:block;color:var(--dim);font-size:12.5px;line-height:1.45}
+.auto.on{border-color:var(--go2)}
+.ep .ai{font:600 10px var(--mono);color:var(--goink);background:var(--go1);border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+.tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:4px;align-self:flex-start}
+.tabs button{border:0;background:none;border-radius:10px;padding:8px 16px;cursor:pointer;color:var(--dim);font-weight:500}
+.tabs button[aria-selected="true"]{background:var(--panel2);color:var(--fg)}
+#v-studio{display:flex;flex-direction:column;gap:20px}
+.lib-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.fchip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:13px;color:var(--dim)}
+.fchip[aria-pressed="true"]{color:var(--goink);background:linear-gradient(135deg,var(--go1),var(--go2));border-color:transparent;font-weight:600}
+.libgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.item{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.item .media{background:#000;aspect-ratio:9/16;display:grid;place-items:center;overflow:hidden}
+.item .media img,.item .media video{width:100%;height:100%;object-fit:cover;display:block}
+.item .media.audio{aspect-ratio:auto;height:120px;padding:12px;background:var(--panel2)}
+.item .media audio{width:100%}
+.item .meta{padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.item .meta b{font-weight:600;font-size:14px;line-height:1.35}
+.item .meta span{font-size:12px;color:var(--dim)}
+.kind{display:inline-block;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--go1)}
+.empty{color:var(--dim);font-size:14px;padding:24px;border:1px dashed var(--line);border-radius:16px;text-align:center}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);padding:10px 16px;border-radius:12px;font-size:14px;z-index:20}
 @media (max-width:980px){.grid{grid-template-columns:1fr}.side{order:-1}.preview{max-width:260px}}
 @media (max-width:760px){
-  .app{grid-template-columns:1fr}
+  .app{grid-template-columns:1fr;grid-template-rows:auto 1fr}
   aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:16px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
   .eps{flex-direction:row;overflow-x:auto;padding-bottom:4px}
   .ep{min-width:200px}
@@ -106,10 +135,20 @@ textarea,input[type=text],input[type=datetime-local]{width:100%;background:var(-
   </aside>
   <main id="main">
     <div class="banner" id="dbnote" hidden>ยังเชื่อมต่อฐานข้อมูลของสตูดิโอไม่ได้ หน้าจะแสดงสคริปต์ได้ แต่บันทึกสถานะหรืออัปโหลดไฟล์ยังไม่ได้</div>
+    <div class="tabs" role="tablist" aria-label="มุมมอง"><button type="button" role="tab" data-view="studio" aria-selected="true">สตูดิโอ</button><button type="button" role="tab" data-view="library" aria-selected="false">คลังไฟล์</button></div>
+    <div id="v-library" hidden>
+      <div class="head" style="margin-bottom:16px"><div><div class="eyebrow">LIBRARY</div><h1>คลังไฟล์ของรายการ</h1></div>
+        <label class="btn go" for="in-lib" style="cursor:pointer">อัปโหลดไฟล์ใหม่</label><input type="file" id="in-lib" accept="image/*,video/mp4,audio/*,.wav,.mp3,.m4a" hidden></div>
+      <div class="lib-tools" id="libf" style="margin-bottom:14px"></div>
+      <span class="status" id="st-lib"></span>
+      <div class="libgrid" id="libgrid"></div>
+    </div>
+    <div id="v-studio">
     <div class="head">
       <div><div class="eyebrow" id="eyebrow">EP04</div><h1 id="title">คืนนี้เหงาไกลบ้านไหม?</h1></div>
       <div class="steps" id="steps"></div>
     </div>
+    <label class="auto" id="autobox"><input type="checkbox" id="auto" role="switch"><span class="sw" aria-hidden="true"></span><span><b id="auto-t">ให้ Claude ทำตอนนี้ให้: ปิดอยู่</b><small id="auto-sub">เปิดแล้ว Claude จะทำเสียง ทำวิดีโอ Avatar ใน Kling (ใช้เครดิตราว 120) และตัดต่อให้เอง ในรอบตรวจถัดไป (ทุกชั่วโมง) ต้องเปิดคอมกับ Chrome ไว้ ส่วนการโพสต์ยังรอคุณอนุมัติเสมอ</small></span></label>
     <div class="grid">
       <div class="col">
         <section class="card" id="c-script">
@@ -184,6 +223,7 @@ textarea,input[type=text],input[type=datetime-local]{width:100%;background:var(-
         </section>
       </div>
     </div>
+    </div>
   </main>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -197,7 +237,53 @@ const LABEL={script:'รอทำเสียง',voice:'รอทำวิด�
 const TONE={review:'wait',fix:'bad',edit:'wait',approved:'ok',scheduled:'ok',posted:'ok'};
 const PERF="She speaks warmly and calmly to the camera like a late-evening podcast host, small subtle natural lip movements, mouth opens only slightly, soft gentle smile between phrases, small natural head nods, occasional slow blink, hands resting still on the desk, keeps eye contact with the camera, camera almost still, warm cozy candlelight";
 let db=null, assets=null, cfg={voice:{speaker:'Sulafat',temperature:0.7,style:'Say softly and warmly, slow and calm:',model:'Gemini 3.8 Flash TTS'}}, eps=[], cur=null, loaded=false;
-try{const h=(location.hash||'').slice(1);if(/^ep\d\d$/.test(h))cur=h;}catch(e){}
+let downloads=null, lib=[], view='studio', libFilter='all';
+try{const h=(location.hash||'').slice(1);if(/^ep\d\d$/.test(h))cur=h;if(h==='library')view='library';}catch(e){}
+const KINDS=[['all','ทั้งหมด'],['image','ภาพ'],['voice','เสียง'],['video','คลิป Kling'],['reel','Reel']];
+const KLABEL={image:'ภาพ',voice:'เสียง',video:'คลิป Kling',reel:'Reel',other:'ไฟล์'};
+function setView(v){view=v;document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.view===v?'true':'false'));
+  $('#v-studio').hidden=v!=='studio';$('#v-library').hidden=v!=='library';
+  try{history.replaceState(null,'',v==='library'?'#library':(cur?'#'+cur:'#'))}catch(_){}
+  if(v==='library')renderLib();}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+function libItems(){
+  const out=[],seen=new Set();
+  const push=(o)=>{if(!o.assetId||seen.has(o.assetId))return;seen.add(o.assetId);out.push(o);};
+  lib.forEach(x=>push(x));
+  eps.forEach(e=>{const n='EP'+epNo(e.id);
+    if(e.reelAsset)push({assetId:e.reelAsset,kind:'reel',title:n+' · Reel · '+e.hook,ep:e.id,createdAt:e.updatedAt});
+    if(e.videoAsset)push({assetId:e.videoAsset,kind:'video',title:n+' · คลิป Kling',ep:e.id,createdAt:e.updatedAt});
+    if(e.voiceAsset)push({assetId:e.voiceAsset,kind:'voice',title:n+' · เสียงนารา',ep:e.id,createdAt:e.updatedAt});});
+  if(cfg.masterAsset)push({assetId:cfg.masterAsset,kind:'image',title:'ภาพต้นแบบนารา (ปิดปาก ใช้ใน Kling)'});
+  return out.sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+}
+function extOf(k,ct){return ct==='image/png'?'.png':ct==='image/jpeg'?'.jpg':k==='voice'?'.webm':'.mp4';}
+function renderLib(){
+  const f=$('#libf');f.textContent='';
+  KINDS.forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.className='fchip';b.textContent=l;b.setAttribute('aria-pressed',libFilter===k?'true':'false');b.onclick=()=>{libFilter=k;renderLib();};f.appendChild(b);});
+  const g=$('#libgrid');g.textContent='';
+  const items=libItems().filter(x=>libFilter==='all'||x.kind===libFilter);
+  if(!items.length){const d=document.createElement('div');d.className='empty';d.textContent=db?'ยังไม่มีไฟล์ในหมวดนี้':'กำลังโหลดคลังไฟล์…';g.appendChild(d);return;}
+  items.forEach(x=>{const c=document.createElement('article');c.className='item';
+    const m=document.createElement('div');m.className='media'+(x.kind==='voice'?' audio':'');const url='/_blob/'+x.assetId;
+    if(x.kind==='image'){const i=document.createElement('img');i.src=url;i.alt=x.title;i.loading='lazy';m.appendChild(i);}
+    else if(x.kind==='voice'){const a=document.createElement('audio');a.src=url;a.controls=true;a.preload='none';m.appendChild(a);}
+    else{const v=document.createElement('video');v.src=url;v.controls=true;v.playsInline=true;v.preload='metadata';m.appendChild(v);}
+    const meta=document.createElement('div');meta.className='meta';
+    const k=document.createElement('span');k.className='kind';k.textContent=KLABEL[x.kind]||'ไฟล์';
+    const t=document.createElement('b');t.textContent=x.title;
+    const d=document.createElement('span');d.textContent=x.note||(x.createdAt?new Date(x.createdAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'');
+    const row=document.createElement('div');row.className='row';const sp=document.createElement('span');sp.className='spacer';
+    const dl=document.createElement('button');dl.type='button';dl.className='btn sm';dl.textContent='บันทึกไฟล์';dl.onclick=()=>saveAsset(x);
+    row.append(sp,dl);meta.append(k,t,d,row);c.append(m,meta);g.appendChild(c);});
+}
+async function saveAsset(x){const st=$('#st-lib');st.className='status';
+  try{if(!downloads)downloads=await window.claude.use('downloads');}catch(e){downloads=null;}
+  if(!downloads){st.textContent='บันทึกไฟล์จากหน้านี้ไม่ได้ ขอไฟล์จาก Claude ในแชตแทนได้';return;}
+  try{const r=await fetch('/_blob/'+x.assetId);const blob=await r.blob();const name=(x.title||'file').replace(/[\\/:*?"<>|·]+/g,' ').replace(/\s+/g,' ').trim().slice(0,80)+extOf(x.kind,blob.type);
+    await downloads.save({filename:name,data:blob});st.className='status ok';st.textContent='บันทึกแล้ว';}
+  catch(e){st.textContent='ยังไม่ได้บันทึก';}
+}
 
 function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600);}
 function plain(s){return String(s||'').replace(/\*\*/g,'');}
@@ -211,9 +297,9 @@ function renderList(){
   eps.forEach(e=>{const st=e.status||'script';if(['review','fix'].includes(st))rev++;else if(['scheduled','posted'].includes(st))done++;else if(st!=='script'||e.voiceAsset)doing++;
     const b=document.createElement('button');b.type='button';b.className='ep';b.setAttribute('aria-current',e.id===cur?'true':'false');
     b.innerHTML='<span class="n"></span><span><span class="t"></span><span class="pill"><i></i><span></span></span></span>';
-    b.querySelector('.n').textContent=epNo(e.id);b.querySelector('.t').textContent=e.hook;
+    b.querySelector('.n').textContent=epNo(e.id);b.querySelector('.t').textContent=e.hook;if(e.auto){const m=document.createElement('span');m.className='ai';m.textContent='AUTO';b.querySelector('.pill').appendChild(m);}
     const p=b.querySelector('.pill');p.className='pill '+(TONE[st]||'');p.querySelector('span').textContent=LABEL[st]||st;
-    b.onclick=()=>{cur=e.id;try{history.replaceState(null,'','#'+e.id)}catch(_){location.hash=e.id}render();};
+    b.onclick=()=>{cur=e.id;render();setView('studio');};
     nav.appendChild(b);});
   const s=$('#sum').querySelectorAll('b');s[0].textContent=doing;s[1].textContent=rev;s[2].textContent=done;
 }
@@ -229,6 +315,9 @@ function render(){
   $('#title').textContent=e.hook;
   if(document.activeElement!==$('#hook'))$('#hook').value=e.hook;
   if(document.activeElement!==$('#lines'))$('#lines').value=(e.lines||[]).join('\n');
+  const on=!!e.auto;$('#auto').checked=on;$('#autobox').classList.toggle('on',on);$('#auto').disabled=!db;
+  $('#auto-t').textContent='ให้ Claude ทำตอนนี้ให้: '+(on?'เปิดอยู่':'ปิดอยู่');
+  $('#auto-sub').textContent=on?(e.autoLog?('ล่าสุด: '+e.autoLog):'Claude จะเริ่มในรอบตรวจถัดไป (ทุกชั่วโมง) เปิดคอมกับ Chrome ไว้ด้วย · ปิดสวิตช์เพื่อหยุด'):'เปิดแล้ว Claude จะทำเสียง ทำวิดีโอ Avatar ใน Kling (ใช้เครดิตราว 120) และตัดต่อให้เอง ในรอบตรวจถัดไป (ทุกชั่วโมง) ต้องเปิดคอมกับ Chrome ไว้ ส่วนการโพสต์ยังรอคุณอนุมัติเสมอ';
   $('#tts').textContent=ttsText(e);$('#perf').textContent=PERF;
   const v=cfg.voice;const vc=$('#voicechips');vc.textContent='';
   [['รุ่น',v.model],['เสียง',v.speaker],['Temperature',String(v.temperature)],['ผู้พูด','1 คน']].forEach(([a,b])=>{const c=document.createElement('span');c.className='chip';c.innerHTML='<em></em> <span></span>';c.querySelector('em').textContent=a;c.querySelector('span').textContent=b;vc.appendChild(c);});
@@ -292,7 +381,6 @@ async function upload(kind,file){
   }catch(err){st.className='status err';
     st.textContent=err&&err.message==='convert'?'เบราว์เซอร์นี้แปลงไฟล์เสียงไม่ได้ ส่งไฟล์ในแชต Claude แทน':err&&err.message==='long'?'เสียงยาวเกิน 30 วินาที ลองตัดสคริปต์ให้สั้นลง':err&&err.code==='too_large'?'ไฟล์ใหญ่เกิน 20 MB ส่งในแชต Claude แทน':'อัปโหลดไม่ได้ ('+(err&&err.code||'ลองใหม่')+') ส่งไฟล์ในแชต Claude แทนได้';}
 }
-let downloads=null;
 $('#dl-master').onclick=async()=>{const st=$('#st-dl');st.className='status';
   if(!cfg.masterAsset){st.className='status err';st.textContent='ยังโหลดภาพไม่ได้ ลองใหม่อีกครั้ง';return;}
   try{if(!downloads)downloads=await window.claude.use('downloads');}catch(e){downloads=null;}
@@ -302,10 +390,22 @@ $('#dl-master').onclick=async()=>{const st=$('#st-dl');st.className='status';
 };
 $('#in-voice').onchange=e=>{const f=e.target.files[0];if(f)upload('voice',f);e.target.value='';};
 $('#in-video').onchange=e=>{const f=e.target.files[0];if(f)upload('video',f);e.target.value='';};
+$('#auto').onchange=ev=>{const on=ev.target.checked;save(cur,{auto:on,autoAt:new Date().toISOString(),...(on?{}:{autoLog:''})},'#st-script',on?'เปิดให้ Claude ทำแล้ว':'ปิดแล้ว Claude จะไม่ทำตอนนี้ต่อ');};
+$('#in-lib').onchange=async ev=>{const f=ev.target.files[0];ev.target.value='';if(!f)return;const st=$('#st-lib');st.className='status';
+  if(!db||!assets){st.className='status err';st.textContent='ยังเชื่อมต่อคลังไฟล์ไม่ได้';return;}
+  try{let blob=f,type=f.type,kind='other';
+    if(/^image\//.test(f.type)){kind='image';}
+    else if(/^audio\//.test(f.type)||/\.(wav|mp3|m4a)$/i.test(f.name)){kind='voice';if(/\.m4a$/i.test(f.name)||f.type==='audio/mp4'){type='video/mp4';}else{const r=await toWebm(f,st);blob=r.blob;type='video/webm';}}
+    else if(/^video\//.test(f.type)){kind='video';type='video/mp4';if(f.size>20*1024*1024){st.className='status err';st.textContent='ไฟล์ใหญ่เกิน 20 MB';return;}}
+    st.textContent='กำลังอัปโหลด…';const res=await assets.upload(blob,{type});
+    await db.collection('library').add({assetId:res.id,kind,title:f.name.replace(/\.[^.]+$/,''),createdAt:new Date().toISOString()});
+    st.className='status ok';st.textContent='เพิ่มเข้าคลังแล้ว';}
+  catch(err){st.className='status err';st.textContent='อัปโหลดไม่ได้ ('+(err&&err.code||err&&err.message||'ลองใหม่')+')';}
+};
 
 // sample shown until the studio data loads
 eps=[{id:'ep04',hook:'คืนนี้เหงาไกลบ้านไหม?',lines:['ถ้าคืนนี้รู้สึก**เหงาไกลบ้าน**','ไม่ได้แปลว่าเรา**อ่อนแอ**นะคะ','มันแปลว่าเรา**กล้า**ออกมาไกล','ลองโทรหาคนที่บ้าน สัก**ห้านาที**','ค่อย ๆ ไปด้วยกันนะคะ'],status:'script'}];
-render();
+render();setView(view);
 
 (async()=>{
   const c=window.claude;
@@ -314,10 +414,11 @@ render();
   try{db=await c.use('db');}catch(e){db=null;}
   try{assets=await c.use('assets');}catch(e){assets=null;}
   if(!db){clearTimeout(timer);$('#dbnote').hidden=false;render();return;}
-  db.collection('config').doc('show').onSnapshot(s=>{if(s.exists){cfg={...cfg,...s.data()};render();}},()=>{});
+  db.collection('config').doc('show').onSnapshot(s=>{if(s.exists){cfg={...cfg,...s.data()};render();if(view==='library')renderLib();}},()=>{});
+  db.collection('library').onSnapshot(s=>{lib=s.docs.map(d=>({id:d.id,...d.data()}));if(view==='library')renderLib();},()=>{});
   db.collection('episodes').orderBy('order').onSnapshot(s=>{
     if(!s.metadata.fromCache){loaded=true;clearTimeout(timer);$('#dbnote').hidden=true;}
-    if(s.size){eps=s.docs.map(d=>({id:d.id,...d.data()}));render();}
+    if(s.size){eps=s.docs.map(d=>({id:d.id,...d.data()}));render();if(view==='library')renderLib();}
   },()=>{clearTimeout(timer);$('#dbnote').hidden=false;});
   render();
 })();
