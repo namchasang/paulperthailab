@@ -1,0 +1,298 @@
+<title>Nara Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a dark production studio, episode rail on the left, one episode's pipeline on the right, a bottom "prompt bar" per step like a video generator */
+:root{
+  color-scheme:dark;
+  --bg:#0a0a0c; --panel:#141519; --panel2:#1b1c22; --line:#2a2b33; --fg:#ecebe6; --dim:#9a9aa3; --faint:#6b6b75;
+  --go1:#c8ff3d; --go2:#35e07c; --goink:#0b1a07; --warm:#f2b866;
+  --ok:#35e07c; --wait:#f2b866; --todo:#4a4b55; --bad:#ff6b5e;
+  --display:"Kanit",system-ui,sans-serif; --body:"IBM Plex Sans Thai","Kanit",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 var(--body);margin:0}
+button{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:100%;}
+aside{border-right:1px solid var(--line);padding:22px 14px 22px max(14px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+.brand .dot{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--go1),var(--go2));display:grid;place-items:center;color:var(--goink);font:700 15px var(--display)}
+.brand b{font:600 18px var(--display)}
+.brand small{display:block;color:var(--dim);font-size:12px;margin-top:-3px}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:0 4px}
+.sum div{background:var(--panel);border-radius:10px;padding:8px;text-align:center}
+.sum b{display:block;font:600 18px var(--display);font-variant-numeric:tabular-nums}
+.sum span{font-size:11px;color:var(--dim)}
+.eps{display:flex;flex-direction:column;gap:4px}
+.ep{display:grid;grid-template-columns:42px 1fr;gap:10px;align-items:center;padding:8px;border-radius:12px;border:1px solid transparent;background:none;text-align:left;cursor:pointer}
+.ep:hover{background:var(--panel)}
+.ep[aria-current="true"]{background:var(--panel2);border-color:var(--line)}
+.ep .n{font:600 13px var(--mono);color:var(--dim);background:var(--panel);border-radius:9px;height:42px;display:grid;place-items:center}
+.ep .t{font-weight:500;font-size:14px;line-height:1.3;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--dim);margin-top:2px}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--todo)}
+.pill.ok i{background:var(--ok)} .pill.wait i{background:var(--wait)} .pill.bad i{background:var(--bad)}
+main{padding:26px max(20px,env(safe-area-inset-right,0px)) 40px 28px;display:flex;flex-direction:column;gap:20px;min-width:0}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.head h1{font:600 30px/1.2 var(--display);margin:0;text-wrap:balance}
+.head .eyebrow{font:500 12px var(--mono);color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 8px;font-size:13px;color:var(--dim)}
+.step b{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font:600 11px var(--mono);background:var(--panel2);color:var(--dim)}
+.step.done{color:var(--fg)} .step.done b{background:var(--ok);color:var(--goink)}
+.step.now{color:var(--fg);border-color:var(--go2)} .step.now b{background:linear-gradient(135deg,var(--go1),var(--go2));color:var(--goink)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card h2{font:600 17px var(--display);margin:0;display:flex;align-items:center;gap:10px}
+.card h2 .num{font:600 12px var(--mono);color:var(--goink);background:linear-gradient(135deg,var(--go1),var(--go2));border-radius:7px;padding:2px 7px}
+.card h2 .tool{margin-left:auto;font:500 12px var(--body);color:var(--dim);background:var(--panel2);border-radius:8px;padding:3px 9px}
+.card p{margin:0;color:var(--dim);font-size:14px}
+.bar{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.bar pre{margin:0;white-space:pre-wrap;word-break:break-word;font:14px/1.6 var(--body);color:var(--fg)}
+.bar pre.en{font-size:13.5px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:12.5px}
+.chip em{font-style:normal;color:var(--dim)}
+.spacer{flex:1}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:9px 14px;cursor:pointer;font-weight:500;font-size:14px}
+.btn:hover{border-color:var(--faint)}
+.btn.go{background:linear-gradient(135deg,var(--go1),var(--go2));color:var(--goink);border:0;font-weight:600}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,.ep:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--go1);outline-offset:2px}
+textarea,input[type=text],input[type=datetime-local]{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;color:var(--fg);font:15px/1.6 var(--body);padding:10px 12px;resize:vertical}
+.lines{display:flex;flex-direction:column;gap:6px}
+.lines label{font-size:12px;color:var(--dim)}
+.file{display:flex;align-items:center;gap:10px;border:1px dashed var(--line);border-radius:14px;padding:12px;font-size:13.5px;color:var(--dim)}
+.file.has{border-style:solid;color:var(--fg)}
+.file input{display:none}
+.status{font-size:13px;color:var(--dim);min-height:1.2em}
+.status.err{color:var(--bad)} .status.ok{color:var(--ok)}
+.preview{border-radius:16px;overflow:hidden;background:#000;aspect-ratio:9/16;max-width:100%;display:grid;place-items:center;position:relative}
+.preview img,.preview video{width:100%;height:100%;object-fit:cover;display:block}
+.preview .lbl{position:absolute;left:10px;top:10px;font-size:11.5px;background:rgba(0,0,0,.55);padding:3px 9px;border-radius:8px;color:#fff}
+.side .card{gap:10px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
+.kv span{color:var(--dim)} .kv b{font-weight:500;text-align:right;font-variant-numeric:tabular-nums}
+.note{font-size:12.5px;color:var(--faint)}
+.banner{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--warm)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);padding:10px 16px;border-radius:12px;font-size:14px;z-index:20}
+@media (max-width:980px){.grid{grid-template-columns:1fr}.side{order:-1}.preview{max-width:260px}}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:16px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
+  .eps{flex-direction:row;overflow-x:auto;padding-bottom:4px}
+  .ep{min-width:200px}
+  main{padding:18px max(16px,env(safe-area-inset-right,0px)) 32px max(16px,env(safe-area-inset-left,0px))}
+  .head h1{font-size:24px}
+}
+@media (prefers-reduced-motion:no-preference){.btn,.ep{transition:background .15s,border-color .15s}}
+</style>
+
+<div class="app">
+  <aside>
+    <div class="brand"><div class="dot">N</div><div><b>Nara Studio</b><small>ชีวิตดีขึ้นได้ · Reels 15 วินาที</small></div></div>
+    <div class="sum" id="sum"><div><b>0</b><span>ทำอยู่</span></div><div><b>0</b><span>รอตรวจ</span></div><div><b>0</b><span>ลงแล้ว</span></div></div>
+    <nav class="eps" id="eps" aria-label="ตอนทั้งหมด"></nav>
+  </aside>
+  <main id="main">
+    <div class="banner" id="dbnote" hidden>ยังเชื่อมต่อฐานข้อมูลของสตูดิโอไม่ได้ หน้าจะแสดงสคริปต์ได้ แต่บันทึกสถานะหรืออัปโหลดไฟล์ยังไม่ได้</div>
+    <div class="head">
+      <div><div class="eyebrow" id="eyebrow">EP04</div><h1 id="title">คืนนี้เหงาไกลบ้านไหม?</h1></div>
+      <div class="steps" id="steps"></div>
+    </div>
+    <div class="grid">
+      <div class="col">
+        <section class="card" id="c-script">
+          <h2><span class="num">1</span>สคริปต์ <span class="tool">Claude เขียน · คุณแก้ได้</span></h2>
+          <div class="lines">
+            <label for="hook">ข้อความเปิดบนจอ (3 วินาทีแรก)</label>
+            <input type="text" id="hook">
+            <label for="lines">ซับทีละบรรทัด (ครอบคำสำคัญด้วย ** ให้เป็นสีทอง)</label>
+            <textarea id="lines" rows="5"></textarea>
+          </div>
+          <div class="row"><span class="status" id="st-script"></span><span class="spacer"></span><button class="btn" id="save-script" type="button">บันทึกสคริปต์</button></div>
+        </section>
+
+        <section class="card" id="c-voice">
+          <h2><span class="num">2</span>เสียงนารา <span class="tool">Google AI Studio</span></h2>
+          <div class="bar">
+            <div class="row" id="voicechips"></div>
+            <pre id="tts"></pre>
+            <div class="row"><span class="note">วางในช่องข้อความ แล้วกด Run · ฟังแล้วชอบค่อยดาวน์โหลด</span><span class="spacer"></span><button class="btn go" type="button" data-copy="tts">คัดลอกข้อความ</button></div>
+          </div>
+          <label class="file" id="f-voice"><input type="file" id="in-voice" accept="audio/*,.wav,.mp3,.m4a"><span>⤒</span><span id="fl-voice">อัปโหลดไฟล์เสียง (.wav / .mp3)</span></label>
+          <span class="status" id="st-voice"></span>
+        </section>
+
+        <section class="card" id="c-video">
+          <h2><span class="num">3</span>วิดีโอนาราพูด <span class="tool">Kling · Avatar</span></h2>
+          <div class="bar">
+            <div class="row"><span class="chip"><em>โหมด</em> Avatar</span><span class="chip"><em>Character</em> ภาพนาราปิดปาก</span><span class="chip"><em>เสียง</em> voice ของตอนนี้</span><span class="chip"><em>คุณภาพ</em> 1080p · 1</span><span class="chip"><em>เครดิต</em> ~120</span></div>
+            <pre class="en" id="perf"></pre>
+            <div class="row"><span class="note">วางในช่อง Character Performance</span><span class="spacer"></span><button class="btn go" type="button" data-copy="perf">คัดลอก prompt</button></div>
+          </div>
+          <label class="file" id="f-video"><input type="file" id="in-video" accept="video/mp4,.mp4"><span>⤒</span><span id="fl-video">อัปโหลดคลิปจาก Kling (.mp4 ไม่เกิน 20 MB)</span></label>
+          <span class="status" id="st-video"></span>
+        </section>
+
+        <section class="card" id="c-edit">
+          <h2><span class="num">4</span>ตัดต่อเป็น Reel <span class="tool">Claude</span></h2>
+          <p>Claude ใส่ข้อความเปิด ซับไทย เพลง ชื่อรายการ และป้าย "สร้างด้วย AI" แล้วส่ง Reel กลับมาที่นี่ กดปุ่มแล้วพิมพ์บอก Claude ในแชตว่า "ตัดต่อ Nara Studio"</p>
+          <div class="row"><span class="status" id="st-edit"></span><span class="spacer"></span><button class="btn go" type="button" id="ask-edit">ส่งให้ Claude ตัดต่อ</button></div>
+        </section>
+
+        <section class="card" id="c-review">
+          <h2><span class="num">5</span>ตรวจและตั้งเวลาโพสต์ <span class="tool">Metricool</span></h2>
+          <p id="reviewtxt">ดู Reel บนมือถือ ถ้าโอเคกดอนุมัติ Claude จะตั้งเวลาโพสต์ให้ตามวันเวลาที่เลือก</p>
+          <div class="lines"><label for="when">วันเวลาที่อยากให้ลง (เวลาเพิร์ท)</label><input type="datetime-local" id="when"></div>
+          <div class="lines"><label for="note">ถ้าอยากให้แก้ บอกตรงนี้</label><textarea id="note" rows="2" placeholder="เช่น ซับใหญ่ไป เพลงดังไป"></textarea></div>
+          <div class="row"><span class="status" id="st-review"></span><span class="spacer"></span><button class="btn" type="button" id="ask-fix">ขอแก้</button><button class="btn go" type="button" id="approve">อนุมัติ</button></div>
+        </section>
+      </div>
+
+      <div class="col side">
+        <section class="card">
+          <div class="preview" id="pv"><span class="lbl" id="pvlbl">ภาพต้นแบบ</span><img id="pvimg" alt="นารา พิธีกรตัวละคร AI" hidden></div>
+          <div class="kv" id="kv"></div>
+        </section>
+        <section class="card">
+          <h2 style="font-size:15px">เคล็ดลับ</h2>
+          <p style="font-size:13px">ใช้ภาพนาราภาพเดิมและเสียง Sulafat ทุกตอน หน้าและเสียงจะได้เหมือนเดิม ถ้าเสียงยาวเกิน 15 วินาที ให้ Claude ตัดช่วงเงียบให้ หรือแก้สคริปต์ให้สั้นลง</p>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s);
+const STAGES=[['script','สคริปต์'],['voice','เสียง'],['video','วิดีโอ'],['edit','ตัดต่อ'],['review','ตรวจ'],['scheduled','ตั้งเวลาแล้ว'],['posted','ลงแล้ว']];
+const LABEL={script:'รอทำเสียง',voice:'รอทำวิดีโอ',video:'รอตัดต่อ',edit:'Claude กำลังตัดต่อ',review:'รอคุณตรวจ',fix:'ขอแก้',approved:'อนุมัติแล้ว',scheduled:'ตั้งเวลาแล้ว',posted:'ลงแล้ว'};
+const TONE={review:'wait',fix:'bad',edit:'wait',approved:'ok',scheduled:'ok',posted:'ok'};
+const PERF="She speaks warmly and calmly to the camera like a late-evening podcast host, small subtle natural lip movements, mouth opens only slightly, soft gentle smile between phrases, small natural head nods, occasional slow blink, hands resting still on the desk, keeps eye contact with the camera, camera almost still, warm cozy candlelight";
+let db=null, assets=null, cfg={voice:{speaker:'Sulafat',temperature:0.7,style:'Say softly and warmly, slow and calm:',model:'Gemini 3.8 Flash TTS'}}, eps=[], cur=null, loaded=false;
+try{const h=(location.hash||'').slice(1);if(/^ep\d\d$/.test(h))cur=h;}catch(e){}
+
+function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600);}
+function plain(s){return String(s||'').replace(/\*\*/g,'');}
+function ttsText(e){let s=(e.lines||[]).map(plain).join(' ');s=s.replace(/(\S+?) ?ๆ ?/g,(m,w)=>w+w);return cfg.voice.style+'\n'+s;}
+function stageIndex(st){return {script:0,voice:1,video:2,edit:3,review:4,fix:4,approved:4,scheduled:5,posted:6}[st]??0;}
+function epNo(id){return id.replace('ep','');}
+
+function renderList(){
+  const nav=$('#eps');nav.textContent='';
+  let doing=0,rev=0,done=0;
+  eps.forEach(e=>{const st=e.status||'script';if(['review','fix'].includes(st))rev++;else if(['scheduled','posted'].includes(st))done++;else if(st!=='script'||e.voiceAsset)doing++;
+    const b=document.createElement('button');b.type='button';b.className='ep';b.setAttribute('aria-current',e.id===cur?'true':'false');
+    b.innerHTML='<span class="n"></span><span><span class="t"></span><span class="pill"><i></i><span></span></span></span>';
+    b.querySelector('.n').textContent=epNo(e.id);b.querySelector('.t').textContent=e.hook;
+    const p=b.querySelector('.pill');p.className='pill '+(TONE[st]||'');p.querySelector('span').textContent=LABEL[st]||st;
+    b.onclick=()=>{cur=e.id;try{history.replaceState(null,'','#'+e.id)}catch(_){location.hash=e.id}render();};
+    nav.appendChild(b);});
+  const s=$('#sum').querySelectorAll('b');s[0].textContent=doing;s[1].textContent=rev;s[2].textContent=done;
+}
+function fileBox(kind,id,label){
+  const box=$('#f-'+kind),fl=$('#fl-'+kind);
+  if(id){box.classList.add('has');fl.textContent=label+' ✓ อัปโหลดแล้ว · แตะเพื่อเปลี่ยนไฟล์';}else{box.classList.remove('has');fl.textContent=kind==='voice'?'อัปโหลดไฟล์เสียง (.wav / .mp3)':'อัปโหลดคลิปจาก Kling (.mp4 ไม่เกิน 20 MB)';}
+}
+function render(){
+  if(!eps.length)return;
+  if(!cur||!eps.find(e=>e.id===cur))cur=(eps.find(e=>!['scheduled','posted'].includes(e.status))||eps[0]).id;
+  const e=eps.find(x=>x.id===cur);renderList();
+  $('#eyebrow').textContent='EP'+epNo(e.id)+' · '+(LABEL[e.status||'script']||'');
+  $('#title').textContent=e.hook;
+  if(document.activeElement!==$('#hook'))$('#hook').value=e.hook;
+  if(document.activeElement!==$('#lines'))$('#lines').value=(e.lines||[]).join('\n');
+  $('#tts').textContent=ttsText(e);$('#perf').textContent=PERF;
+  const v=cfg.voice;const vc=$('#voicechips');vc.textContent='';
+  [['รุ่น',v.model],['เสียง',v.speaker],['Temperature',String(v.temperature)],['ผู้พูด','1 คน']].forEach(([a,b])=>{const c=document.createElement('span');c.className='chip';c.innerHTML='<em></em> <span></span>';c.querySelector('em').textContent=a;c.querySelector('span').textContent=b;vc.appendChild(c);});
+  fileBox('voice',e.voiceAsset,'ไฟล์เสียง');fileBox('video',e.videoAsset,'คลิป Kling');
+  const si=stageIndex(e.status||'script');const steps=$('#steps');steps.textContent='';
+  STAGES.forEach(([k,l],i)=>{const d=document.createElement('span');d.className='step'+(i<si?' done':i===si?' now':'');d.innerHTML='<b></b><span></span>';d.querySelector('b').textContent=i<si?'✓':String(i+1);d.querySelector('span').textContent=l;steps.appendChild(d);});
+  const pv=$('#pv');pv.querySelector('video')?.remove();const img=$('#pvimg');
+  if(e.reelAsset){img.hidden=true;const vd=document.createElement('video');vd.src='/_blob/'+e.reelAsset;vd.controls=true;vd.playsInline=true;vd.preload='metadata';pv.appendChild(vd);$('#pvlbl').textContent='Reel ล่าสุด';}
+  else if(cfg.masterAsset){img.src='/_blob/'+cfg.masterAsset;img.hidden=false;$('#pvlbl').textContent='ภาพต้นแบบ (ใช้ใน Kling)';}
+  const kv=$('#kv');kv.textContent='';
+  [['สถานะ',LABEL[e.status||'script']],['ไฟล์เสียง',e.voiceAsset?'มีแล้ว':'ยังไม่มี'],['คลิป Kling',e.videoAsset?'มีแล้ว':'ยังไม่มี'],['Reel',e.reelAsset?'พร้อมดู':'ยังไม่มี'],['เวลาโพสต์',e.scheduledText||'ยังไม่ตั้ง']].forEach(([a,b])=>{const s=document.createElement('span');s.textContent=a;const t=document.createElement('b');t.textContent=b;kv.append(s,t);});
+  $('#st-edit').textContent=e.status==='edit'?'ส่งแล้ว · บอก Claude ในแชตว่า "ตัดต่อ Nara Studio"':(e.reelAsset?'มี Reel แล้ว ดูได้ทางขวา':'');
+  $('#ask-edit').disabled=!db||!e.videoAsset;
+  $('#approve').disabled=!db||!e.reelAsset;$('#ask-fix').disabled=!db||!e.reelAsset;
+  if(document.activeElement!==$('#note'))$('#note').value=e.note||'';
+  if(e.wantAt&&document.activeElement!==$('#when'))$('#when').value=e.wantAt;
+  $('#reviewtxt').textContent=e.status==='scheduled'?('ตั้งเวลาโพสต์แล้ว: '+(e.scheduledText||'')):'ดู Reel บนมือถือ ถ้าโอเคกดอนุมัติ Claude จะตั้งเวลาโพสต์ให้ตามวันเวลาที่เลือก';
+  ['save-script'].forEach(id=>$('#'+id).disabled=!db);
+  $('#in-voice').disabled=!assets;$('#in-video').disabled=!assets;
+}
+async function save(id,patch,stEl,okText){
+  if(!db)return;const st=$(stEl);st.className='status';st.textContent='กำลังบันทึก…';
+  try{await db.collection('episodes').doc(id).update({...patch,updatedAt:new Date().toISOString()});st.className='status ok';st.textContent=okText;}
+  catch(err){st.className='status err';st.textContent='บันทึกไม่ได้: '+(err&&err.code||'ลองใหม่อีกครั้ง');}
+}
+document.addEventListener('click',async ev=>{
+  const b=ev.target.closest('[data-copy]');if(!b)return;const t=$('#'+b.dataset.copy).textContent;
+  try{await navigator.clipboard.writeText(t);toast('คัดลอกแล้ว');}catch(e){const r=document.createRange();r.selectNodeContents($('#'+b.dataset.copy));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('เลือกข้อความแล้ว กด Ctrl+C');}
+});
+$('#save-script').onclick=()=>{const lines=$('#lines').value.split('\n').map(s=>s.trim()).filter(Boolean);const hook=$('#hook').value.trim();if(!hook||!lines.length){$('#st-script').className='status err';$('#st-script').textContent='ใส่ข้อความเปิดและซับอย่างน้อย 1 บรรทัด';return;}save(cur,{hook,lines},'#st-script','บันทึกสคริปต์แล้ว');};
+$('#ask-edit').onclick=()=>save(cur,{status:'edit'},'#st-edit','ส่งแล้ว · บอก Claude ในแชตว่า "ตัดต่อ Nara Studio"');
+$('#approve').onclick=()=>save(cur,{status:'approved',wantAt:$('#when').value||'',note:$('#note').value.trim()},'#st-review','อนุมัติแล้ว · บอก Claude ในแชตให้ตั้งเวลาโพสต์');
+$('#ask-fix').onclick=()=>{const n=$('#note').value.trim();if(!n){$('#st-review').className='status err';$('#st-review').textContent='พิมพ์ก่อนว่าอยากให้แก้อะไร';return;}save(cur,{status:'fix',note:n},'#st-review','ส่งคำขอแก้แล้ว');};
+
+async function toWebm(file,st){
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC||!window.MediaRecorder)throw new Error('convert');
+  const ac=new AC();const buf=await ac.decodeAudioData(await file.arrayBuffer());
+  if(buf.duration>30)throw new Error('long');
+  const dest=ac.createMediaStreamDestination();const src=ac.createBufferSource();src.buffer=buf;src.connect(dest);
+  const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';
+  const rec=new MediaRecorder(dest.stream,{mimeType:mime,audioBitsPerSecond:160000});const chunks=[];rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+  const done=new Promise(r=>rec.onstop=r);rec.start();src.start();
+  st.textContent='กำลังแปลงไฟล์เสียง ใช้เวลาเท่าความยาวเสียง ('+buf.duration.toFixed(1)+' วินาที)…';
+  await new Promise(r=>src.onended=r);await new Promise(r=>setTimeout(r,250));rec.stop();await done;ac.close();
+  return {blob:new Blob(chunks,{type:'video/webm'}),dur:buf.duration};
+}
+async function upload(kind,file){
+  const st=$('#st-'+kind);st.className='status';const e=eps.find(x=>x.id===cur);
+  try{
+    let blob=file,type,extra={};
+    if(kind==='voice'){
+      if(/\.m4a$/i.test(file.name)||file.type==='audio/mp4'){type='video/mp4';}
+      else{const r=await toWebm(file,st);blob=r.blob;type='video/webm';extra.voiceSeconds=Math.round(r.dur*100)/100;}
+    }else{if(file.size>20*1024*1024){st.className='status err';st.textContent='ไฟล์ใหญ่เกิน 20 MB ส่งในแชต Claude แทน';return;}type='video/mp4';}
+    st.textContent='กำลังอัปโหลด…';
+    const res=await assets.upload(blob,{type});
+    const patch={[kind+'Asset']:res.id,[kind+'Name']:file.name,...extra};
+    if(kind==='voice'&&(!e.status||e.status==='script'))patch.status='voice';
+    if(kind==='video'&&['script','voice'].includes(e.status||'script'))patch.status='video';
+    await save(cur,patch,'#st-'+kind,(kind==='voice'?'อัปโหลดเสียงแล้ว':'อัปโหลดคลิปแล้ว')+(extra.voiceSeconds?(' · ยาว '+extra.voiceSeconds+' วินาที'+(extra.voiceSeconds>15?' (เกิน 15 วินาที Claude จะตัดช่วงเงียบให้)':'')):''));
+  }catch(err){st.className='status err';
+    st.textContent=err&&err.message==='convert'?'เบราว์เซอร์นี้แปลงไฟล์เสียงไม่ได้ ส่งไฟล์ในแชต Claude แทน':err&&err.message==='long'?'เสียงยาวเกิน 30 วินาที ลองตัดสคริปต์ให้สั้นลง':err&&err.code==='too_large'?'ไฟล์ใหญ่เกิน 20 MB ส่งในแชต Claude แทน':'อัปโหลดไม่ได้ ('+(err&&err.code||'ลองใหม่')+') ส่งไฟล์ในแชต Claude แทนได้';}
+}
+$('#in-voice').onchange=e=>{const f=e.target.files[0];if(f)upload('voice',f);e.target.value='';};
+$('#in-video').onchange=e=>{const f=e.target.files[0];if(f)upload('video',f);e.target.value='';};
+
+// sample shown until the studio data loads
+eps=[{id:'ep04',hook:'คืนนี้เหงาไกลบ้านไหม?',lines:['ถ้าคืนนี้รู้สึก**เหงาไกลบ้าน**','ไม่ได้แปลว่าเรา**อ่อนแอ**นะคะ','มันแปลว่าเรา**กล้า**ออกมาไกล','ลองโทรหาคนที่บ้าน สัก**ห้านาที**','ค่อย ๆ ไปด้วยกันนะคะ'],status:'script'}];
+render();
+
+(async()=>{
+  const c=window.claude;
+  if(!c||!c.use){$('#dbnote').hidden=false;return;}
+  const timer=setTimeout(()=>{if(!loaded)$('#dbnote').hidden=false;},10000);
+  try{db=await c.use('db');}catch(e){db=null;}
+  try{assets=await c.use('assets');}catch(e){assets=null;}
+  if(!db){clearTimeout(timer);$('#dbnote').hidden=false;render();return;}
+  db.collection('config').doc('show').onSnapshot(s=>{if(s.exists){cfg={...cfg,...s.data()};render();}},()=>{});
+  db.collection('episodes').orderBy('order').onSnapshot(s=>{
+    if(!s.metadata.fromCache){loaded=true;clearTimeout(timer);$('#dbnote').hidden=true;}
+    if(s.size){eps=s.docs.map(d=>({id:d.id,...d.data()}));render();}
+  },()=>{clearTimeout(timer);$('#dbnote').hidden=false;});
+  render();
+})();
+})();
+</script>
