@@ -4,3 +4,4 @@
   Use this one image for every Kling Image to Video so her face stays the same. Do not regenerate per episode.
 - Series bible, prompts and scripts: https://claude.ai/artifact/Pr9EhmEZGgQBzjyvPFfVDE
 - `ep04-nara.wav` / `.mp3`: voice for episode 4 (Google AI Studio, Gemini Flash TTS), pauses tightened to 14.7 s for a 15 s Kling clip.
+- `nara-master-lipsync.png`: same Nara with lips closed and a soft smile (chosen 2026-11-04). Use THIS as First frame for videos that get Lip Sync; teeth look more natural than with the toothy master.
