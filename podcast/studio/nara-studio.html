@@ -79,6 +79,12 @@ textarea,input[type=text],input[type=datetime-local]{width:100%;background:var(-
 .kv span{color:var(--dim)} .kv b{font-weight:500;text-align:right;font-variant-numeric:tabular-nums}
 .note{font-size:12.5px;color:var(--faint)}
 .banner{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--warm)}
+.guide{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.guide summary{cursor:pointer;font-weight:600;font-size:14px;list-style-position:inside}
+.guide ol{margin:10px 0 4px;padding-left:22px;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--dim)}
+.guide li b{color:var(--fg);font-weight:600}
+.guide li em{font-style:normal;color:var(--go1)}
+.btn.sm{padding:4px 10px;font-size:12.5px;border-radius:9px;margin-left:6px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);padding:10px 16px;border-radius:12px;font-size:14px;z-index:20}
 @media (max-width:980px){.grid{grid-template-columns:1fr}.side{order:-1}.preview{max-width:260px}}
 @media (max-width:760px){
@@ -130,6 +136,19 @@ textarea,input[type=text],input[type=datetime-local]{width:100%;background:var(-
 
         <section class="card" id="c-video">
           <h2><span class="num">3</span>วิดีโอนาราพูด <span class="tool">Kling · Avatar</span></h2>
+          <details class="guide" open>
+            <summary>วิธีทำ Avatar ใน Kling ทีละขั้น</summary>
+            <ol>
+              <li><b>เปิดโหมด Avatar</b> ใน Kling ไปที่ <em>AI Human</em> (หรือปุ่ม Tools ข้างช่อง prompt) แล้วเลือก <em>Avatar</em> ที่มุมล่างซ้าย</li>
+              <li><b>ใส่ภาพนารา</b> ในช่อง <em>Character</em> ใช้ภาพปิดปากยิ้มบาง ๆ ภาพเดิมทุกตอน <button class="btn sm" type="button" id="dl-master">บันทึกภาพนารา</button></li>
+              <li><b>ใส่เสียง</b> ในช่องเสียง ใช้ไฟล์ที่ดาวน์โหลดจาก Google AI Studio (ยาวไม่เกิน 15 วินาที ถ้าเกิน ส่งให้ Claude ตัดช่วงเงียบก่อน)</li>
+              <li><b>วาง prompt</b> ด้านล่างในช่อง <em>Character Performance</em></li>
+              <li><b>ตั้งค่า</b> 1080p · 1 แล้วกด <em>Generate</em> (ประมาณ 120 เครดิต)</li>
+              <li><b>เช็กปากก่อนดาวน์โหลด</b> ดูบนมือถือว่าฟันไม่เป็นแผ่นขาว และปากไม่อ้ากว้างเกินไป ถ้าไม่ผ่าน กด Generate ใหม่อีกรอบ</li>
+              <li><b>ดาวน์โหลด mp4</b> แล้วอัปโหลดในช่องด้านล่าง จากนั้นไปขั้นที่ 4</li>
+            </ol>
+            <span class="status" id="st-dl"></span>
+          </details>
           <div class="bar">
             <div class="row"><span class="chip"><em>โหมด</em> Avatar</span><span class="chip"><em>Character</em> ภาพนาราปิดปาก</span><span class="chip"><em>เสียง</em> voice ของตอนนี้</span><span class="chip"><em>คุณภาพ</em> 1080p · 1</span><span class="chip"><em>เครดิต</em> ~120</span></div>
             <pre class="en" id="perf"></pre>
@@ -273,6 +292,14 @@ async function upload(kind,file){
   }catch(err){st.className='status err';
     st.textContent=err&&err.message==='convert'?'เบราว์เซอร์นี้แปลงไฟล์เสียงไม่ได้ ส่งไฟล์ในแชต Claude แทน':err&&err.message==='long'?'เสียงยาวเกิน 30 วินาที ลองตัดสคริปต์ให้สั้นลง':err&&err.code==='too_large'?'ไฟล์ใหญ่เกิน 20 MB ส่งในแชต Claude แทน':'อัปโหลดไม่ได้ ('+(err&&err.code||'ลองใหม่')+') ส่งไฟล์ในแชต Claude แทนได้';}
 }
+let downloads=null;
+$('#dl-master').onclick=async()=>{const st=$('#st-dl');st.className='status';
+  if(!cfg.masterAsset){st.className='status err';st.textContent='ยังโหลดภาพไม่ได้ ลองใหม่อีกครั้ง';return;}
+  try{if(!downloads)downloads=await window.claude.use('downloads');}catch(e){downloads=null;}
+  if(!downloads){st.textContent='บันทึกไม่ได้ในหน้านี้ กดค้างที่ภาพทางขวาแล้วเลือกบันทึกรูป';return;}
+  try{const r=await fetch('/_blob/'+cfg.masterAsset);const data=await r.blob();await downloads.save({filename:'nara-master-lipsync.png',data});st.className='status ok';st.textContent='บันทึกภาพนาราแล้ว';}
+  catch(e){st.textContent='ไม่ได้บันทึก กดค้างที่ภาพทางขวาแล้วเลือกบันทึกรูปแทนได้';}
+};
 $('#in-voice').onchange=e=>{const f=e.target.files[0];if(f)upload('voice',f);e.target.value='';};
 $('#in-video').onchange=e=>{const f=e.target.files[0];if(f)upload('video',f);e.target.value='';};
 
