@@ -10,6 +10,7 @@ Images are in Nara Studio > Library. Face reference for all new travel photos: `
 - Light and shadow direction copied from the real photo; her shadow goes the same way as the scene's shadows.
 - Size check: heads of people of the same height line up in an eye-level photo. Selfies and waist-up shots avoid the problem; full-body shots usually look wrong (proportions, pose, light).
 - Poses that failed: full-body golf swing finish; leaning out of a train window (Busselton Jetty train, dropped 6 Nov 2026). Prefer standing or sitting poses on solid ground.
+- A location photo where a real person is the main subject (e.g. Twelve Apostles): Gemini puts Nara in that person's exact spot and pose; moving her or leaning on a fence made her float. Use a selfie for those photos instead.
 - Fix once or twice at most; if still wrong, start again from the original location photo.
 - Outfits: many colours to suit the place, bright natural colours; keep long dark hair and small gold earrings.
 - Photos with children or other people: step 1 removes them in a prompt of its own ("Remove the people in the aisle. Fill the space with the matching floor and background. Keep everything else exactly the same."); step 2 adds Nara to the cleaned photo. Gemini refused when the location photo showed a child's face clearly (Busselton train, 6 Nov 2026): crop or clean the photo first.
