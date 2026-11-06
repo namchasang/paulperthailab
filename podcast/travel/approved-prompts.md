@@ -111,3 +111,31 @@ She takes a selfie with her phone at arm's length, chest up, the big golf screen
 
 Shot on an iPhone front camera: everyday selfie, the screen as sharp as her face, no bokeh. Real room light: the glowing screen behind her lights the edges of her hair and shoulders, her face lit by the phone-side light in the room, the walls around dark. Slightly tilted framing, natural skin texture, no retouching, correct hands with five fingers, vertical 9:16.
 ```
+
+## 8. Asian grocery, Northbridge: picking noodles, candid  ★
+Images: (1) `00-NARA-MAIN-FACE.png` (2) `17-northbridge-asian-grocery.jpg`
+```
+Image 1 shows her face. Use ONLY her face, hair and earrings from image 1: same face shape, eyes, nose, lips, smile and long dark hair. Ignore the shop, the gelato, the outfit and the pose in image 1. She is a young Thai-Malaysian woman in her late twenties, about 27 years old, with a soft, curvy, healthy figure, a fuller bust and hips, natural and not skinny; her clothes fit her curves naturally and stay modest and elegant.
+
+Image 2 is a real Asian grocery store in Northbridge, Perth: keep the long aisle, the packed shelves on both sides, the red paper lantern and the tiled floor. Remove the child and the adult walking in the aisle.
+
+A candid photo from the waist up: she stands beside the shelf on the left, reaching up to take a pack of instant noodles, turned three-quarters toward the camera, looking at the pack in her hand with a happy, nostalgic smile like she has found a taste of home. A shopping basket with a bubble milk tea cup and snacks hangs on her other arm. The pack in her hand, the cup and the basket items have plain packaging with no brand names.
+
+She wears a soft lilac knit cardigan over a white T-shirt, light-wash jeans, small gold earrings, her long dark hair loose.
+
+Shot on an iPhone main camera by a friend standing in the aisle: casual snapshot, deep focus, she and the shelves are both sharp, no bokeh. Real store light: cool white ceiling lights from above, no sunlight. Slightly off-centre framing, natural skin texture, no retouching, correct hands with five fingers, vertical 9:16.
+```
+Optional fix before posting: `Make the noodle pack in her raised hand plain, with no brand names or logos. Keep everything else exactly the same.`
+
+## 9. Twelve Apostles, Great Ocean Road: selfie in the wind  ★
+Images: (1) `00-NARA-MAIN-FACE.png` (2) `00-NARA-FULLBODY-REF.png` (3) `18-twelve-apostles.jpg`
+(Replacing the man in the photo failed twice: stiff pose, then floating against the fence. The selfie worked first time. Gemini redrew the stacks a little.)
+```
+Image 1 shows her face: use ONLY her face, hair and earrings from image 1. Image 2 shows her body: use ONLY her body shape and proportions from image 2. Ignore the outfits, poses and backgrounds in images 1 and 2. She is a young Thai-Malaysian woman in her late twenties, about 27 years old, with a soft, curvy, healthy figure, a fuller bust and hips, natural and not skinny; her clothes fit her curves naturally and stay modest.
+
+Image 3 is the real location, the Twelve Apostles on the Great Ocean Road, Victoria. Remove the man in black and all the tourists. Keep the limestone stacks, the surf, the cliffs and the misty sky.
+
+She takes a selfie with her phone at arm's length on the wooden viewing path, chest up, the rock stacks and the sea behind her over her shoulder. The wind blows her hair across her face and she laughs while pushing it back with her free hand. She wears a soft brick-red wool coat over a cream knit sweater, small gold earrings. No brand logos.
+
+Shot on an iPhone front camera: everyday selfie, deep focus, the rock stacks sharp behind her, no bokeh. Soft grey misty daylight, even light on her face. Slightly tilted framing, natural skin texture, no retouching, correct hands with five fingers, vertical 9:16.
+```
