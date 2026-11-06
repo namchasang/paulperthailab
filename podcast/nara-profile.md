@@ -6,7 +6,7 @@
 | Age | 27 |
 | Heritage | Thai father, Malaysian mother; family lives in Khon Kaen |
 | City | Perth. Lived on the Gold Coast before; moved to Perth for a new experience and easier, more frequent trips home to Thailand |
-| Work | Remote office job in online marketing; mornings as a barista at a café near Fremantle |
+| Work | Remote office job in online marketing; mornings as a barista at a café near Fremantle. The café is never named: no real café name or shop sign in scripts or images |
 | Status | Single, loves solo travel and selfies, makes new friends wherever she goes |
 | Personality | Smiles a lot and laughs easily; positive thinker who looks for the good side and skips drama; friendly, chatty, easy to talk to; good energy that lifts people up; confident, loves what she does and enjoys life; sincere and likes helping people |
 | Her story | Lonely and homesick at first, a low-paid first job, nearly gave up, slowly found her feet |
