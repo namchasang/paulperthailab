@@ -180,3 +180,19 @@ She wears a dusty rose silk blouse with the sleeves rolled up, small gold earrin
 Real light of the restaurant: soft daylight from the window on the right lighting the side of her face, warm indoor light from above, the sandstone wall glowing warm behind her. Shot on an iPhone by a friend: casual snapshot, she and the plate both sharp, the restaurant behind a little soft as in image 3. Natural skin texture, no retouching, correct hands with five fingers.
 ```
 (Seated at a table works well: forearms on the table anchor her. Caption: no restaurant name, focus on the food, not the wine.)
+
+## 12. Wildlife park: holding a wombat, emus behind  ★ (Paul: "สมจริงมาก")
+Images: (1) `00-NARA-MAIN-FACE.png` (2) `00-NARA-FULLBODY-REF.png` (headless) (3) `22-wombat-hold.jpg`
+(The location photo is a close-up of a real woman, so the prompt makes a NEW photo and uses image 3 only for the wombat, the hold and the setting. Some parks do let visitors hold wombats. Never name the park.)
+```
+Image 1 shows her face: use ONLY her face, hair and earrings from image 1. Image 2 shows her body: use ONLY her body shape and proportions from image 2. Ignore the outfits, poses and backgrounds in images 1 and 2. She is a young Thai-Malaysian woman in her late twenties, about 27 years old, with a soft, curvy, healthy figure, a fuller bust and hips, natural and not skinny; her clothes fit her curves naturally and stay modest.
+
+Image 3 is a reference for the wombat, the way it is held and the setting: use the same big fluffy brown wombat, held upright against her chest the same way, one arm around its chest and one hand supporting it from underneath, the same wildlife park with the wooden fence, the emus behind it, the pond and the grassy hill under a cloudy sky. Do not copy the person in image 3: create a new photo of her.
+
+A candid photo taken by a friend, framed from the thighs up: she stands on the grass in front of the fence, holding the wombat close, her cheek tilted slightly toward it, smiling brightly at the camera, her long dark hair moving a little in the breeze. The wombat's claws rest gently on her arm.
+
+She wears a cobalt-blue knit cardigan over a white T-shirt, white jeans, small gold earrings. No brand logos.
+
+Soft overcast daylight like image 3, even light on her face and the wombat's fur. Shot on an iPhone main camera: casual snapshot, deep focus, she, the wombat and the emus behind all sharp, no bokeh. Natural skin texture, no retouching, correct hands with five fingers, vertical 3:4.
+```
+(First result with the headless body reference: face and figure both right.)
