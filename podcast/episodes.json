@@ -1,7 +1,7 @@
 {
   "show": "ชีวิตดีขึ้นได้",
   "host": "นารา",
-  "voice": {"tool": "Google AI Studio", "model": "Gemini 3.8 Flash TTS", "speaker": "Sulafat", "temperature": 0.7, "style": "Say softly and warmly, slow and calm:"},
+  "voice": {"tool": "Google AI Studio", "model": "Gemini 3.8 Flash TTS", "speaker": "Sulafat", "temperature": 0.7, "style": "Say warmly and brightly, with a smile in your voice, friendly and upbeat but not rushed:"},
   "episodes": [
     {"id": "ep01", "hook": "ไม่มีใครพร้อม 100%", "lines": ["ไม่มีใครพร้อมร้อยเปอร์เซ็นต์หรอกค่ะ", "คนที่ไปถึงฝัน แค่**เริ่ม**ทั้งที่ยังกลัว", "วันนี้ลองทำเรื่องเล็ก ๆ ที่ผัดไว้", "สักหนึ่งอย่าง", "ค่อย ๆ ไปด้วยกันนะคะ"]},
     {"id": "ep02", "hook": "พูดอังกฤษผิด น่าอายไหม?", "lines": ["พูดอังกฤษผิด ไม่ใช่เรื่องน่าอายค่ะ", "การ**ไม่กล้าพูด**ต่างหาก ที่ทำให้เราไม่โต", "วันนี้ลองพูดกับคนแปลกหน้า", "สัก**หนึ่งประโยค**", "ค่อย ๆ ไปด้วยกันนะคะ"]},

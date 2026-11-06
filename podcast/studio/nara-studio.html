@@ -255,7 +255,7 @@ const LABEL={script:'รอทำเสียง',voice:'รอทำวิด�
 const TONE={review:'wait',fix:'bad',edit:'wait',approved:'ok',scheduled:'ok',posted:'ok'};
 const BASEP="The woman listens calmly with a gentle closed-mouth smile, looking into the camera, small natural head movements, soft blink, candle flames flicker, steam rises from the tea cup, camera almost still with a very slow push-in, warm cozy light, photorealistic";
 const PERF="She speaks warmly and calmly to the camera like a late-evening podcast host, small subtle natural lip movements, mouth opens only slightly, soft gentle smile between phrases, small natural head nods, occasional slow blink, hands resting still on the desk, keeps eye contact with the camera, camera almost still, warm cozy candlelight";
-let db=null, assets=null, cfg={voice:{speaker:'Sulafat',temperature:0.7,style:'Say softly and warmly, slow and calm:',model:'Gemini 3.8 Flash TTS'}}, eps=[], cur=null, loaded=false;
+let db=null, assets=null, cfg={voice:{speaker:'Sulafat',temperature:0.7,style:'Say warmly and brightly, with a smile in your voice, friendly and upbeat but not rushed:',model:'Gemini 3.8 Flash TTS'}}, eps=[], cur=null, loaded=false;
 let downloads=null, lib=[], view='studio', libFilter='all';
 try{const h=(location.hash||'').slice(1);if(/^ep\d\d$/.test(h))cur=h;if(h==='library')view='library';}catch(e){}
 const KINDS=[['all','ทั้งหมด'],['image','ภาพ'],['voice','เสียง'],['video','คลิป Kling'],['reel','Reel']];
