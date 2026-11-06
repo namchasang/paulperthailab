@@ -10,6 +10,7 @@ Images are in Nara Studio > Library. Face reference for all new travel photos: `
 - Light and shadow direction copied from the real photo; her shadow goes the same way as the scene's shadows.
 - Size check: heads of people of the same height line up in an eye-level photo. Selfies and waist-up shots avoid the problem; full-body shots usually look wrong (proportions, pose, light).
 - Fix once or twice at most; if still wrong, start again from the original location photo.
+- Outfits: many colours to suit the place, bright natural colours; keep long dark hair and small gold earrings.
 - Remove children and clear strangers' faces. No memorials. No climbing landmarks. No brand logos.
 
 ---
