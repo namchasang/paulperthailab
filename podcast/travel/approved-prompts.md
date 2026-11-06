@@ -13,6 +13,7 @@ Images are in Nara Studio > Library. Face reference for all new travel photos: `
 - A location photo where a real person is the main subject (e.g. Twelve Apostles): Gemini puts Nara in that person's exact spot and pose; moving her or leaning on a fence made her float. Use a selfie for those photos instead.
 - A body reference image also pulls the FACE toward its own face. Use a body reference with the head cropped off (00-NARA-FULLBODY-REF.png is headless).
 - Wide shots with a tiny face drift from Nara's face: upscale first, then edit only the face with the main face image.
+- To copy a pose from a photo with people: step 1 removes them; step 2 uses the cleaned photo as the scene AND the original as a pose-only reference ("put her exactly where the woman with … is, copy that pose, do not copy her face, hair or clothes").
 - Fix once or twice at most; if still wrong, start again from the original location photo.
 - Outfits: many colours to suit the place, bright natural colours; keep long dark hair and small gold earrings.
 - Photos with children or other people: step 1 removes them in a prompt of its own ("Remove the people in the aisle. Fill the space with the matching floor and background. Keep everything else exactly the same."); step 2 adds Nara to the cleaned photo. Gemini refused when the location photo showed a child's face clearly (Busselton train, 6 Nov 2026): crop or clean the photo first.
@@ -196,3 +197,23 @@ She wears a cobalt-blue knit cardigan over a white T-shirt, white jeans, small g
 Soft overcast daylight like image 3, even light on her face and the wombat's fur. Shot on an iPhone main camera: casual snapshot, deep focus, she, the wombat and the emus behind all sharp, no bokeh. Natural skin texture, no retouching, correct hands with five fingers, vertical 3:4.
 ```
 (First result with the headless body reference: face and figure both right.)
+
+## 13. Wildlife park: crouching and patting kangaroos  ★
+Step 1, only `23-kangaroos.jpg`:
+```
+Remove all the people: the three people crouching on the grass and the people walking in the background. Keep both kangaroos exactly as they are, the kangaroo lying on the grass and the kangaroo grazing in front, and fill the empty space with the matching green grass, trees and fence. Keep the light and the camera angle exactly the same.
+```
+Step 2, images: (1) `00-NARA-MAIN-FACE.png` (2) `00-NARA-FULLBODY-REF.png` (3) the cleaned photo (4) `23-kangaroos.jpg` (the original, as the POSE reference)
+(Without image 4 Gemini zoomed in, dropped the grazing kangaroo and changed her crouch. Adding the original as a pose reference fixed it.)
+```
+Image 1 shows her face: use ONLY her face, hair and earrings from image 1. Image 2 shows her body: use ONLY her body shape and proportions from image 2. Ignore the outfits, poses and backgrounds in images 1 and 2. She is a young Thai-Malaysian woman in her late twenties, about 27 years old, with a soft, curvy, healthy figure, a fuller bust and hips, natural and not skinny; her clothes fit her curves naturally and stay modest.
+
+Image 3 is the scene to use: keep it exactly as it is, the same square frame, the same camera height and angle, the same wide lawn, trees, fence and sky, the kangaroo lying on the grass in the middle distance and the kangaroo grazing in the front. Do not zoom in, do not move or resize the kangaroos.
+
+Image 4 is the reference for her pose and position only: put her exactly where the woman with pink hair is in image 4, at the same size in the frame and the same distance from the camera. Copy that woman's pose exactly: crouching low, knees together, sitting back almost on her heels, leaning forward, both palms resting flat on the back of the lying kangaroo, head up looking at the camera with a big laugh. Do not copy that woman's face, hair or clothes, and do not add the other people from image 4.
+
+She wears a coral-orange knit sweater, light-wash jeans, white sneakers, small gold earrings, her long dark hair loose. No brand logos.
+
+Same sunshine and shadows as image 3, her soft shadow on the grass. Shot on an iPhone main camera: casual snapshot, deep focus, she and both kangaroos sharp, no bokeh. Natural skin texture, no retouching, correct hands with five fingers.
+```
+(Result: she pats the grazing kangaroo instead, in the right-hand spot. Paul kept it.)
