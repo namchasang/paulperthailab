@@ -16,7 +16,7 @@
 ## Look (same in every image)
 Body: soft, curvy and healthy, fuller bust and hips, not skinny. Clothes fit her curves and stay modest and elegant.
 Long dark hair with soft waves and small gold earrings (these two stay the same). Clothes in many colours to suit each place, bright natural colours (Paul, 6 Nov 2026: no longer beige by default).
-In prompts: "a young Thai-Malaysian woman in her late twenties, about 27 years old, with a soft, curvy, healthy figure, a fuller bust and hips, natural and not skinny; her clothes fit her curves naturally and stay modest and elegant".
+In prompts: "a young Thai-Malaysian woman in her late twenties, about 27 years old, with a healthy, natural figure, not skinny".
 References in Nara Studio: face `58e5b5602884df4b87605eb99b690030`, full body `0d601b3d16131e112f3f18357385cf05`.
 
 ## Rules

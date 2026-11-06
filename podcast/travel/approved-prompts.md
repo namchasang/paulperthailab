@@ -6,11 +6,13 @@ Images are in Nara Studio > Library. Face reference for all new travel photos: `
 ## What made them work
 - Candid or selfie, not posed: mid-step, looking at something, laughing.
 - Phone look (iPhone wording), deep focus, no bokeh, real daylight from the location photo. Never: 50mm, 35mm, full-frame, shallow depth of field, rim light, editorial, cinematic, professional.
-- Say her age and figure: "a young Thai-Malaysian woman in her late twenties, about 27 years old, with a soft, curvy, healthy figure, a fuller bust and hips, natural and not skinny; her clothes fit her curves naturally and stay modest and elegant".
+- Say her age and figure: "a young Thai-Malaysian woman in her late twenties, about 27 years old, with a healthy, natural figure, not skinny".
 - Light and shadow direction copied from the real photo; her shadow goes the same way as the scene's shadows.
 - Size check: heads of people of the same height line up in an eye-level photo. Selfies and waist-up shots avoid the problem; full-body shots usually look wrong (proportions, pose, light).
 - Fix once or twice at most; if still wrong, start again from the original location photo.
 - Outfits: many colours to suit the place, bright natural colours; keep long dark hair and small gold earrings.
+- Photos with children or other people: step 1 removes them in a prompt of its own ("Remove the people in the aisle. Fill the space with the matching floor and background. Keep everything else exactly the same."); step 2 adds Nara to the cleaned photo. Never put the word child in the same prompt as a description of her body: Gemini refuses (6 Nov 2026).
+- Body wording: "a healthy, natural figure, not skinny". Do not name bust or hips: it trips Gemini's filter.
 - Remove children and clear strangers' faces. No memorials. No climbing landmarks. No brand logos.
 
 ---
@@ -100,7 +102,7 @@ Shot on an iPhone main camera by a friend standing close behind her: casual snap
 ## 7. Indoor golf simulator: selfie holding the driver up  ★ (first one with the curvy-figure line)
 Images: (1) `00-NARA-MAIN-FACE.png` (2) `15-golf-simulator.jpg`
 ```
-Image 1 shows her face. Use ONLY her face, hair and earrings from image 1: same face shape, eyes, nose, lips, smile and long dark hair. Ignore the shop, the gelato, the outfit and the pose in image 1. She is a young Thai-Malaysian woman in her late twenties, about 27 years old, with a soft, curvy, healthy figure, a fuller bust and hips, natural and not skinny; her clothes fit her curves naturally and stay modest and elegant.
+Image 1 shows her face. Use ONLY her face, hair and earrings from image 1: same face shape, eyes, nose, lips, smile and long dark hair. Ignore the shop, the gelato, the outfit and the pose in image 1. She is a young Thai-Malaysian woman in her late twenties, about 27 years old, with a healthy, natural figure, not skinny.
 
 Image 2 is a real indoor golf simulator bay. Remove the child, the golf bag and the clubs on the floor. Change "COOPER" on the screen to "NARA". Remove the brand logo on the projector, the course name and the red "INVALID SHOT" box.
 
