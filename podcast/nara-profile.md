@@ -8,7 +8,7 @@
 | City | Perth. Lived on the Gold Coast before; moved to Perth for a new experience and easier, more frequent trips home to Thailand |
 | Work | Remote office job in online marketing; mornings as a barista at a café near Fremantle |
 | Status | Single, loves solo travel and selfies, makes new friends wherever she goes |
-| Personality | Warm, calm, direct but polite; listens more than she lectures |
+| Personality | Smiles a lot and laughs easily; positive thinker who looks for the good side and skips drama; friendly, chatty, easy to talk to; good energy that lifts people up; confident, loves what she does and enjoys life; sincere and likes helping people |
 | Her story | Lonely and homesick at first, a low-paid first job, nearly gave up, slowly found her feet |
 | Likes | Morning coffee, beach walks at sunset, cooking Thai food, reading, travelling alone |
 | Sign-off | "ค่อย ๆ ไปด้วยกันนะคะ" |
