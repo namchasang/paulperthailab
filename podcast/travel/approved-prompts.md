@@ -161,3 +161,22 @@ Match the light of image 3: bright clear sunshine, the same shadow direction as 
 ```
 Before posting: `Remove the person at the lower right corner. Fill the space with the matching grass, rocks and railing. Keep everything else exactly the same.`
 (Lesson: full body works when the original camera framing is locked, a real object like the railing sets her size, and she touches it.)
+
+## 11. Hunter Valley restaurant, NSW: steak and red wine, seated  ★
+Step 1, only `20-hunter-valley-steak.jpg`:
+```
+Remove the man sitting at the table and the woman sitting in the background on the left. Fill the space with an empty wooden chair and the matching sandstone wall, window and restaurant behind. Keep the table, the steak plate, the wine glass, the water glasses, the light and the camera angle exactly the same.
+```
+Step 2, images: (1) `00-NARA-MAIN-FACE.png` (2) `00-NARA-BODY-REF.png` (3) the cleaned photo
+```
+Image 1 shows her face: use ONLY her face, hair and earrings from image 1. Image 2 shows her body: use ONLY her body shape and proportions from image 2. Ignore the outfits, poses and backgrounds in images 1 and 2. She is a young Thai-Malaysian woman in her late twenties, about 27 years old, with a soft, curvy, healthy figure, a fuller bust and hips, natural and not skinny; her clothes fit her curves naturally and stay modest.
+
+Image 3 is a real restaurant in the Hunter Valley wine region, New South Wales: keep the sandstone wall, the framed pictures, the window and the soft restaurant behind, the wooden table, the plate with the grilled steak and corn, the glass of red wine and the water glasses exactly the same, and keep the vertical frame and camera angle.
+
+A candid photo taken by a friend sitting across the table: she sits on the chair behind the table, both forearms resting on the wooden table, leaning forward a little. One hand holds the stem of the wine glass on the table, and she smiles warmly at the camera with sparkling, happy eyes, as if saying "this looks amazing". Her long dark hair falls over one shoulder.
+
+She wears a dusty rose silk blouse with the sleeves rolled up, small gold earrings. No brand logos.
+
+Real light of the restaurant: soft daylight from the window on the right lighting the side of her face, warm indoor light from above, the sandstone wall glowing warm behind her. Shot on an iPhone by a friend: casual snapshot, she and the plate both sharp, the restaurant behind a little soft as in image 3. Natural skin texture, no retouching, correct hands with five fingers.
+```
+(Seated at a table works well: forearms on the table anchor her. Caption: no restaurant name, focus on the food, not the wine.)
