@@ -8,7 +8,7 @@ Images are in Nara Studio > Library. Face reference for all new travel photos: `
 - Phone look (iPhone wording), deep focus, no bokeh, real daylight from the location photo. Never: 50mm, 35mm, full-frame, shallow depth of field, rim light, editorial, cinematic, professional.
 - Say her age: "a young Thai-Malaysian woman in her late twenties, about 27 years old".
 - Light and shadow direction copied from the real photo; her shadow goes the same way as the scene's shadows.
-- Size check: heads of people of the same height line up in an eye-level photo. Selfies avoid the problem.
+- Size check: heads of people of the same height line up in an eye-level photo. Selfies and waist-up shots avoid the problem; full-body shots usually look wrong (proportions, pose, light).
 - Fix once or twice at most; if still wrong, start again from the original location photo.
 - Remove children and clear strangers' faces. No memorials. No climbing landmarks. No brand logos.
 
@@ -82,3 +82,16 @@ She stands right beside the large pillar on the left in image 3, her body turned
 Shot on an iPhone main camera by a friend standing a few metres away: casual travel snapshot, not a professional photo. Deep focus, she and the background are both sharp, no bokeh. Bright HDR phone look with lifted shadows, vivid sky and natural punchy colours, slight phone sharpening. Real daylight as in image 3, harsh sun from the upper right, hard shadows falling to the lower left. Slightly off-centre framing, natural skin texture, no retouching. Correct hands with five fingers, vertical 9:16.
 ```
 Optional fix: `Remove the person-shaped shadow on the sand at the lower right. Replace it with plain golden sand with the same ripples. Keep everything else exactly the same.`
+
+## 6. Indoor golf simulator: waist up, club on the shoulder  ★
+Images: (1) `00-NARA-MAIN-FACE.png` (2) `15-golf-simulator.jpg`
+(The full-body swing finish failed: stretched legs, model pose, club on the wrong side, studio light. Waist up fixed it.)
+```
+Image 1 shows her face. Use ONLY her face, hair and earrings from image 1: same face shape, eyes, nose, lips, smile and long dark hair. Ignore the shop, the gelato, the outfit and the pose in image 1. She is a young Thai-Malaysian woman in her late twenties, about 27 years old.
+
+Image 2 is a real indoor golf simulator bay. Remove the child, the golf bag and the clubs on the floor. Change "COOPER" on the screen to "NARA". Remove the brand logo on the projector, the course name and the red "INVALID SHOT" box.
+
+Framed from the waist up: she stands in front of the big golf screen with the fairway and her shot numbers, the driver resting casually on her right shoulder like a bat, holding the grip with her gloved hand. She has just hit a good shot and turns back toward the camera, laughing with a proud, happy face. She wears a fitted cream polo shirt, a white golf glove, small gold earrings, her hair in a high ponytail. No brand logos.
+
+Shot on an iPhone main camera by a friend standing close behind her: casual snapshot, deep focus, the screen and she are both sharp, no bokeh. Real room light: the bright screen behind her puts a soft glow on her hair and shoulders, her face lit softly by the light in the room, the walls dim. Natural skin texture, no retouching, correct hands with five fingers, vertical 9:16.
+```
