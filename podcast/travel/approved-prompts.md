@@ -95,3 +95,15 @@ Framed from the waist up: she stands in front of the big golf screen with the fa
 
 Shot on an iPhone main camera by a friend standing close behind her: casual snapshot, deep focus, the screen and she are both sharp, no bokeh. Real room light: the bright screen behind her puts a soft glow on her hair and shoulders, her face lit softly by the light in the room, the walls dim. Natural skin texture, no retouching, correct hands with five fingers, vertical 9:16.
 ```
+
+## 7. Indoor golf simulator: selfie holding the driver up  ★ (first one with the curvy-figure line)
+Images: (1) `00-NARA-MAIN-FACE.png` (2) `15-golf-simulator.jpg`
+```
+Image 1 shows her face. Use ONLY her face, hair and earrings from image 1: same face shape, eyes, nose, lips, smile and long dark hair. Ignore the shop, the gelato, the outfit and the pose in image 1. She is a young Thai-Malaysian woman in her late twenties, about 27 years old, with a soft, curvy, healthy figure, a fuller bust and hips, natural and not skinny; her clothes fit her curves naturally and stay modest and elegant.
+
+Image 2 is a real indoor golf simulator bay. Remove the child, the golf bag and the clubs on the floor. Change "COOPER" on the screen to "NARA". Remove the brand logo on the projector, the course name and the red "INVALID SHOT" box.
+
+She takes a selfie with her phone at arm's length, chest up, the big golf screen with the fairway and her shot numbers behind her. She holds the driver up beside her head in her free hand like a trophy, laughing with raised eyebrows as if saying "did you see that?". Fitted cream polo shirt, white golf glove, small gold earrings, high ponytail. No brand logos.
+
+Shot on an iPhone front camera: everyday selfie, the screen as sharp as her face, no bokeh. Real room light: the glowing screen behind her lights the edges of her hair and shoulders, her face lit by the phone-side light in the room, the walls around dark. Slightly tilted framing, natural skin texture, no retouching, correct hands with five fingers, vertical 9:16.
+```
