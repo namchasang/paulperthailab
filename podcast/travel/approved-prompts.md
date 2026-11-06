@@ -141,3 +141,23 @@ She takes a selfie with her phone at arm's length on the wooden viewing path, ch
 
 Shot on an iPhone front camera: everyday selfie, deep focus, the rock stacks sharp behind her, no bokeh. Soft grey misty daylight, even light on her face. Slightly tilted framing, natural skin texture, no retouching, correct hands with five fingers, vertical 9:16.
 ```
+
+## 10. Bondi Beach lookout, Sydney: leaning on the railing, wide original framing  ★
+Step 1, only `19-bondi-beach.jpg`:
+```
+Remove the two people standing at the railing and the person at the lower right edge. Fill the space with the matching metal railing, the beach, the sea and the paved lookout floor. Keep everything else exactly the same.
+```
+Step 2, images: (1) `00-NARA-MAIN-FACE.png` (2) a body reference (Paul used a slimmer one; the face came back like Nara. Now use the headless `00-NARA-FULLBODY-REF.png`) (3) the cleaned photo
+```
+Image 1 shows her face: use ONLY her face, hair and earrings from image 1. Image 2 shows her body: use ONLY her body shape and proportions from image 2. Ignore the outfits, poses and backgrounds in images 1 and 2. She is a young Thai-Malaysian woman in her late twenties, about 27 years old, with a soft, curvy, healthy figure, a fuller bust and hips, natural and not skinny; her clothes fit her curves naturally and stay modest.
+
+Image 3 is the real location, the clifftop lookout above Bondi Beach in Sydney. Keep image 3 exactly as it is: the same horizontal 4:3 frame, the same wide camera angle and distance, the same crop, the whole curve of the beach, the sea, the headland, the long metal railing across the front and the paved floor. Do not zoom in, do not crop, do not change the frame to vertical.
+
+Add her standing on the paved lookout in the middle of the frame, at the railing, exactly where the paving meets the railing in the centre. She is seen full body from head to shoes, the same small size in the frame as a person standing there would be: the top rail reaches just above her waist. Her near hand rests on the top rail with her fingers wrapped around it, her other hand holds her sunglasses, weight on one leg, body turned slightly toward the beach, smiling at the camera, the breeze lifting her long dark hair.
+
+She wears a sunny yellow lightweight zip jacket over a white T-shirt, light-wash jeans, white sneakers, small gold earrings. No brand logos.
+
+Match the light of image 3: bright clear sunshine, the same shadow direction as the railing posts, a soft shadow under her shoes on the paving. Shot on a phone main camera like image 3: deep focus, everything sharp, no bokeh, natural colours, natural skin texture, no retouching, correct hands with five fingers.
+```
+Before posting: `Remove the person at the lower right corner. Fill the space with the matching grass, rocks and railing. Keep everything else exactly the same.`
+(Lesson: full body works when the original camera framing is locked, a real object like the railing sets her size, and she touches it.)
