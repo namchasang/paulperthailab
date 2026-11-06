@@ -9,6 +9,7 @@ Images are in Nara Studio > Library. Face reference for all new travel photos: `
 - Say her age and figure: "a young Thai-Malaysian woman in her late twenties, about 27 years old, with a soft, curvy, healthy figure, a fuller bust and hips, natural and not skinny; her clothes fit her curves naturally and stay modest and elegant".
 - Light and shadow direction copied from the real photo; her shadow goes the same way as the scene's shadows.
 - Size check: heads of people of the same height line up in an eye-level photo. Selfies and waist-up shots avoid the problem; full-body shots usually look wrong (proportions, pose, light).
+- Poses that failed: full-body golf swing finish; leaning out of a train window (Busselton Jetty train, dropped 6 Nov 2026). Prefer standing or sitting poses on solid ground.
 - Fix once or twice at most; if still wrong, start again from the original location photo.
 - Outfits: many colours to suit the place, bright natural colours; keep long dark hair and small gold earrings.
 - Photos with children or other people: step 1 removes them in a prompt of its own ("Remove the people in the aisle. Fill the space with the matching floor and background. Keep everything else exactly the same."); step 2 adds Nara to the cleaned photo. Gemini refused when the location photo showed a child's face clearly (Busselton train, 6 Nov 2026): crop or clean the photo first.
