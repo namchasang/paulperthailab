@@ -6,7 +6,7 @@ Images are in Nara Studio > Library. Face reference for all new travel photos: `
 ## What made them work
 - Candid or selfie, not posed: mid-step, looking at something, laughing.
 - Phone look (iPhone wording), deep focus, no bokeh, real daylight from the location photo. Never: 50mm, 35mm, full-frame, shallow depth of field, rim light, editorial, cinematic, professional.
-- Say her age: "a young Thai-Malaysian woman in her late twenties, about 27 years old".
+- Say her age and figure: "a young Thai-Malaysian woman in her late twenties, about 27 years old, with a soft, curvy, healthy figure, a fuller bust and hips, natural and not skinny; her clothes fit her curves naturally and stay modest and elegant".
 - Light and shadow direction copied from the real photo; her shadow goes the same way as the scene's shadows.
 - Size check: heads of people of the same height line up in an eye-level photo. Selfies and waist-up shots avoid the problem; full-body shots usually look wrong (proportions, pose, light).
 - Fix once or twice at most; if still wrong, start again from the original location photo.
