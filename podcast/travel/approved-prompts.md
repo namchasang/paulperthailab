@@ -217,3 +217,30 @@ She wears a coral-orange knit sweater, light-wash jeans, white sneakers, small g
 Same sunshine and shadows as image 3, her soft shadow on the grass. Shot on an iPhone main camera: casual snapshot, deep focus, she and both kangaroos sharp, no bokeh. Natural skin texture, no retouching, correct hands with five fingers.
 ```
 (Result: she pats the grazing kangaroo instead, in the right-hand spot. Paul kept it.)
+
+## 14. Brighton Bathing Boxes, Melbourne: red knit dress, leaning on the door  ★
+Step 1, only `24-brighton-bathing-boxes.jpg` (has a child: always clean first, in its own prompt):
+```
+Remove all five people. Fill the space with the matching sand, the bathing boxes and their wooden decks. Keep the blue-and-yellow box number 6, the white-and-teal box number 7, the striped box on the right, the trees and the blue sky exactly the same.
+```
+Step 2, images: (1) `00-NARA-MAIN-FACE.png` (2) `00-NARA-FULLBODY-REF.png` (3) the cleaned photo
+```
+Image 1 shows her face: use ONLY her face, hair and earrings from image 1. Image 2 shows her body: use ONLY her body shape and proportions from image 2. Ignore the outfits, poses and backgrounds in images 1 and 2. She is a young Thai-Malaysian woman in her late twenties, about 27 years old, with a soft, curvy, healthy figure, a fuller bust and hips, natural and not skinny.
+
+Image 3 is the real location, the colourful bathing boxes at Brighton Beach in Melbourne: keep the blue-and-yellow box, the white-and-teal box, the striped box, the trees, the sand and the clear blue sky exactly the same, and keep the vertical frame and camera angle.
+
+A candid photo taken by a friend, framed from the knees up: she leans one shoulder against the white-and-teal bathing box, one hand resting on the wooden door frame, one knee bent, hips turned slightly, smiling confidently at the camera with her long dark hair falling over one shoulder.
+
+She wears a fitted, figure-hugging red knit mini dress with an off-the-shoulder neckline that flatters her curves, knee-high brown leather boots, small gold earrings, a slim gold bracelet. Chic, confident and stylish, still tasteful. No brand logos.
+
+Bright clear sunshine from the front left, crisp light on her face and shoulders, her shadow falling on the box behind her. Shot on an iPhone main camera: casual snapshot, deep focus, she and the bathing boxes sharp, no bokeh. Natural skin texture, no retouching, correct hands with five fingers, vertical 3:4.
+```
+Step 3, the body came out model-thin; images: (1) main face (2) full-body ref (3) the result
+```
+Edit only her body shape. Keep her face exactly like image 1, and keep her pose, the red off-the-shoulder knit mini dress, the brown boots, her hair, the bathing boxes, the sand, the sky and the light in image 3 exactly the same.
+
+Give her the same body as image 2: a soft, curvy, healthy figure, fuller bust and hips, a gently defined but not tiny waist, fuller thighs and calves, softer and fuller arms, natural and not skinny, not a model's figure. Natural leg length for a woman about 160 cm tall, shorter and fuller legs than now. The knit dress stretches naturally over her curves.
+
+Natural skin texture, no retouching, same phone photo look.
+```
+(Lesson: fitted or short outfits pull Gemini to a thin model body. Add "not a model's figure" and name thighs, calves and arms from the start. Use "flattering, figure-hugging, confident" instead of the word sexy.)
