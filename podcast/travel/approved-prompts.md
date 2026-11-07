@@ -244,3 +244,34 @@ Give her the same body as image 2: a soft, curvy, healthy figure, fuller bust an
 Natural skin texture, no retouching, same phone photo look.
 ```
 (Lesson: fitted or short outfits pull Gemini to a thin model body. Add "not a model's figure" and name thighs, calves and arms from the start. Use "flattering, figure-hugging, confident" instead of the word sexy.)
+
+## 15. Indoor tennis court: sitting on the bench, knees up, holding the racket out  ★ (Paul: "พอใจแล้ว")
+Step 1, only the tennis photo (people in the background):
+```
+Edit this photo: remove the woman sitting on the bench, the person standing at the far left edge, and every person on the courts in the background. Fill in the wooden bench, the green umpire chair, the clay court, the net and the background naturally, matching the original texture, light and shadows. Also remove any brand logos on the net posts. Keep everything else exactly the same: the curved roof, the court, the tennis balls, the camera angle and the framing. Photorealistic, no other changes.
+```
+Step 2, images: (1) `00-NARA-MAIN-FACE.png` (2) `00-NARA-FULLBODY-REF.png` (3) the cleaned photo (4) the original photo as the exact POSE and OUTFIT reference
+(The first try described a new outfit and only a rough pose: Gemini sat her upright, legs down, with a giant racket. Copying pose and outfit exactly from image 4, then changing one item later, fixed it.)
+```
+Use image 1 for her face and hair, image 2 for her body shape, image 3 as the exact background and framing, and image 4 as the exact pose AND outfit reference (copy the pose and clothes exactly, but not that person's face, hair or body).
+
+Place the same woman from image 1 into image 3: a Thai-Malaysian woman about 27, mature adult face, long straight black hair with soft see-through bangs, hair down.
+
+Pose, exactly as image 4: she sits near the front edge of the wooden bench, leaning back slightly. Both knees are bent and raised high, close together, thighs angled up toward the camera, her heels resting on the front edge of the bench with her feet in the lower left of the frame. Her right arm is stretched out to the upper left, holding the tennis racket by the grip with the racket upright beside the green umpire chair. Her left arm is straight and her left hand rests flat on the bench behind her hip. Head tilted slightly, eyes happily squeezed shut, a sweet closed-lip smile.
+
+Racket: a normal real-size adult tennis racket, red frame, not oversized. The racket head is about as wide as her shoulders and sits at the same place in the frame as in image 4. No logos.
+
+Outfit, exactly as image 4: a fitted white short-sleeve crew-neck T-shirt, black athletic shorts, white crew socks with a small pink ribbon print, white running sneakers with silver details and no logos, a white smartwatch, a black hair tie on her wrist.
+
+Body as in image 2: soft, curvy and healthy, fuller bust and hips, fuller thighs, not a model's figure, not skinny.
+
+Soft daylight under the curved roof, warm reflected light from the clay court, natural shadows matching the scene. Her size must match the bench exactly as in image 4.
+Shot on iPhone, wide lens, deep focus, everything sharp, natural HDR, no bokeh, real phone photo look, not studio lighting.
+```
+Step 3, swap the shorts for a skirt (same chat, attach the result):
+```
+Edit this image only. Replace the black shorts with a short white pleated tennis skirt with built-in shorts underneath (a tennis skort), soft fabric that drapes naturally over her raised knees and thighs, tasteful. Also remove the logos from the sneakers so they are plain white with silver details.
+
+Keep everything else exactly the same: her face, hair, smile, pose, body, the white T-shirt, the socks, the racket, the lighting, the background and the framing. Real iPhone photo look, deep focus, no bokeh.
+```
+(Lesson: for a tricky seated pose, copy pose AND outfit from the original first, then change one clothing item per edit. With knees up, use a skort, not a plain short skirt.)
