@@ -275,3 +275,9 @@ Edit this image only. Replace the black shorts with a short white pleated tennis
 Keep everything else exactly the same: her face, hair, smile, pose, body, the white T-shirt, the socks, the racket, the lighting, the background and the framing. Real iPhone photo look, deep focus, no bokeh.
 ```
 (Lesson: for a tricky seated pose, copy pose AND outfit from the original first, then change one clothing item per edit. With knees up, use a skort, not a plain short skirt.)
+
+## Lesson (7 Nov 2026): face looked old
+- Using the golf selfie as the FACE source plus "mature adult face" made her look 35+.
+- Face always from `00-NARA-MAIN-FACE.png` (gelato). Golf selfie = body only ("use ONLY her body shape, not her face").
+- Write "about 27, a fresh youthful face with smooth natural skin" instead of "mature adult face".
+- Any reference photo with a face (outfit photos too) pulls her face: crop the head off first.
