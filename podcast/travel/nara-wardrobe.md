@@ -14,6 +14,7 @@ Photo to attach: `outfits/OUTFIT-01-sporty-white-nohead.jpg` (head cropped off).
 She wears a fitted white short-sleeve crew-neck T-shirt, black athletic shorts, white crew socks with a small pink ribbon print, white running sneakers with silver details and no logos, a white smartwatch, a black hair tie on her wrist, small gold earrings.
 ```
 Skirt version (when she sits with knees up, keep the skort): replace "black athletic shorts" with "a short white pleated tennis skirt with built-in shorts underneath".
+Sporty body reference (head cropped off): `outfits/00-NARA-FULLBODY-REF-sporty.png` (Paul's pick, 7 Nov 2026). Slimmer than Nara's real figure, so keep the curvy body line in prompts; the original `00-NARA-FULLBODY-REF.png` stays the main body reference.
 Good for: tennis, golf, park walks, coastal paths, lookouts, markets, café mornings, cycling, picnic, theme parks, wildlife parks.
 
 ## Outfits from earlier approved photos
