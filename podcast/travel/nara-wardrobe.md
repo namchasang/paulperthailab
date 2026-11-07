@@ -5,11 +5,11 @@ Always keep: long dark hair, small gold earrings, no brand logos. Body line stay
 
 How to use an outfit in a new photo:
 - Paste the outfit line into the prompt instead of writing a new outfit.
-- For the most exact match, attach the outfit photo as an extra image and add: `Image N shows her outfit: copy ONLY the clothes, shoes and accessories from image N, not the pose, face or background.`
+- For the most exact match, attach the HEADLESS outfit photo (`OUTFIT-..-nohead.jpg`; a face in the outfit photo pulls Nara's face away from the main face) as an extra image and add: `Image N shows her outfit: copy ONLY the clothes, shoes and accessories from image N, not the pose, face or background.`
 - If a place does not suit the outfit (e.g. the sporty outfit at a nice restaurant), pick another one.
 
 ## OUTFIT-01 Sporty white (ชุดสปอร์ตขาว)  ★ Paul's favourite, "ดูสดใสดี"
-Photo: `outfits/OUTFIT-01-sporty-white.jpg` (on Paul's PC: `for Gemini/OUTFIT-01-sporty-white.jpg`). From photo 15, tennis court.
+Photo to attach: `outfits/OUTFIT-01-sporty-white-nohead.jpg` (head cropped off). Full photo: `outfits/OUTFIT-01-sporty-white.jpg` (on Paul's PC: `for Gemini/OUTFIT-01-sporty-white.jpg`). From photo 15, tennis court.
 ```
 She wears a fitted white short-sleeve crew-neck T-shirt, black athletic shorts, white crew socks with a small pink ribbon print, white running sneakers with silver details and no logos, a white smartwatch, a black hair tie on her wrist, small gold earrings.
 ```
