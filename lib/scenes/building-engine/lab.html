@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Building Kit Lab</title>
 <style>body{margin:0;overflow:hidden;background:#9fd3ea;font-family:system-ui,sans-serif}#ui{position:fixed;left:10px;top:10px;background:rgba(20,28,40,.84);color:#fff;padding:10px 12px;border-radius:12px;font-size:13px;max-width:300px;max-height:90vh;overflow:auto}
 #ui b{font-size:14px}#ui label{display:block;margin:4px 0;cursor:pointer}#ui button{margin:6px 6px 0 0;padding:6px 10px;border:0;border-radius:8px;background:#3e7d5c;color:#fff;font-weight:600;cursor:pointer}#ui input[type=range]{width:130px;vertical-align:middle}#fps{opacity:.75;margin-top:6px}</style></head><body>
-<div id="ui"><b>Building Kit Lab</b><div style="opacity:.8;margin:4px 0 6px">Buildings made from real 3D parts in sixteen styles, including island limestone cottages and cabins, Victoria Park shops and houses and Perth CBD towers. Detail layers: night window lights, shop interiors, flower boxes, grime and streaks, roof moss, gutters and downpipes, chimney smoke, washing lines, solar panels, rooftop units and tanks, antennas and dishes, picket fences with letterboxes, pot plants. Tick a box to show or hide each one.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
+<div id="ui"><b>Building Kit Lab</b><div style="opacity:.8;margin:4px 0 6px">Buildings made from real 3D parts in sixteen styles, including island limestone cottages, cabins and ochre holiday units, Victoria Park shops and houses and Perth CBD towers. Detail layers: night window lights, shop interiors, flower boxes, grime and streaks, roof moss, gutters and downpipes, chimney smoke, washing lines, solar panels, rooftop units and tanks, antennas and dishes, picket fences with letterboxes, pot plants. Tick a box to show or hide each one.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>/* Terrain Engine (Paul Perth Library, Nov 2026) — natural ground for three.js r128.
@@ -17,7 +17,7 @@
    Quality: T.setQuality(0..2) changes the detail layers (blade strokes and speckles off on 0). */
 (function(g){
 const lin=h=>{const c=new THREE.Color(h);c.convertSRGBToLinear();return`vec3(${c.r.toFixed(4)},${c.g.toFixed(4)},${c.b.toFixed(4)})`;};
-const DEF={/* Rottnest: muted island greens (scrub heath + settlement lawn), bright white limestone sand */g0:'#536a3c',g1:'#637a47',g2:'#71864f',g3:'#80925a',g4:'#97a26a',dry:'#b2a876',sandW:'#c4bba2',sand:'#f5f1e8',sandB:'#ebe4d2',dirt:'#8a6a48',rock:'#9a948a',
+const DEF={/* Rottnest: muted island greens (scrub heath + settlement lawn), bright white limestone sand */g0:'#4c5832',g1:'#5f6a3c',g2:'#757b48',g3:'#8c8c56',g4:'#a49d66',dry:'#b3a874',sandW:'#c4bba2',sand:'#f5f1e8',sandB:'#ebe4d2',dirt:'#8a6a48',rock:'#9a948a',
   lake:'#e8a6b8',path:'#d9cfb4',pathE:'#bdb294',lane:'#7c7f82',laneL:'#f2efe6',gravel:'#8e8a82'};
 function create(o){const P=Object.assign({},DEF,o.palette||{}),W=o.size[0],D=o.size[1],cx=(o.center||[0,0])[0],cz=(o.center||[0,0])[1],x0=cx-W/2,z0=cz-D/2,R=o.res||.5;
   const H=o.heightAt,SEA=o.seaLevel||0,NX=Math.ceil(W/R),NZ=Math.ceil(D/R);
@@ -96,6 +96,8 @@ vec3 sand(vec2 q,float u){vec3 c=u<.12?mix(${lin(P.sandW)},${lin(P.sand)},u/.12)
     list.forEach((e,i)=>{q.setFromEuler(new THREE.Euler(e[4],e[4]*2,0));m4.compose(new THREE.Vector3(e[0],e[1]+e[3]*.2,e[2]),q,new THREE.Vector3(e[3],e[3]*.6,e[3]));im.setMatrixAt(i,m4);});im.castShadow=true;im.receiveShadow=true;return im;})();
   mesh.add(peb);
   const api={mesh,material:m,uniforms:U,pebbles:peb,layers:LAYERS,
+    /* what the ground shows at (x,z): 'water' | 'sand' | 'grass' — the same beach rule as the shader, so plants and life never land on the sand */
+    groundKind(x,z){const i=Math.floor((x-x0)/W*FW),j=Math.floor((z-z0)/D*FD);if(i<0||j<0||i>=FW||j>=FD)return'water';const k=(j*FW+i)*4,h=fd[k],u=fd[k+1]/.62;if(h<SEA)return'water';if(u<1&&h<SEA+2)return'sand';return'grass';},
     setLayer(n,on){const i=LAYERS.indexOf(n);if(i<0)return;const v=[U.uLA,U.uLB,U.uLC][i>>2].value;v.setComponent(i%4,on?1:0);if(n==='pebbles')peb.visible=on;},
     setShade(list){sdat.fill(0);list.forEach(([x,z,r])=>{const cx=(x-x0)/W*SW,cz=(z-z0)/D*SD,rx=r/W*SW,rz=r/D*SD;for(let j=Math.max(0,Math.floor(cz-rz));j<=Math.min(SD-1,Math.ceil(cz+rz));j++)for(let i=Math.max(0,Math.floor(cx-rx));i<=Math.min(SW-1,Math.ceil(cx+rx));i++){const d=Math.hypot((i-cx)/rx,(j-cz)/rz);if(d<1){const k=(j*SW+i)*4;sdat[k]=Math.max(sdat[k],Math.round(255*Math.min(1,(1-d)*1.6)));}}});ST.needsUpdate=true;},fields:FT,heightAt:H,update:t=>{U.uT.value=t;},setQuality:q=>{U.uQ.value=q;},dispose:()=>{geo.dispose();m.dispose();FT.dispose();MT.dispose();}};return api;}
 g.TerrainEngine={create};})(typeof window!=='undefined'?window:this);
@@ -212,6 +214,11 @@ const K={
   tap(G){cyl(G,.05,.05,.9,'#7a8088',0,.45,0,8);box(G,.25,.05,.05,'#7a8088',.1,.86,0);box(G,.4,.08,.3,'#6a6e74',0,.04,0);},
   fence(G,o){const L=o.lines||[[0,0],[4,0]];for(let i=1;i<L.length;i++){const a=L[i-1],b=L[i],len=Math.hypot(b[0]-a[0],b[1]-a[1]),ang=Math.atan2(b[1]-a[1],b[0]-a[0]),n=Math.max(1,Math.round(len/1.5));
       for(let k=0;k<=n;k++){const t=k/n;cyl(G,.05,.06,.9,'#d8ccb0',a[0]+(b[0]-a[0])*t,.45,a[1]+(b[1]-a[1])*t,6);}[.35,.75].forEach(y=>{const r=box(G,len,.06,.04,'#d8ccb0',(a[0]+b[0])/2,y,(a[1]+b[1])/2);r.rotation.y=-ang;});}},
+  dunefence(G,o){/* timber posts with two wires along the dunes; o.lines world points */const L=o.lines||[[0,0],[6,0]];for(let i=1;i<L.length;i++){const a=L[i-1],b=L[i],len=Math.hypot(b[0]-a[0],b[1]-a[1]),ang=Math.atan2(b[1]-a[1],b[0]-a[0]),n=Math.max(1,Math.round(len/1.6));
+    for(let k=0;k<=n;k++){const x=a[0]+(b[0]-a[0])*k/n,z=a[1]+(b[1]-a[1])*k/n;const p=cyl(G,.05,.06,1,'#8a6a4a',x,o.H(x,z)+.5,z,6);}[.45,.85].forEach(hh=>{const w=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,len,3),m('#9aa0a6'));w.rotation.z=Math.PI/2;w.rotation.y=-ang;w.position.set((a[0]+b[0])/2,o.H((a[0]+b[0])/2,(a[1]+b[1])/2)+hh,(a[1]+b[1])/2);G.add(w);});}},
+  foodtruck(G,o){/* small food van with a serving hatch and awning */const c=o.color||'#f2c14e';box(G,3.6,1.7,1.8,c,0,1.25,0);box(G,1.2,1.2,1.78,'#f6f2e8',1.85,1.0,0);box(G,.05,.7,1.6,'#9fc8e0',2.46,1.25,0);box(G,3.62,.3,1.82,'#e85a6a',0,2.2,0);
+    box(G,1.8,.9,.04,'#2a2420',-.3,1.45,.92);box(G,2,.05,.3,'#c8c4ba',-.3,1.0,1.05);const aw=box(G,2.2,.05,1,'#e85a6a',-.3,2.0,1.35);aw.rotation.x=-.35;[-1.2,1.2].forEach(x=>{const w=cyl(G,.33,.33,.25,'#2a2a30',x,.33,.9,12);w.rotation.x=Math.PI/2;const w2=cyl(G,.33,.33,.25,'#2a2a30',x,.33,-.9,12);w2.rotation.x=Math.PI/2;});
+    const sg=signTex([o.sign||'FOOD TRUCK'],'#2a2420','#f6e27a');const sp=new THREE.Mesh(new THREE.PlaneGeometry(1.8,1.8/sg.a),new THREE.MeshLambertMaterial({map:sg.t}));sp.position.set(-.3,2.2,.92);G.add(sp);G.userData.foot=[-1.8,-.9,1.8,1.9];},
   surfrack(G){box(G,1.8,.08,.1,'#8a6440',0,1.1,0);[-.85,.85].forEach(x=>box(G,.08,1.2,.08,'#8a6440',x,.6,0));['#f2c14e','#e85a6a','#3fb0a0','#f4f2ec'].forEach((c,i)=>{const b=sph(G,.28,c,-.6+i*.4,.9,.1,.5,2,.12);b.rotation.z=.08;});G.userData.foot=[-.9,-.2,.9,.2];},
   towel(G,o){const c=document.createElement('canvas');c.width=16;c.height=32;const x=c.getContext('2d');for(let i=0;i<8;i++){x.fillStyle=i%2?'#f6f2e8':(o.color||'#3a8ad0');x.fillRect(0,i*4,16,4);}const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.magFilter=THREE.NearestFilter;
     const m2=new THREE.Mesh(new THREE.PlaneGeometry(.8,1.7),new THREE.MeshLambertMaterial({map:t}));m2.rotation.x=-Math.PI/2;m2.position.y=.02;m2.receiveShadow=true;G.add(m2);},
@@ -236,7 +243,7 @@ const K={
     for(let k=0;k<len/.3;k++)box(D,.28,.08,w,k%2?'#a0764a':'#b08454',-len/2+.15+k*.3,.6,0);for(let k=0;k<=len/2;k++)[-w/2+.1,w/2-.1].forEach(z=>cyl(D,.09,.1,2.4,'#6a4a30',-len/2+k*2,-.4,z,8));G.userData.foot=null;}};
 function o2(G,c){return c;}
 function create(o){const scene=o.scene,H=o.heightAt||(()=>0),list=[];const api={night:0,list,
-  add(kind,x,z,op){op=op||{};op.H=H;const G=new THREE.Group();(K[kind]||K.crate)(G,op);const y=kind==='jetty'||kind==='fence'||kind==='boardwalk'?0:H(x,z);if(kind!=='jetty'&&kind!=='fence'&&kind!=='boardwalk')G.position.set(x,y,z);
+  add(kind,x,z,op){op=op||{};op.H=H;const G=new THREE.Group();(K[kind]||K.crate)(G,op);const flat=kind==='jetty'||kind==='fence'||kind==='boardwalk'||kind==='dunefence';const y=flat?0:H(x,z);if(!flat)G.position.set(x,y,z);
     G.rotation.y=op.rot||0;if(op.scale)G.scale.setScalar(op.scale);G.userData.prop={kind};G.traverse(q=>{q.__pxSkip=1;});(op.parent||scene).add(G);list.push(G);return G;},
   along(kind,pts,sp,op){op=op||{};let carry=sp/2;for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),ang=Math.atan2(b[1]-a[1],b[0]-a[0]);let d=carry;
       while(d<L){const t=d/L,nx=-(b[1]-a[1])/L,nz=(b[0]-a[0])/L,off=op.offset||0;api.add(kind,a[0]+(b[0]-a[0])*t+nx*off,a[1]+(b[1]-a[1])*t+nz*off,Object.assign({},op,{rot:-ang+(op.turn||0)}));d+=sp;}carry=d-L;}},
@@ -281,6 +288,7 @@ const STY={cottage:{w:6,d:5,floors:1,wall:'#f6f0e2',roof:'gable',roofColor:'#c26
   lighthouse:{w:3,d:3,floors:6,wall:'#f8f6f0',trim:'#c8344a',round:true},
   /* Rottnest settlement: whitewashed limestone cottages with tin roofs and green trim, small holiday cabins */
   islandcottage:{w:7,d:6,floors:1,wall:'#f3eee0',roof:'hip',roofColor:'#8f969c',roofKind:'tin',trim:'#3e5a44',verandah:true,shutters:'#3e5a44',chimney:true,limestone:true},
+  /* settlement holiday units: ochre-yellow two-storey blocks with white balconies (Rottnest photos) */units:{w:12,d:7,floors:2,wall:'#e8c45a',roof:'hip',roofColor:'#e8e2d4',roofKind:'tin',trim:'#ffffff',verandah:true,balcony:true},
   cabin:{w:5,d:4.5,floors:1,wall:'#e8e2d0',roof:'skillion',roofColor:'#7a8088',roofKind:'tin',trim:'#c8b48a',verandah:true},
   /* Victoria Park (Albany Highway strip and the streets behind it) */
   strip:{w:5.4,d:8,floors:1,fh:3.4,wall:'#f2e6c8',roof:'flat',windows:'shop',parapet:true,parapetH:1.6,verandah:true,roofColor:'#7a8088',trim:'#f4ecd8'},
@@ -416,7 +424,7 @@ const fl=(x,z)=>.6;const T=TerrainEngine.create({size:[130,130],center:[0,-12],r
 const S=SkyEngine.create({scene,renderer:R,sun,hemi,target:new THREE.Vector3(0,0,0)});const B=BuildingKit.create({scene,heightAt:fl});
 B.build({x:-14,z:-9,style:'shop',sign:'FREO MARKETS'});B.build({x:-7,z:-9,style:'shop',awning:'#3a8ad0',sign:'BAYSIDE STORE',wall:'#d8e2d0'});B.build({x:-1,z:-9.5,style:'terrace'});B.build({x:4,z:-9.5,style:'terrace',wall:'#c8d8e0'});
 B.build({x:11,z:-8,style:'cafe',sign:'QUOKKA CAFE'});B.build({x:20,z:-9,style:'kiosk',sign:'ICE CREAM'});
-B.build({x:-14,z:10,rot:Math.PI,style:'cottage'});B.build({x:-6,z:10,rot:Math.PI,style:'house'});B.build({x:2,z:10,rot:Math.PI,style:'cottage',wall:'#f2e2c8',roofColor:'#5a6a74',shutters:'#2f6a9a'});B.build({x:16,z:14,style:'lighthouse'});B.build({x:26,z:9,rot:Math.PI,style:'islandcottage'});B.build({x:-24,z:10,rot:Math.PI,style:'cabin'});B.build({x:-31,z:10,rot:Math.PI,style:'cabin',wall:'#e2ead8'});
+B.build({x:-14,z:10,rot:Math.PI,style:'cottage'});B.build({x:-6,z:10,rot:Math.PI,style:'house'});B.build({x:2,z:10,rot:Math.PI,style:'cottage',wall:'#f2e2c8',roofColor:'#5a6a74',shutters:'#2f6a9a'});B.build({x:16,z:14,style:'lighthouse'});B.build({x:26,z:9,rot:Math.PI,style:'islandcottage'});B.build({x:-24,z:10,rot:Math.PI,style:'cabin'});B.build({x:-40,z:22,rot:Math.PI,style:'units'});B.build({x:-31,z:10,rot:Math.PI,style:'cabin',wall:'#e2ead8'});
 /* Victoria Park: Albany Highway strip (faces the highway at z=-17) and the brick houses on the next street */
 [['PHO-NOMENAL NOODLES','#c8344a','#f6e8d0'],['KIMCHI QUOKKA GRILL','#1d3a6e','#e8e2d4'],['BUBBLE BURROW TEA','#e8a33a','#fff3d6'],['SIAM SMILE KITCHEN','#7a1f2a','#f2e6c8'],['MOONBEAM COFFEE','#5a3a22','#f2ede4'],['COSY CHAI HOUSE','#e8732a','#fbe9cf']].forEach(([n,c,w],i)=>B.build({x:-40+i*5.6,z:-24.5,style:'strip',sign:n,signBg:c,wall:w,awning:null}));
 B.build({x:-1,z:-26,style:'pub',sign:'THE WATTLE & SWAN HOTEL',signBg:'#2c3b38'});B.build({x:16,z:-28,style:'bigbox',sign:'HOMEBOX',signBg:'#d8343a'});

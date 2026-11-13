@@ -52,7 +52,7 @@ button{font:inherit;cursor:pointer;border:0}
    Quality: T.setQuality(0..2) changes the detail layers (blade strokes and speckles off on 0). */
 (function(g){
 const lin=h=>{const c=new THREE.Color(h);c.convertSRGBToLinear();return`vec3(${c.r.toFixed(4)},${c.g.toFixed(4)},${c.b.toFixed(4)})`;};
-const DEF={/* Rottnest: muted island greens (scrub heath + settlement lawn), bright white limestone sand */g0:'#536a3c',g1:'#637a47',g2:'#71864f',g3:'#80925a',g4:'#97a26a',dry:'#b2a876',sandW:'#c4bba2',sand:'#f5f1e8',sandB:'#ebe4d2',dirt:'#8a6a48',rock:'#9a948a',
+const DEF={/* Rottnest: muted island greens (scrub heath + settlement lawn), bright white limestone sand */g0:'#4c5832',g1:'#5f6a3c',g2:'#757b48',g3:'#8c8c56',g4:'#a49d66',dry:'#b3a874',sandW:'#c4bba2',sand:'#f5f1e8',sandB:'#ebe4d2',dirt:'#8a6a48',rock:'#9a948a',
   lake:'#e8a6b8',path:'#d9cfb4',pathE:'#bdb294',lane:'#7c7f82',laneL:'#f2efe6',gravel:'#8e8a82'};
 function create(o){const P=Object.assign({},DEF,o.palette||{}),W=o.size[0],D=o.size[1],cx=(o.center||[0,0])[0],cz=(o.center||[0,0])[1],x0=cx-W/2,z0=cz-D/2,R=o.res||.5;
   const H=o.heightAt,SEA=o.seaLevel||0,NX=Math.ceil(W/R),NZ=Math.ceil(D/R);
@@ -384,8 +384,8 @@ function crown(R,n,cy,seed){/* leaf cards spread over a ball of radius R at heig
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setIndex(I);g.computeVertexNormals();return g;}
 function merge(geos){const P=[],U=[],N=[],I=[];let o=0;geos.forEach(g=>{const p=g.attributes.position,u=g.attributes.uv,n=g.attributes.normal;for(let i=0;i<p.count;i++){P.push(p.getX(i),p.getY(i),p.getZ(i));U.push(u?u.getX(i):0,u?u.getY(i):0);N.push(n.getX(i),n.getY(i),n.getZ(i));}
     const ix=g.index?g.index.array:[...Array(p.count).keys()];ix.forEach(v=>I.push(v+o));o+=p.count;});const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setIndex(I);return g;}
-const DEFPAL={/* Rottnest palette: grey-olive heath, muted lawn blades, white and lilac island daisies */blades:['#4e663a','#5f7846','#70884f','#869a5e','#a0a872'],flowers:['#ffffff','#f6e27a','#c9a2f0','#f5a3c0','#ffffff','#f08a5a'],
-  bush:['#4c5e3e','#5a6c48','#6a7a52','#7c8a62'],gum:['#4a6a44','#5a7a50','#6b8a5a','#7c9a68'],pine:['#22462e','#2c5636','#376640','#2a4a32'],pepper:['#3c6a36','#4c7c40','#5e8e4c','#6f9e56'],palm:['#3f7a3a','#4f8c44','#5f9c4e'],
+const DEFPAL={/* Rottnest palette: grey-olive heath, muted lawn blades, white and lilac island daisies */blades:['#5d6838','#6f7842','#858a50','#9c9a60','#b2aa72'],flowers:['#ffffff','#f6e27a','#c9a2f0','#f5a3c0','#ffffff','#f08a5a'],
+  bush:['#3a4628','#45532e','#516236','#5d6c3e'],gum:['#4a6a44','#5a7a50','#6b8a5a','#7c9a68'],pine:['#22462e','#2c5636','#376640','#2a4a32'],pepper:['#3c6a36','#4c7c40','#5e8e4c','#6f9e56'],palm:['#3f7a3a','#4f8c44','#5f9c4e'],
   bark:{gum:'#d8cfc0',pine:'#5a3a26',pepper:'#6a4a32',palm:'#8a7458'}};
 function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.chunk||10,RAD=o.radius||40,pal=Object.assign({},DEFPAL,o.palette||{}),D=Object.assign({tuft:2.2,flower:.35,bush:.03,tree:.012},o.density||{});
   const U={uT:{value:0},uWind:{value:o.wind==null?1:o.wind},uPush:{value:new THREE.Vector4(0,0,1.2,0)}};let Q=2;
@@ -487,6 +487,8 @@ const K={
   tap(G){cyl(G,.05,.05,.9,'#7a8088',0,.45,0,8);box(G,.25,.05,.05,'#7a8088',.1,.86,0);box(G,.4,.08,.3,'#6a6e74',0,.04,0);},
   fence(G,o){const L=o.lines||[[0,0],[4,0]];for(let i=1;i<L.length;i++){const a=L[i-1],b=L[i],len=Math.hypot(b[0]-a[0],b[1]-a[1]),ang=Math.atan2(b[1]-a[1],b[0]-a[0]),n=Math.max(1,Math.round(len/1.5));
       for(let k=0;k<=n;k++){const t=k/n;cyl(G,.05,.06,.9,'#d8ccb0',a[0]+(b[0]-a[0])*t,.45,a[1]+(b[1]-a[1])*t,6);}[.35,.75].forEach(y=>{const r=box(G,len,.06,.04,'#d8ccb0',(a[0]+b[0])/2,y,(a[1]+b[1])/2);r.rotation.y=-ang;});}},
+  dunefence(G,o){/* timber posts with two wires along the dunes; o.lines world points */const L=o.lines||[[0,0],[6,0]];for(let i=1;i<L.length;i++){const a=L[i-1],b=L[i],len=Math.hypot(b[0]-a[0],b[1]-a[1]),ang=Math.atan2(b[1]-a[1],b[0]-a[0]),n=Math.max(1,Math.round(len/1.6));
+    for(let k=0;k<=n;k++){const x=a[0]+(b[0]-a[0])*k/n,z=a[1]+(b[1]-a[1])*k/n;const p=cyl(G,.05,.06,1,'#8a6a4a',x,o.H(x,z)+.5,z,6);}[.45,.85].forEach(hh=>{const w=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,len,3),m('#9aa0a6'));w.rotation.z=Math.PI/2;w.rotation.y=-ang;w.position.set((a[0]+b[0])/2,o.H((a[0]+b[0])/2,(a[1]+b[1])/2)+hh,(a[1]+b[1])/2);G.add(w);});}},
   foodtruck(G,o){/* small food van with a serving hatch and awning */const c=o.color||'#f2c14e';box(G,3.6,1.7,1.8,c,0,1.25,0);box(G,1.2,1.2,1.78,'#f6f2e8',1.85,1.0,0);box(G,.05,.7,1.6,'#9fc8e0',2.46,1.25,0);box(G,3.62,.3,1.82,'#e85a6a',0,2.2,0);
     box(G,1.8,.9,.04,'#2a2420',-.3,1.45,.92);box(G,2,.05,.3,'#c8c4ba',-.3,1.0,1.05);const aw=box(G,2.2,.05,1,'#e85a6a',-.3,2.0,1.35);aw.rotation.x=-.35;[-1.2,1.2].forEach(x=>{const w=cyl(G,.33,.33,.25,'#2a2a30',x,.33,.9,12);w.rotation.x=Math.PI/2;const w2=cyl(G,.33,.33,.25,'#2a2a30',x,.33,-.9,12);w2.rotation.x=Math.PI/2;});
     const sg=signTex([o.sign||'FOOD TRUCK'],'#2a2420','#f6e27a');const sp=new THREE.Mesh(new THREE.PlaneGeometry(1.8,1.8/sg.a),new THREE.MeshLambertMaterial({map:sg.t}));sp.position.set(-.3,2.2,.92);G.add(sp);G.userData.foot=[-1.8,-.9,1.8,1.9];},
@@ -514,7 +516,7 @@ const K={
     for(let k=0;k<len/.3;k++)box(D,.28,.08,w,k%2?'#a0764a':'#b08454',-len/2+.15+k*.3,.6,0);for(let k=0;k<=len/2;k++)[-w/2+.1,w/2-.1].forEach(z=>cyl(D,.09,.1,2.4,'#6a4a30',-len/2+k*2,-.4,z,8));G.userData.foot=null;}};
 function o2(G,c){return c;}
 function create(o){const scene=o.scene,H=o.heightAt||(()=>0),list=[];const api={night:0,list,
-  add(kind,x,z,op){op=op||{};op.H=H;const G=new THREE.Group();(K[kind]||K.crate)(G,op);const y=kind==='jetty'||kind==='fence'||kind==='boardwalk'?0:H(x,z);if(kind!=='jetty'&&kind!=='fence'&&kind!=='boardwalk')G.position.set(x,y,z);
+  add(kind,x,z,op){op=op||{};op.H=H;const G=new THREE.Group();(K[kind]||K.crate)(G,op);const flat=kind==='jetty'||kind==='fence'||kind==='boardwalk'||kind==='dunefence';const y=flat?0:H(x,z);if(!flat)G.position.set(x,y,z);
     G.rotation.y=op.rot||0;if(op.scale)G.scale.setScalar(op.scale);G.userData.prop={kind};G.traverse(q=>{q.__pxSkip=1;});(op.parent||scene).add(G);list.push(G);return G;},
   along(kind,pts,sp,op){op=op||{};let carry=sp/2;for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),ang=Math.atan2(b[1]-a[1],b[0]-a[0]);let d=carry;
       while(d<L){const t=d/L,nx=-(b[1]-a[1])/L,nz=(b[0]-a[0])/L,off=op.offset||0;api.add(kind,a[0]+(b[0]-a[0])*t+nx*off,a[1]+(b[1]-a[1])*t+nz*off,Object.assign({},op,{rot:-ang+(op.turn||0)}));d+=sp;}carry=d-L;}},
@@ -534,16 +536,17 @@ g.PropsEngine={create,kinds:Object.keys(K)};})(typeof window!=='undefined'?windo
    asphalt texture per road type: centre line (dashed or double), lane lines, edge lines; kerbs and footpaths are raised strips. */
 (function(g){
 const TY={street:{lanes:2,lw:1.5,line:'dash',kerb:.12,foot:1.2},arterial:{lanes:4,lw:1.6,line:'double',kerb:.14,foot:1.6,median:false},highway:{lanes:4,lw:1.8,line:'double',kerb:0,foot:0,median:true},lane:{lanes:2,lw:1.2,line:'none',kerb:.08,foot:0},
-  /* island road: narrow, no centre line, no kerbs, sandy shoulders (Rottnest style, bikes and the loop bus) */island:{lanes:2,lw:1.3,line:'none',kerb:0,foot:0,shoulder:'#e4d8b8'}};
+  /* island road: narrow, no centre line, no kerbs, sandy shoulders (Rottnest style, bikes and the loop bus) */island:{lanes:2,lw:1.3,line:'none',kerb:0,foot:0,shoulder:'#e4d8b8',color:'#76797b',edge:false},
+  /* island bike path: one wide red-brown lane, thin sandy edges (Rottnest photos, Nov 2026) */bikepath:{lanes:1,lw:1.3,line:'none',kerb:0,foot:0,shoulder:'#e8dcc0',shoulderW:.3,color:'#a87c72',edge:false}};
 const lin=c=>new THREE.Color(c).convertSRGBToLinear();
-function asphalt(t){const S=4,w=64*S,h=t.lanes*16*S,c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#55585c';x.fillRect(0,0,w,h);let s=11;const r=()=>(s=(s*16807)%2147483647)/2147483647;
+function asphalt(t){const S=4,w=64*S,h=t.lanes*16*S,c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle=t.color||'#55585c';x.fillRect(0,0,w,h);let s=11;const r=()=>(s=(s*16807)%2147483647)/2147483647;
   for(let i=0;i<w*h/60;i++){x.fillStyle=r()<.5?'rgba(30,32,36,.25)':'rgba(140,142,146,.22)';x.fillRect(r()*w,r()*h,1+r()*2*S/4,1+r()*2*S/4);}
   const L=(y,dash,col,wd)=>{x.fillStyle=col;if(dash)for(let k=0;k<w;k+=32*S)x.fillRect(k,y-wd/2,18*S,wd);else x.fillRect(0,y-wd/2,w,wd);};const lh=h/t.lanes;
-  L(2*S,false,'#f2efe6',1.5*S);L(h-2*S,false,'#f2efe6',1.5*S);
+  if(t.edge!==false){L(2*S,false,'#f2efe6',1.5*S);L(h-2*S,false,'#f2efe6',1.5*S);}
   for(let i=1;i<t.lanes;i++){const y=i*lh;if(i===t.lanes/2){if(t.line==='double'){L(y-1.6*S,false,'#f2c94a',1.4*S);L(y+1.6*S,false,'#f2c94a',1.4*S);}else if(t.line==='dash')L(y,true,'#f2efe6',1.4*S);}else L(y,true,'#f2efe6',1.2*S);}
   const tx=new THREE.CanvasTexture(c);tx.wrapS=THREE.RepeatWrapping;tx.anisotropy=8;tx.encoding=THREE.sRGBEncoding;return tx;}
 function create(o){const scene=o.scene,H=o.heightAt||(()=>0),roads=[],bridges=[],group=new THREE.Group();group.name='roads';scene.add(group);const M={},cars=[];
-  const mat=k=>M[k]||(M[k]=new THREE.MeshLambertMaterial({map:asphalt(TY[k]),polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));
+  const mat=k=>M[k]||(M[k]=new THREE.MeshLambertMaterial({map:asphalt(TY[k]||TY.street),polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));
   const plain=c=>M[c]||(M[c]=new THREE.MeshLambertMaterial({color:lin(c)}));
   function ribbon(cv,t0,t1,off0,off1,y0,yfn,uScale,material,vSpan){const L=cv.getLength()*(t1-t0),N=Math.max(2,Math.ceil(L/.5)),P=[],U=[],I=[];let acc=0,prev=null;
     for(let i=0;i<=N;i++){const t=t0+(t1-t0)*i/N,p=cv.getPointAt(t),tg=cv.getTangentAt(t);if(prev)acc+=p.distanceTo(prev);prev=p.clone();const nx=-tg.z,nz=tg.x,y=yfn(p,t);
@@ -680,7 +683,7 @@ function create(o){const scene=o.scene,H=o.heightAt||(()=>0),roads=[],bridges=[]
           if(lo>0)j.exits.push({k,t:leave(r,tt,-1,j.c,j.R),dir:-1});if(hi<1)j.exits.push({k,t:leave(r,tt,1,j.c,j.R),dir:1});}));
         const brH=r.bridge?r.bridge.height:0;const yfn=(p,tt)=>{const g0=profAt(r,tt);if(!brH)return g0;const ramp=Math.min(1,Math.min(tt,1-tt)*L/12);return Math.max(g0,g0+brH*Math.sin(ramp*Math.PI/2));};
         const keep=cuts=>{const out=[];let s0=0;cuts.slice().sort((a,b)=>a[0]-b[0]).forEach(([a,b])=>{if(a>s0)out.push([s0,a]);s0=Math.max(s0,b);});if(s0<1)out.push([s0,1]);return out.filter(([a,b])=>b-a>.002);};
-        keep(cutA).forEach(([a,b])=>{ribbon(r.cv,a,b,-W/2,W/2,.03,yfn,8,mat(r.type),[0,1]);if(t.shoulder)[-1,1].forEach(sd=>ribbon(r.cv,a,b,sd*W/2,sd*(W/2+1),.02,yfn,2,plain(t.shoulder),[0,1]));if(t.median)ribbon(r.cv,a,b,-.4,.4,.08,yfn,2,plain('#6a8a50'),[0,1]);
+        keep(cutA).forEach(([a,b])=>{ribbon(r.cv,a,b,-W/2,W/2,.03,yfn,8,mat(r.type),[0,1]);if(t.shoulder)[-1,1].forEach(sd=>ribbon(r.cv,a,b,sd*W/2,sd*(W/2+(t.shoulderW||1)),.02,yfn,2,plain(t.shoulder),[0,1]));if(t.median)ribbon(r.cv,a,b,-.4,.4,.08,yfn,2,plain('#6a8a50'),[0,1]);
           if(brH){[-1,1].forEach(sd=>wall(r.cv,a,b,sd*(W/2+.2),.9,.03,yfn,'#d8d4cc'));const Lb=r.cv.getLength();for(let s=.1;s<.9;s+=10/Lb){const p=r.cv.getPointAt(s),y=yfn(p,s);if(y-H(p.x,p.z)<1)continue;const pier=new THREE.Mesh(new THREE.BoxGeometry(1,y,W*.8),plain('#bcb6aa'));pier.position.set(p.x,y/2,p.z);const tg=r.cv.getTangentAt(s);pier.rotation.y=-Math.atan2(tg.z,tg.x);pier.castShadow=true;group.add(pier);}}});
         if(t.kerb)[-1,1].forEach(sd=>keep(cutK.filter(q=>!q[2]||q[2]===sd)).forEach(([a,b])=>{wall(r.cv,a,b,sd*W/2,t.kerb,.0,yfn,'#c8c4ba');if(t.foot)ribbon(r.cv,a,b,sd*W/2,sd*(W/2+t.foot),t.kerb+.01,yfn,2,plain('#cfc9bc'),[0,1]);}));
         r.yfn=yfn;});
@@ -764,6 +767,7 @@ const STY={cottage:{w:6,d:5,floors:1,wall:'#f6f0e2',roof:'gable',roofColor:'#c26
   lighthouse:{w:3,d:3,floors:6,wall:'#f8f6f0',trim:'#c8344a',round:true},
   /* Rottnest settlement: whitewashed limestone cottages with tin roofs and green trim, small holiday cabins */
   islandcottage:{w:7,d:6,floors:1,wall:'#f3eee0',roof:'hip',roofColor:'#8f969c',roofKind:'tin',trim:'#3e5a44',verandah:true,shutters:'#3e5a44',chimney:true,limestone:true},
+  /* settlement holiday units: ochre-yellow two-storey blocks with white balconies (Rottnest photos) */units:{w:12,d:7,floors:2,wall:'#e8c45a',roof:'hip',roofColor:'#e8e2d4',roofKind:'tin',trim:'#ffffff',verandah:true,balcony:true},
   cabin:{w:5,d:4.5,floors:1,wall:'#e8e2d0',roof:'skillion',roofColor:'#7a8088',roofKind:'tin',trim:'#c8b48a',verandah:true},
   /* Victoria Park (Albany Highway strip and the streets behind it) */
   strip:{w:5.4,d:8,floors:1,fh:3.4,wall:'#f2e6c8',roof:'flat',windows:'shop',parapet:true,parapetH:1.6,verandah:true,roofColor:'#7a8088',trim:'#f4ecd8'},
@@ -1031,7 +1035,7 @@ const Hfn=(x,z)=>{const fx=x+60,fz=z+60;if(fx<0||fz<0||fx>=S||fz>=S)return -6;co
 const Hg=(x,z)=>E.road&&E.road.junctions?E.road.groundAt(x,z,Hfn(x,z)):Hfn(x,z);
 const segD=(x,z,a,b)=>{const vx=b[0]-a[0],vz=b[1]-a[1],L=vx*vx+vz*vz||1e-6;let t=((x-a[0])*vx+(z-a[1])*vz)/L;t=Math.max(0,Math.min(1,t));return Math.hypot(x-a[0]-vx*t,z-a[1]-vz*t);};
 const lineD=(x,z,pts)=>{let m=1e9;for(let i=1;i<pts.length;i++)m=Math.min(m,segD(x,z,pts[i-1],pts[i]));return m;};
-const RW={island:2.4,street:3.3,arterial:5,highway:4.6,lane:1.6,bridge:4.6};
+const RW={bikepath:1.3,island:2.4,street:3.3,arterial:5,highway:4.6,lane:1.6,bridge:4.6};
 const inBld=(x,z,m)=>doc.bld.some(b=>{const c=Math.cos(b.r||0),s=Math.sin(b.r||0),dx=x-b.x,dz=z-b.z,lx=dx*c-dz*s,lz=dx*s+dz*c;return Math.abs(lx)<4+m&&Math.abs(lz)<4.5+m;});
 const kindAt=(x,z)=>{const h=Hg(x,z);if(h<doc.sea)return'water';if(doc.paths.some(p=>lineD(x,z,p.pts)<p.w/2+.3))return'path';if(doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]))return'path';if(inBld(x,z,0))return'none';
   /* the ground engine decides where the beach is, so no grass grows on the sand */if(E.terr&&E.terr.groundKind)return E.terr.groundKind(x,z)==='sand'?'sand':'grass';if(h<doc.sea+.9)return'sand';return'grass';};
@@ -1122,8 +1126,8 @@ function pump(){const j=thumbQ.shift();if(!j){thumbBusy=false;return;}thumbBusy=
 const SAMPLE_SIGN={shop:'STORE',cafe:'CAFE',kiosk:'KIOSK',strip:'NOODLES',pub:'HOTEL',bigbox:'MEGA STORE',mallshop:'BOOKS',heritage:'MUSEUM'};
 
 /* ---------- names and icons ---------- */
-const BNAME={islandcottage:'บ้านพักหินปูน',cabin:'กระท่อมพัก',cottage:'กระท่อม',house:'บ้าน',bungalow:'บ้านอิฐ',terrace:'ทาวน์เฮาส์',flats:'อพาร์ตเมนต์',shop:'ร้านค้า',strip:'ร้านริมถนน',mallshop:'ร้านในห้าง',cafe:'คาเฟ่',kiosk:'คีออส',pub:'โรงแรมหัวมุม',bigbox:'ห้างใหญ่',heritage:'อาคารเก่า',slab:'ออฟฟิศ',tower:'ตึกสูง',lighthouse:'ประภาคาร'};
-const BGROUP=[['บ้านบนเกาะ',['islandcottage','cabin','cottage','lighthouse']],['บ้าน',['house','bungalow','terrace','flats']],['ร้านค้า',['shop','strip','mallshop','cafe','kiosk','pub','bigbox']],['เมือง',['heritage','slab','tower']]];
+const BNAME={units:'บ้านพักสีเหลือง',islandcottage:'บ้านพักหินปูน',cabin:'กระท่อมพัก',cottage:'กระท่อม',house:'บ้าน',bungalow:'บ้านอิฐ',terrace:'ทาวน์เฮาส์',flats:'อพาร์ตเมนต์',shop:'ร้านค้า',strip:'ร้านริมถนน',mallshop:'ร้านในห้าง',cafe:'คาเฟ่',kiosk:'คีออส',pub:'โรงแรมหัวมุม',bigbox:'ห้างใหญ่',heritage:'อาคารเก่า',slab:'ออฟฟิศ',tower:'ตึกสูง',lighthouse:'ประภาคาร'};
+const BGROUP=[['บ้านบนเกาะ',['islandcottage','units','cabin','cottage','lighthouse']],['บ้าน',['house','bungalow','terrace','flats']],['ร้านค้า',['shop','strip','mallshop','cafe','kiosk','pub','bigbox']],['เมือง',['heritage','slab','tower']]];
 const LIFE_IC={walker:'🚶',jogger:'🏃',cyclist:'🚴',quokka:'🐹',kangaroo:'🦘',gull:'🕊️',butterfly:'🦋',pelican:'🦢',dolphin:'🐬',boat:'⛵',kayak:'🛶',picnic:'🧺',sandcastle:'🏰',dogfetch:'🐕',flock:'🐦',fishjump:'🐟',sitter:'🪑',swimmer:'🏊',sunbather:'🏖️',fisher:'🎣',seal:'🦭'};
 const LIFE_TH={walker:'คนเดิน',jogger:'คนวิ่ง',cyclist:'จักรยาน',quokka:'ควอกก้า',kangaroo:'จิงโจ้',gull:'นกนางนวล',butterfly:'ผีเสื้อ',pelican:'นกกระทุง',dolphin:'โลมา',boat:'เรือ',kayak:'คายัค',picnic:'ปิกนิก',sandcastle:'ปราสาททราย',dogfetch:'หมาคาบบอล',flock:'ฝูงนก',fishjump:'ปลากระโดด',sitter:'คนนั่งม้านั่ง',swimmer:'คนว่ายน้ำ',sunbather:'อาบแดด',fisher:'ตกปลา',seal:'แมวน้ำ'};
 const CATS=[['build','🏠','สร้าง'],['road','🛣️','ถนน'],['nature','🌳','ธรรมชาติ'],['decor','🪑','ตกแต่ง'],['land','⛰️','พื้นดิน'],['life','🐾','ชีวิต'],['sky','☀️','ฟ้า'],['biz','💼','ธุรกิจ'],['bulldoze','🚜','รื้อ']];
@@ -1144,7 +1148,7 @@ function fillTray(){const k=st.cat;let h='';
   if(k==='decor')h=`<div class=cards>${PropsEngine.kinds.map(p=>card(p,p,`<img data-p="${p}">`,st.pick===p)).join('')}</div><div class=opts><button class=mini id=o_rot>⟳ หมุน</button></div>`;
   if(k==='nature')h=`<div class=cards>${[['gum','🌳','ยูคาลิปตัส'],['pine','🌲','สน'],['pepper','🌿','เปปเปอร์มินต์'],['palm','🌴','ปาล์ม']].map(([t,e,n])=>card(t,n,`<i>${e}</i>`,st.pick===t)).join('')}</div>
     <div class=opts>${['tuft','flower','bush','tree'].map(q=>`<label>${{tuft:'หญ้า',flower:'ดอกไม้',bush:'พุ่มไม้',tree:'ป่า'}[q]} <input type=range class=o_den data-k=${q} min=0 max=${{tuft:3,flower:1,bush:.12,tree:.03}[q]} step=${{tuft:.1,flower:.05,bush:.005,tree:.001}[q]} value=${doc.fol[q]}></label>`).join('')}</div>`;
-  if(k==='road')h=`<div class=grp><b>ถนน (ลากเพื่อวาด)</b><div class=cards>${[['island','🚲','ถนนบนเกาะ'],['street','🛣️','ถนนเมือง'],['arterial','🛤️','ถนนใหญ่'],['highway','🏎️','ทางหลวง'],['lane','🌾','ถนนชนบท'],['bridge','🌉','สะพาน']].map(([t,e,n])=>card('r:'+t,n,`<i>${e}</i>`,st.pick==='r:'+t)).join('')}</div></div>
+  if(k==='road')h=`<div class=grp><b>ถนน (ลากเพื่อวาด)</b><div class=cards>${[['island','🛵','ถนนบนเกาะ'],['bikepath','🚲','ทางจักรยานแดง'],['street','🛣️','ถนนเมือง'],['arterial','🛤️','ถนนใหญ่'],['highway','🏎️','ทางหลวง'],['lane','🌾','ถนนชนบท'],['bridge','🌉','สะพาน']].map(([t,e,n])=>card('r:'+t,n,`<i>${e}</i>`,st.pick==='r:'+t)).join('')}</div></div>
     <div class=grp><b>ทางเดิน</b><div class=cards>${[['path','👣','ทางเดิน'],['lane','🚴','เลนจักรยาน'],['gravel','🪨','ทางกรวด']].map(([t,e,n])=>card('p:'+t,n,`<i>${e}</i>`,st.pick==='p:'+t)).join('')}</div></div>
     <div class=opts><label><input type=checkbox id=o_s8 ${st.snap8!==false?'checked':''}> แนว 8 ทิศ</label><label>🚗 รถ <button class=mini data-step=-2>−</button> <b id=o_cars>${doc.cars||0}</b> <button class=mini data-step=2>+</button></label></div>`;
   if(k==='land')h=`<div class=cards>${[['raise','⛰️','ยกขึ้น'],['lower','🕳️','กดลง'],['flatten','▭','ปรับเรียบ'],['smooth','〰️','ลบเหลี่ยม'],['beach','🏖️','หาดทราย'],['sea','🌊','ขุดทะเล'],['noise','🪨','ขรุขระ']].map(([t,e,n])=>card(t,n,`<i>${e}</i>`,st.pick===t)).join('')}</div>
@@ -1189,7 +1193,7 @@ function makeGhost(){if(ghost.obj){ghost.grp.remove(ghost.obj);ghost.obj=null;}c
   else if((k==='nature'&&p)||(st.moving)){rad=1.2;}
   if(G){G.parent&&G.parent.remove(G);seeThrough(G);G.rotation.y=st.rot;ghost.obj=G;ghost.grp.add(G);}okRing.scale.setScalar(rad);ghost.rad=rad;}
 /* face the nearest road: front (+z) turns to the road, front wall sits just behind the kerb / footpath */
-const KERB={island:2.35,street:2.8,arterial:4.9,highway:3.8,lane:1.4,bridge:3.8};
+const KERB={bikepath:1.1,island:2.35,street:2.8,arterial:4.9,highway:3.8,lane:1.4,bridge:3.8};
 function snapB(x,z,front){let best=null,bd=1e9;doc.roads.forEach(r=>{if(r.type==='bridge')return;for(let i=1;i<r.pts.length;i++){const a=r.pts[i-1],b=r.pts[i],vx=b[0]-a[0],vz=b[1]-a[1],L2=vx*vx+vz*vz||1e-6;let t=((x-a[0])*vx+(z-a[1])*vz)/L2;t=Math.max(0,Math.min(1,t));const px=a[0]+vx*t,pz=a[1]+vz*t,d=Math.hypot(px-x,pz-z);if(d<bd){bd=d;best={px,pz,r};}}});
   if(!best)return null;const off=KERB[best.r.type]+front+.25;if(bd>off+6)return null;let nx=best.px-x,nz=best.pz-z;const l=Math.hypot(nx,nz)||1;nx/=l;nz/=l;
   return{x:+(best.px-nx*off).toFixed(2),z:+(best.pz-nz*off).toFixed(2),r:+Math.atan2(nx,nz).toFixed(3)};}
