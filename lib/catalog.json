@@ -552,6 +552,83 @@
    "from": "quokka-cafe water lab",
    "th": "ห้องทดลองทะเล: สีน้ำ ชายหาด เรือ เทียบแบบเก่า/ใหม่",
    "style": "3d"
+  },
+  {
+   "id": "terrain-engine",
+   "group": "terrain",
+   "status": "ready",
+   "file": "engines/terrain.js",
+   "deps": [],
+   "from": "quokka-cafe lib/engines (Nov 2026)",
+   "th": "Terrain Engine: พื้น 3D หญ้า 5 เฉด ทรายชื้น-แห้ง ดิน หิน ทางเดิน เลนจักรยาน พื้นกรวด ทะเลสาบเกลือ",
+   "style": "3d",
+   "lab": "scenes/terrain-engine/index.html"
+  },
+  {
+   "id": "foliage-engine",
+   "group": "models/flora",
+   "status": "ready",
+   "file": "engines/foliage.js",
+   "deps": [],
+   "from": "quokka-cafe lib/engines (Nov 2026)",
+   "th": "Foliage Engine: กอหญ้า ดอกไม้ พุ่มไม้ ต้นไม้ 4 แบบ ปลูกตามชนิดพื้น ไหวตามลม เงาลายใบ",
+   "style": "3d",
+   "lab": "scenes/foliage-engine/index.html"
+  },
+  {
+   "id": "sky-engine",
+   "group": "env",
+   "status": "ready",
+   "file": "engines/sky.js",
+   "deps": [],
+   "from": "quokka-cafe lib/engines (Nov 2026)",
+   "th": "Sky & Weather Engine: ท้องฟ้า แดด เช้า-เย็น ดาว พระจันทร์ เมฆบาง แสงและหมอกตามเวลา",
+   "style": "3d",
+   "lab": "scenes/sky-engine/index.html"
+  },
+  {
+   "id": "props-engine",
+   "group": "models/props",
+   "status": "ready",
+   "file": "engines/props.js",
+   "deps": [],
+   "from": "quokka-cafe lib/engines (Nov 2026)",
+   "th": "Props Engine: ของตกแต่ง 3D 17 แบบ เสาไฟ ม้านั่ง ป้าย ป้ายรถเมล์ รั้ว ท่าเรือ ทุ่น",
+   "style": "3d",
+   "lab": "scenes/props-engine/index.html"
+  },
+  {
+   "id": "road-engine",
+   "group": "terrain",
+   "status": "ready",
+   "file": "engines/road.js",
+   "deps": [],
+   "from": "quokka-cafe lib/engines (Nov 2026)",
+   "th": "Road Engine: ถนน 4 แบบ เส้นจราจร ขอบทาง ฟุตบาท ทางแยก ทางม้าลาย วงเวียน สะพาน รถวิ่งชิดซ้าย",
+   "style": "3d",
+   "lab": "scenes/road-engine/index.html"
+  },
+  {
+   "id": "life-engine",
+   "group": "systems",
+   "status": "ready",
+   "file": "engines/life.js",
+   "deps": [],
+   "from": "quokka-cafe lib/engines (Nov 2026)",
+   "th": "Life Engine: คน สัตว์ นก เรือ ที่เคลื่อนไหวเอง (เดิน วิ่ง ปั่น quokka จิงโจ้ นกนางนวล โลมา เรือ)",
+   "style": "3d",
+   "lab": "scenes/life-engine/index.html"
+  },
+  {
+   "id": "building-engine",
+   "group": "models/buildings",
+   "status": "ready",
+   "file": "engines/building.js",
+   "deps": [],
+   "from": "quokka-cafe lib/engines (Nov 2026)",
+   "th": "Building Kit: ตึกจากชิ้นส่วน 7 แบบ หน้าต่าง ประตู หลังคากระเบื้อง/สังกะสี ระเบียง กันสาด ป้าย",
+   "style": "3d",
+   "lab": "scenes/building-engine/index.html"
   }
  ]
 }
