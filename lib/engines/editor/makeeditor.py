@@ -16,7 +16,7 @@ button{font:inherit;cursor:pointer;border:0}
 .cat{display:flex;flex-direction:column;align-items:center;gap:2px;width:68px;padding:6px 0;border-radius:16px;background:transparent;color:#fff}.cat .ic{font-size:26px;line-height:1}.cat .nm{font-size:11px;font-weight:700;opacity:.9}
 .cat.on{background:var(--acc);color:var(--ink)}.cat[data-k=bulldoze].on{background:#ff6a5a;color:#fff}
 #tray{position:fixed;left:50%;bottom:94px;transform:translate(-50%,20px);width:min(980px,calc(100vw - 16px));max-height:min(250px,40vh);overflow:auto;background:rgba(255,250,240,.97);border-radius:20px;padding:10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.18s}
-#tray.open{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+#tray.open{opacity:1;pointer-events:auto;transform:translate(-50%,0)}#tray.open.peek{opacity:0;pointer-events:none;transform:translate(-50%,40px)}
 .grp>b{display:block;font-size:12px;margin:2px 4px 4px;opacity:.7}.cards{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px}
 .card{flex:0 0 auto;width:92px;border-radius:14px;background:#fff;border:2px solid var(--edge);padding:4px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--ink);box-shadow:0 3px 0 var(--edge)}
 .card img{width:80px;height:80px;object-fit:contain;background:linear-gradient(#e8f4fb,#f8f2e2);border-radius:10px}.card i{font-style:normal;font-size:40px;line-height:80px;height:80px}.card span{font-size:12px;font-weight:700;text-align:center;line-height:1.15}
@@ -25,6 +25,9 @@ button{font:inherit;cursor:pointer;border:0}
 .chips{display:flex;gap:6px;margin-bottom:6px}.chip{padding:5px 12px;border-radius:999px;background:#eef3f7;font-weight:700;font-size:13px}.chip.on{background:var(--ink);color:#fff}.mini{background:var(--ink);color:#fff;border-radius:10px;padding:4px 10px;font-weight:800}
 #bubble{position:fixed;transform:translate(-50%,-110%);background:var(--card);border-radius:16px;padding:6px;display:none;gap:4px;align-items:center;box-shadow:0 6px 16px rgba(0,0,0,.25);white-space:nowrap}
 #bubble.on{display:flex}#bubble b{padding:0 6px;font-size:13px}#bubble button{width:38px;height:38px;border-radius:12px;background:#eef3f7;font-size:18px}#bubble button[data-a=del]{background:#ffe2de}
+#confirm{position:fixed;transform:translate(-50%,-115%);background:var(--card);border-radius:18px;padding:6px 6px 6px 12px;display:none;gap:6px;align-items:center;box-shadow:0 8px 20px rgba(0,0,0,.3);white-space:nowrap;z-index:5}#confirm.on{display:flex}#confirm span{font-weight:800;font-size:14px;margin-right:4px}
+#confirm button{width:48px;height:48px;border-radius:14px;font-size:24px;font-weight:900;background:#eef3f7}#confirm .ok{background:var(--go);color:#fff;box-shadow:0 3px 0 #23964a}#confirm .no{background:#ff6a5a;color:#fff;box-shadow:0 3px 0 #c8443a}
+.sep{width:2px;background:rgba(255,255,255,.25);margin:6px 2px;border-radius:2px}.cat.ur{background:rgba(255,255,255,.12)}.cat.ur.off{opacity:.35}
 #toast{position:fixed;left:50%;top:70px;transform:translate(-50%,-10px);background:var(--ink);color:#fff;padding:8px 16px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;transition:.2s;pointer-events:none}#toast.on{opacity:1;transform:translate(-50%,0)}
 #menu{position:fixed;inset:0;background:rgba(10,16,24,.45);display:none;align-items:center;justify-content:center}#menu.on{display:flex}
 #menu .box{width:min(560px,calc(100vw - 20px));max-height:80vh;overflow:auto;background:var(--card);border-radius:20px;padding:14px}#menu .tabs{display:flex;gap:6px;margin-bottom:10px}#menu .tabs button{padding:8px 14px;border-radius:12px;background:#eef3f7;font-weight:700}#menu .tabs button.on{background:var(--acc)}
@@ -33,8 +36,8 @@ button{font:inherit;cursor:pointer;border:0}
 @media(max-width:640px){.cat{width:54px}.cat .ic{font-size:22px}.card{width:78px}.card img{width:66px;height:66px}.card i{font-size:32px;line-height:66px;height:66px}#tray{bottom:84px}#hud span{padding:5px 9px;font-size:12px}}
 </style></head><body>
 <div id="view"></div>
-<div id="top"><div id="hud"></div><div class="sp"></div><button class="rb" id="daynight" title="กลางวัน/กลางคืน">☀️</button><button class="rb" id="undo" title="ย้อน (Ctrl+Z)">↶</button><button class="rb" id="menuBtn" title="เมนู">⚙️</button></div>
-<div id="tray"></div><div id="bar"></div><div id="bubble"></div><div id="toast"></div>
+<div id="top"><div id="hud"></div><div class="sp"></div><button class="rb" id="daynight" title="กลางวัน/กลางคืน">☀️</button><button class="rb" id="menuBtn" title="เมนู">⚙️</button></div>
+<div id="tray"></div><div id="bar"></div><div id="bubble"></div><div id="confirm"></div><div id="toast"></div>
 <div id="menu"><div class="box"><div class="tabs"><button data-t="file">ไฟล์</button><button data-t="layers">Layers</button><button data-t="help">วิธีใช้</button><span style="flex:1"></span><button id="menuX">✕</button></div><div id="menuBody"></div></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>

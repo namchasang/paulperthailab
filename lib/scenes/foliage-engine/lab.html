@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Foliage Engine Lab</title>
 <style>body{margin:0;overflow:hidden;background:#9fd3ea;font-family:system-ui,sans-serif}#ui{position:fixed;left:10px;top:10px;background:rgba(20,28,40,.84);color:#fff;padding:10px 12px;border-radius:12px;font-size:13px;max-width:300px;max-height:90vh;overflow:auto}
 #ui b{font-size:14px}#ui label{display:block;margin:4px 0;cursor:pointer}#ui button{margin:6px 6px 0 0;padding:6px 10px;border:0;border-radius:8px;background:#3e7d5c;color:#fff;font-weight:600;cursor:pointer}#ui input[type=range]{width:130px;vertical-align:middle}#fps{opacity:.75;margin-top:6px}</style></head><body>
-<div id="ui"><b>Foliage Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">Grass, flowers, bushes and trees planted by ground type and swaying in a travelling wind, plus layers: beach spinifex, wildflower meadows, reeds by the water, coastal heath, saplings, leaf litter under trees, falling leaves and grass that parts when someone walks through.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
+<div id="ui"><b>Foliage Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">Grass, flowers, bushes and trees planted by ground type and swaying in a travelling wind, plus layers (nothing grows on the beach sand): wildflower meadows, reeds by the water, coastal heath, saplings, leaf litter under trees, falling leaves and grass that parts when someone walks through.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>/* Terrain Engine (Paul Perth Library, Nov 2026) — natural ground for three.js r128.
@@ -96,6 +96,8 @@ vec3 sand(vec2 q,float u){vec3 c=u<.12?mix(${lin(P.sandW)},${lin(P.sand)},u/.12)
     list.forEach((e,i)=>{q.setFromEuler(new THREE.Euler(e[4],e[4]*2,0));m4.compose(new THREE.Vector3(e[0],e[1]+e[3]*.2,e[2]),q,new THREE.Vector3(e[3],e[3]*.6,e[3]));im.setMatrixAt(i,m4);});im.castShadow=true;im.receiveShadow=true;return im;})();
   mesh.add(peb);
   const api={mesh,material:m,uniforms:U,pebbles:peb,layers:LAYERS,
+    /* what the ground shows at (x,z): 'water' | 'sand' | 'grass' — the same beach rule as the shader, so plants and life never land on the sand */
+    groundKind(x,z){const i=Math.floor((x-x0)/W*FW),j=Math.floor((z-z0)/D*FD);if(i<0||j<0||i>=FW||j>=FD)return'water';const k=(j*FW+i)*4,h=fd[k],u=fd[k+1]/.62;if(h<SEA)return'water';if(u<1&&h<SEA+2)return'sand';return'grass';},
     setLayer(n,on){const i=LAYERS.indexOf(n);if(i<0)return;const v=[U.uLA,U.uLB,U.uLC][i>>2].value;v.setComponent(i%4,on?1:0);if(n==='pebbles')peb.visible=on;},
     setShade(list){sdat.fill(0);list.forEach(([x,z,r])=>{const cx=(x-x0)/W*SW,cz=(z-z0)/D*SD,rx=r/W*SW,rz=r/D*SD;for(let j=Math.max(0,Math.floor(cz-rz));j<=Math.min(SD-1,Math.ceil(cz+rz));j++)for(let i=Math.max(0,Math.floor(cx-rx));i<=Math.min(SW-1,Math.ceil(cx+rx));i++){const d=Math.hypot((i-cx)/rx,(j-cz)/rz);if(d<1){const k=(j*SW+i)*4;sdat[k]=Math.max(sdat[k],Math.round(255*Math.min(1,(1-d)*1.6)));}}});ST.needsUpdate=true;},fields:FT,heightAt:H,update:t=>{U.uT.value=t;},setQuality:q=>{U.uQ.value=q;},dispose:()=>{geo.dispose();m.dispose();FT.dispose();MT.dispose();}};return api;}
 g.TerrainEngine={create};})(typeof window!=='undefined'?window:this);
@@ -233,7 +235,7 @@ const DEFPAL={/* Rottnest palette: grey-olive heath, muted lawn blades, white an
   bark:{gum:'#d8cfc0',pine:'#5a3a26',pepper:'#6a4a32',palm:'#8a7458'}};
 function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.chunk||10,RAD=o.radius||40,pal=Object.assign({},DEFPAL,o.palette||{}),D=Object.assign({tuft:2.2,flower:.35,bush:.03,tree:.012},o.density||{});
   const U={uT:{value:0},uWind:{value:o.wind==null?1:o.wind},uPush:{value:new THREE.Vector4(0,0,1.2,0)}};let Q=2;
-  const LAYERS={tufts:true,flowers:true,bushes:true,trees:true,spinifex:true,wildflowers:true,reeds:true,heath:true,saplings:true,litter:true,fallingleaves:true,push:true};
+  const LAYERS={tufts:true,flowers:true,bushes:true,trees:true,spinifex:false,wildflowers:true,reeds:true,heath:true,saplings:true,litter:true,fallingleaves:true,push:true};
   const tuftG=cards(2,.32,.5),tM=swayMat(tuftTex(false,pal),{U,bend:'.28',h:.5,pow:1.6,key:'t'}),fM=swayMat(tuftTex(true,pal),{U,bend:'.3',h:.5,pow:1.6,key:'f'});
   const bushG=crown(.55,26,.45,5),bM=swayMat(leafTex(pal.bush,11),{U,bend:'.05',h:1,pow:1,crown:true,cy:'.45',key:'b',mat:{emissive:lin('#0a1406')}});
   const spinM=swayMat(tuftTex(false,Object.assign({},pal,{blades:['#9aa878','#b8c08e','#8a9a6a','#c8c89a','#a8b080']})),{U,bend:'.35',h:.5,pow:1.4,key:'sp'});
@@ -261,13 +263,13 @@ function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.c
     const qm=Q===0?.35:Q===1?.65:1;
     place(Math.round(area*D.tuft*qm),(x,z,k)=>{if(k!=='grass')return;L.t.push([x,H(x,z),z,r()*6.28,.7+r()*.6,.8+r()*.5]);});
     place(Math.round(area*D.flower*qm),(x,z,k)=>{if(k!=='grass')return;L.f.push([x,H(x,z),z,r()*6.28,.7+r()*.4,1]);});
-    place(Math.round(area*D.bush+r()),(x,z,k)=>{if(k!=='grass'&&k!=='sand')return;L.b.push([x,H(x,z)-.05,z,r()*6.28,.7+r()*.7,.8+r()*.3]);});
+    place(Math.round(area*D.bush+r()),(x,z,k)=>{if(k!=='grass')return;L.b.push([x,H(x,z)-.05,z,r()*6.28,.7+r()*.7,.8+r()*.3]);});
     place(Math.round(area*D.tree+r()*.6),(x,z,k)=>{if(k!=='grass')return;const ks=o.treeKinds||['gum','pepper','pine'];const kk=ks[(r()*ks.length)|0];T[kk].push([x,H(x,z),z,r()*6.28,.75+r()*.5,1]);});
     const X={sp:[],wf:[],rd:[],hz:[],sa:[],lit:[]};
     if(LAYERS.spinifex)place(Math.round(area*1.2*qm),(x,z,k)=>{if(k!=='sand')return;const h=H(x,z);if(h<.25)return;X.sp.push([x,h,z,r()*6.28,.8+r()*.6,.7+r()*.4]);});
     if(LAYERS.wildflowers)place(Math.round(area*.9*qm),(x,z,k)=>{if(k!=='grass')return;const n=Math.sin(x*.21+Math.sin(z*.17)*2)*Math.cos(z*.19+x*.07);if(n<.45)return;X.wf.push([x,H(x,z),z,r()*6.28,.6+r()*.4,1]);});
-    if(LAYERS.reeds)place(Math.round(area*.8*qm),(x,z,k)=>{const h=H(x,z);if(h<-.05||h>.35||k==='path')return;X.rd.push([x,h,z,r()*6.28,.7+r()*.5,1]);});
-    if(LAYERS.heath)place(Math.round(area*.05+r()),(x,z,k)=>{if(k!=='sand'&&k!=='grass')return;const h=H(x,z);if(h<.3||h>1.6)return;X.hz.push([x,h-.04,z,r()*6.28,.8+r()*.8,.7+r()*.3]);});
+    if(LAYERS.reeds)place(Math.round(area*.8*qm),(x,z,k)=>{const h=H(x,z);if(h<-.05||h>.35||k!=='grass')return;X.rd.push([x,h,z,r()*6.28,.7+r()*.5,1]);});
+    if(LAYERS.heath)place(Math.round(area*.05+r()),(x,z,k)=>{if(k!=='grass')return;const h=H(x,z);if(h<.3||h>1.6)return;X.hz.push([x,h-.04,z,r()*6.28,.8+r()*.8,.7+r()*.3]);});
     if(LAYERS.saplings)place(Math.round(area*.025+r()*.5),(x,z,k)=>{if(k!=='grass')return;X.sa.push([x,H(x,z),z,r()*6.28,.7+r()*.6,1]);});
     if(!LAYERS.tufts)L.t.length=0;if(!LAYERS.flowers)L.f.length=0;if(!LAYERS.bushes)L.b.length=0;if(!LAYERS.trees)for(const k in T)T[k].length=0;
     if(LAYERS.litter)for(const k in T)T[k].forEach(e=>{const n=Math.round(30*e[4]*qm),R=KINDS[k].R*e[4];for(let i=0;i<n;i++){const a=r()*6.28,d=Math.sqrt(r())*R*1.1;X.lit.push([e[0]+Math.cos(a)*d,0,e[2]+Math.sin(a)*d,r()*6.28,.8+r()*.6,1]);}});
@@ -311,9 +313,9 @@ let renderFn=null;const setRender=f=>{renderFn=f;};
 addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();});
 const T=TerrainEngine.create({size:[90,70],center:[4,0],res:.4,heightAt:H,seaLevel:0,paths:PATHS});scene.add(T.mesh);
 const sea=WaterSea.create({renderer:R,scene,camera:cam,heightAt:H,size:200,ground:null,level:0});sea.setSun(sun.position.clone(),sun.color.clone(),new THREE.Color(0x9fd3ea));
-const F=FoliageEngine.create({scene,bounds:[-41,-35,49,35],heightAt:H,kindAt:kind,radius:45,chunk:10});
+const F=FoliageEngine.create({scene,bounds:[-41,-35,49,35],heightAt:H,kindAt:(x,z)=>{const k=kind(x,z);return k==='grass'&&T.groundKind(x,z)==='sand'?'sand':k;},radius:45,chunk:10});
 /* a walker who pushes the grass aside as she goes */const wk=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,1.2,8),new THREE.MeshLambertMaterial({color:0xe0434f}));wk.castShadow=true;scene.add(wk);
-ui('<div>Wind: <input type="range" id="wnd" min="0" max="2.5" step=".05" value="1"></div><div>Quality: <select id="q"><option value="2">High</option><option value="1">Medium</option><option value="0">Low</option></select></div><div id="cnt" style="opacity:.75"></div><div style="margin-top:4px"><b style="font-size:12px">Layers</b></div>'+F.layers.map(n=>'<label><input type="checkbox" checked data-l="'+n+'"> '+n+'</label>').join(''));
+ui('<div>Wind: <input type="range" id="wnd" min="0" max="2.5" step=".05" value="1"></div><div>Quality: <select id="q"><option value="2">High</option><option value="1">Medium</option><option value="0">Low</option></select></div><div id="cnt" style="opacity:.75"></div><div style="margin-top:4px"><b style="font-size:12px">Layers</b></div>'+F.layers.map(n=>'<label><input type="checkbox" '+(n==='spinifex'?'':'checked')+' data-l="'+n+'"> '+n+(n==='spinifex'?' (beach grass, off)':'')+'</label>').join(''));
 document.querySelectorAll('[data-l]').forEach(c=>c.onchange=()=>F.setLayer(c.dataset.l,c.checked));
 document.getElementById('wnd').oninput=e=>F.setWind(+e.target.value);document.getElementById('q').onchange=e=>F.setQuality(+e.target.value);
 onFrame(t=>{const wx=-2+Math.sin(t*.2)*6,wz=4+Math.cos(t*.15)*6;wk.position.set(wx,H(wx,wz)+.6,wz);F.update(t,ctl.target.x,ctl.target.z,{push:[wx,wz]});T.update(t);document.getElementById('cnt').textContent=F.count()+' plants';});setRender(t=>sea.render(t));

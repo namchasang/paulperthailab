@@ -96,6 +96,8 @@ vec3 sand(vec2 q,float u){vec3 c=u<.12?mix(${lin(P.sandW)},${lin(P.sand)},u/.12)
     list.forEach((e,i)=>{q.setFromEuler(new THREE.Euler(e[4],e[4]*2,0));m4.compose(new THREE.Vector3(e[0],e[1]+e[3]*.2,e[2]),q,new THREE.Vector3(e[3],e[3]*.6,e[3]));im.setMatrixAt(i,m4);});im.castShadow=true;im.receiveShadow=true;return im;})();
   mesh.add(peb);
   const api={mesh,material:m,uniforms:U,pebbles:peb,layers:LAYERS,
+    /* what the ground shows at (x,z): 'water' | 'sand' | 'grass' — the same beach rule as the shader, so plants and life never land on the sand */
+    groundKind(x,z){const i=Math.floor((x-x0)/W*FW),j=Math.floor((z-z0)/D*FD);if(i<0||j<0||i>=FW||j>=FD)return'water';const k=(j*FW+i)*4,h=fd[k],u=fd[k+1]/.62;if(h<SEA)return'water';if(u<1&&h<SEA+2)return'sand';return'grass';},
     setLayer(n,on){const i=LAYERS.indexOf(n);if(i<0)return;const v=[U.uLA,U.uLB,U.uLC][i>>2].value;v.setComponent(i%4,on?1:0);if(n==='pebbles')peb.visible=on;},
     setShade(list){sdat.fill(0);list.forEach(([x,z,r])=>{const cx=(x-x0)/W*SW,cz=(z-z0)/D*SD,rx=r/W*SW,rz=r/D*SD;for(let j=Math.max(0,Math.floor(cz-rz));j<=Math.min(SD-1,Math.ceil(cz+rz));j++)for(let i=Math.max(0,Math.floor(cx-rx));i<=Math.min(SW-1,Math.ceil(cx+rx));i++){const d=Math.hypot((i-cx)/rx,(j-cz)/rz);if(d<1){const k=(j*SW+i)*4;sdat[k]=Math.max(sdat[k],Math.round(255*Math.min(1,(1-d)*1.6)));}}});ST.needsUpdate=true;},fields:FT,heightAt:H,update:t=>{U.uT.value=t;},setQuality:q=>{U.uQ.value=q;},dispose:()=>{geo.dispose();m.dispose();FT.dispose();MT.dispose();}};return api;}
 g.TerrainEngine={create};})(typeof window!=='undefined'?window:this);
@@ -307,7 +309,7 @@ const DEFPAL={/* Rottnest palette: grey-olive heath, muted lawn blades, white an
   bark:{gum:'#d8cfc0',pine:'#5a3a26',pepper:'#6a4a32',palm:'#8a7458'}};
 function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.chunk||10,RAD=o.radius||40,pal=Object.assign({},DEFPAL,o.palette||{}),D=Object.assign({tuft:2.2,flower:.35,bush:.03,tree:.012},o.density||{});
   const U={uT:{value:0},uWind:{value:o.wind==null?1:o.wind},uPush:{value:new THREE.Vector4(0,0,1.2,0)}};let Q=2;
-  const LAYERS={tufts:true,flowers:true,bushes:true,trees:true,spinifex:true,wildflowers:true,reeds:true,heath:true,saplings:true,litter:true,fallingleaves:true,push:true};
+  const LAYERS={tufts:true,flowers:true,bushes:true,trees:true,spinifex:false,wildflowers:true,reeds:true,heath:true,saplings:true,litter:true,fallingleaves:true,push:true};
   const tuftG=cards(2,.32,.5),tM=swayMat(tuftTex(false,pal),{U,bend:'.28',h:.5,pow:1.6,key:'t'}),fM=swayMat(tuftTex(true,pal),{U,bend:'.3',h:.5,pow:1.6,key:'f'});
   const bushG=crown(.55,26,.45,5),bM=swayMat(leafTex(pal.bush,11),{U,bend:'.05',h:1,pow:1,crown:true,cy:'.45',key:'b',mat:{emissive:lin('#0a1406')}});
   const spinM=swayMat(tuftTex(false,Object.assign({},pal,{blades:['#9aa878','#b8c08e','#8a9a6a','#c8c89a','#a8b080']})),{U,bend:'.35',h:.5,pow:1.4,key:'sp'});
@@ -335,13 +337,13 @@ function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.c
     const qm=Q===0?.35:Q===1?.65:1;
     place(Math.round(area*D.tuft*qm),(x,z,k)=>{if(k!=='grass')return;L.t.push([x,H(x,z),z,r()*6.28,.7+r()*.6,.8+r()*.5]);});
     place(Math.round(area*D.flower*qm),(x,z,k)=>{if(k!=='grass')return;L.f.push([x,H(x,z),z,r()*6.28,.7+r()*.4,1]);});
-    place(Math.round(area*D.bush+r()),(x,z,k)=>{if(k!=='grass'&&k!=='sand')return;L.b.push([x,H(x,z)-.05,z,r()*6.28,.7+r()*.7,.8+r()*.3]);});
+    place(Math.round(area*D.bush+r()),(x,z,k)=>{if(k!=='grass')return;L.b.push([x,H(x,z)-.05,z,r()*6.28,.7+r()*.7,.8+r()*.3]);});
     place(Math.round(area*D.tree+r()*.6),(x,z,k)=>{if(k!=='grass')return;const ks=o.treeKinds||['gum','pepper','pine'];const kk=ks[(r()*ks.length)|0];T[kk].push([x,H(x,z),z,r()*6.28,.75+r()*.5,1]);});
     const X={sp:[],wf:[],rd:[],hz:[],sa:[],lit:[]};
     if(LAYERS.spinifex)place(Math.round(area*1.2*qm),(x,z,k)=>{if(k!=='sand')return;const h=H(x,z);if(h<.25)return;X.sp.push([x,h,z,r()*6.28,.8+r()*.6,.7+r()*.4]);});
     if(LAYERS.wildflowers)place(Math.round(area*.9*qm),(x,z,k)=>{if(k!=='grass')return;const n=Math.sin(x*.21+Math.sin(z*.17)*2)*Math.cos(z*.19+x*.07);if(n<.45)return;X.wf.push([x,H(x,z),z,r()*6.28,.6+r()*.4,1]);});
-    if(LAYERS.reeds)place(Math.round(area*.8*qm),(x,z,k)=>{const h=H(x,z);if(h<-.05||h>.35||k==='path')return;X.rd.push([x,h,z,r()*6.28,.7+r()*.5,1]);});
-    if(LAYERS.heath)place(Math.round(area*.05+r()),(x,z,k)=>{if(k!=='sand'&&k!=='grass')return;const h=H(x,z);if(h<.3||h>1.6)return;X.hz.push([x,h-.04,z,r()*6.28,.8+r()*.8,.7+r()*.3]);});
+    if(LAYERS.reeds)place(Math.round(area*.8*qm),(x,z,k)=>{const h=H(x,z);if(h<-.05||h>.35||k!=='grass')return;X.rd.push([x,h,z,r()*6.28,.7+r()*.5,1]);});
+    if(LAYERS.heath)place(Math.round(area*.05+r()),(x,z,k)=>{if(k!=='grass')return;const h=H(x,z);if(h<.3||h>1.6)return;X.hz.push([x,h-.04,z,r()*6.28,.8+r()*.8,.7+r()*.3]);});
     if(LAYERS.saplings)place(Math.round(area*.025+r()*.5),(x,z,k)=>{if(k!=='grass')return;X.sa.push([x,H(x,z),z,r()*6.28,.7+r()*.6,1]);});
     if(!LAYERS.tufts)L.t.length=0;if(!LAYERS.flowers)L.f.length=0;if(!LAYERS.bushes)L.b.length=0;if(!LAYERS.trees)for(const k in T)T[k].length=0;
     if(LAYERS.litter)for(const k in T)T[k].forEach(e=>{const n=Math.round(30*e[4]*qm),R=KINDS[k].R*e[4];for(let i=0;i<n;i++){const a=r()*6.28,d=Math.sqrt(r())*R*1.1;X.lit.push([e[0]+Math.cos(a)*d,0,e[2]+Math.sin(a)*d,r()*6.28,.8+r()*.6,1]);}});
@@ -506,8 +508,8 @@ addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);cam.aspect=inne
 const T=TerrainEngine.create({size:[90,70],center:[4,0],res:.4,heightAt:H,seaLevel:0,paths:PATHS});scene.add(T.mesh);
 const S=SkyEngine.create({scene,renderer:R,sun,hemi,target:new THREE.Vector3(0,0,0)});
 const sea=WaterSea.create({renderer:R,scene,camera:cam,heightAt:H,size:200,ground:null,level:0});
-const F=FoliageEngine.create({scene,bounds:[-41,-35,49,35],heightAt:H,kindAt:kind,radius:40,density:{tuft:1,flower:.25,bush:.03,tree:.008}});
-const L=LifeEngine.create({scene,heightAt:H,kindAt:kind,paths:PATHS.map(p=>p.pts),bounds:[-41,-35,49,35]});
+const F=FoliageEngine.create({scene,bounds:[-41,-35,49,35],heightAt:H,kindAt:(x,z)=>{const k=kind(x,z);return k==='grass'&&T.groundKind(x,z)==='sand'?'sand':k;},radius:40,density:{tuft:1,flower:.25,bush:.03,tree:.008}});
+const L=LifeEngine.create({scene,heightAt:H,kindAt:(x,z)=>{const k=kind(x,z);return k==='grass'&&T.groundKind(x,z)==='sand'?'sand':k;},paths:PATHS.map(p=>p.pts),bounds:[-41,-35,49,35]});
 L.spawn('walker',10);L.spawn('jogger',3);L.spawn('cyclist',4);L.spawn('quokka',10);L.spawn('kangaroo',3);L.spawn('gull',6);L.spawn('butterfly',8);L.spawn('pelican',2);L.spawn('dolphin',4);L.spawn('boat',3);L.spawn('kayak',2);L.spawn('picnic',3);L.spawn('sandcastle',3);L.spawn('dogfetch',2);L.spawn('flock',2);L.spawn('fishjump',5);L.spawn('sitter',4);L.spawn('swimmer',5);L.spawn('sunbather',5);L.spawn('fisher',3);L.spawn('seal',5);
 ui('<div id="ly" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px 6px;margin:4px 0;font-size:12px"></div><div>Time: <input type="range" id="hr" min="5" max="21" step=".05" value="10"></div><div style="opacity:.75">'+L.agents.length+' living things: walkers, joggers, cyclists, quokkas, kangaroos, gulls, butterflies, pelicans, dolphins, boats, kayaks, picnics, kids with sandcastles, dogs playing fetch, flocks that take off when people pass, jumping fish, people on benches, swimmers, sunbathers and beach fishers. At night everyone goes home but the gulls and the sea life.</div>');
 const ly=document.getElementById('ly');LifeEngine.kinds.forEach(n=>{const l=document.createElement('label');l.innerHTML='<input type=checkbox checked> '+n;l.firstChild.onchange=e=>L.setLayer(n,e.target.checked);ly.appendChild(l);});const hr=document.getElementById('hr');cam.position.set(-14,12,18);ctl.target.set(-2,0,0);
