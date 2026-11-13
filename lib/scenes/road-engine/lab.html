@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Road Engine Lab</title>
 <style>body{margin:0;overflow:hidden;background:#9fd3ea;font-family:system-ui,sans-serif}#ui{position:fixed;left:10px;top:10px;background:rgba(20,28,40,.84);color:#fff;padding:10px 12px;border-radius:12px;font-size:13px;max-width:300px;max-height:90vh;overflow:auto}
 #ui b{font-size:14px}#ui label{display:block;margin:4px 0;cursor:pointer}#ui button{margin:6px 6px 0 0;padding:6px 10px;border:0;border-radius:8px;background:#3e7d5c;color:#fff;font-weight:600;cursor:pointer}#ui input[type=range]{width:130px;vertical-align:middle}#fps{opacity:.75;margin-top:6px}</style></head><body>
-<div id="ui"><b>Road Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">Real 3D roads from a few points (smooth height profiles, 6% max grade, every junction and roundabout joined): arterial, streets, lanes and a highway bridge, with junctions, kerbs, footpaths, zebra crossings and traffic that keeps left. Detail layers: patches, cracks, manholes, lane arrows, parking bays, give-way/stop/speed signs, working traffic lights, cat's eyes, gutter leaves, skid marks and night headlights.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
+<div id="ui"><b>Road Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">Real 3D roads from a few points (smooth height profiles, 6% max grade; T-junctions and crossroads with rounded kerbed corners, roundabouts where four or more meet with an arterial; every piece joined): arterial, streets, lanes and a highway bridge, with junctions, kerbs, footpaths, zebra crossings and traffic that keeps left. Detail layers: patches, cracks, manholes, lane arrows, parking bays, give-way/stop/speed signs, working traffic lights, cat's eyes, gutter leaves, skid marks and night headlights.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>/* Terrain Engine (Paul Perth Library, Nov 2026) — natural ground for three.js r128.
@@ -285,7 +285,7 @@ function create(o){const scene=o.scene,H=o.heightAt||(()=>0),roads=[],bridges=[]
   const dmat=(t,op)=>new THREE.MeshLambertMaterial(Object.assign({map:t,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-6},op||{}));
   const at=(r,t,s)=>{const p=r.cv.getPointAt(t),tg=r.cv.getTangentAt(t),nx=-tg.z,nz=tg.x;return{x:p.x+nx*s,z:p.z+nz*s,y:r.yfn(p,t),a:-Math.atan2(tg.z,tg.x),nx,nz};};
   const decal=(L,m,w,h,P,rot,lift)=>{const d=new THREE.Mesh(new THREE.PlaneGeometry(w,h),m);d.rotation.order='YXZ';d.rotation.set(-Math.PI/2,P.a+(rot||0),0);d.position.set(P.x,P.y+(lift||.045),P.z);d.receiveShadow=true;lg(L).add(d);return d;};
-  const nearJ=(J,P,R)=>J.some(j=>Math.hypot(j.c.x-P.x,j.c.z-P.z)<Math.max(R,(j.R||0)+1));
+  const nearJ=(J,P,R)=>J.some(j=>Math.hypot(j.c.x-P.x,j.c.z-P.z)<Math.max(R,(j.R||0)+3.5));
   function decor(J){
     const T={patch:ctex(64,64,(x,w,h)=>{const g=x.createRadialGradient(32,32,8,32,32,31);g.addColorStop(0,'rgba(48,50,54,.85)');g.addColorStop(.8,'rgba(52,54,58,.7)');g.addColorStop(1,'rgba(52,54,58,0)');x.fillStyle=g;x.beginPath();for(let i=0;i<12;i++){const a=i/12*6.28,r=22+Math.sin(i*2.3)*7;x.lineTo(32+Math.cos(a)*r,32+Math.sin(a)*r);}x.fill();}),
       crack:ctex(128,32,(x,w,h)=>{x.strokeStyle='rgba(28,28,30,.8)';x.lineWidth=1.4;for(let k=0;k<3;k++){x.beginPath();let y=16;x.moveTo(0,y);for(let i=0;i<=128;i+=8){y+=(Math.sin(i*.7+k*3)*4);x.lineTo(i,Math.max(2,Math.min(30,y)));}x.stroke();}}),
@@ -301,7 +301,7 @@ function create(o){const scene=o.scene,H=o.heightAt||(()=>0),roads=[],bridges=[]
       /* manholes on streets and arterials */
       if(r.type==='street'||r.type==='arterial')for(let d=14;d<L-8;d+=22+rnd()*10){const P=at(r,d/L,(rnd()<.5?-1:1)*t.lw*.5);if(!nearJ(J,P,W/2+2))decal('manholes',M.man,.75,.75,P,0,.05);}
       /* lane arrows into each junction */
-      J.forEach(j=>j.roads.forEach(([k,tt])=>{if(k!==ri||r.type==='lane')return;[-1,1].forEach(sd2=>{const t2=tt+sd2*(W/2+4.5)/L;if(t2<.01||t2>.99)return;const lane=t.lw*(t.lanes/4+.5)*(sd2>0?-1:1)*-1;const P=at(r,t2,lane*(sd2>0?1:-1));decal('arrows',M.arrow,.45,1.4,P,sd2>0?Math.PI/2:-Math.PI/2,.05);});}));
+      /* lane arrows: in the approach lane, past the zebra crossing so nothing overlaps */J.forEach(j=>(j.exits||[]).forEach(e=>{if(e.k!==ri||r.type==='lane'||r.type==='island')return;const sd2=e.dir,t2=e.t+sd2*5.2/L;if(t2<.01||t2>.99)return;const lane=t.lw*(t.lanes/4+.5);const P=at(r,t2,lane*(sd2>0?1:-1)*-1);decal('arrows',M.arrow,.45,1.4,P,sd2>0?-Math.PI/2:Math.PI/2,.05);}));
       /* skid marks near junctions on arterials */
       if(r.type==='arterial'||r.type==='highway')for(let d=10;d<L-10;d+=30+rnd()*25){const P=at(r,d/L,(rnd()-.5)*W*.5);decal('skids',M.skid,3+rnd()*2,.35,P,(rnd()-.5)*.2,.048);}
       /* parking bays beside streets with a footpath */
@@ -340,8 +340,10 @@ function create(o){const scene=o.scene,H=o.heightAt||(()=>0),roads=[],bridges=[]
         let bd=1e9,bi=0;for(let i=0;i<=r.n;i++){const p=r.pts[i],d=(p.x-x)*(p.x-x)+(p.z-z)*(p.z-z);if(d<bd){bd=d;bi=i;}}
         const a=r.pts[Math.max(0,bi-1)],b=r.pts[Math.min(r.n,bi+1)],vx=b.x-a.x,vz=b.z-a.z,l2=vx*vx+vz*vz||1e-6;let t=((x-a.x)*vx+(z-a.z)*vz)/l2;t=Math.max(0,Math.min(1,t));
         const d=Math.hypot(a.x+vx*t-x,a.z+vz*t-z),ti=(Math.max(0,bi-1)+t*(Math.min(r.n,bi+1)-Math.max(0,bi-1)))/r.n;dmin=Math.min(dmin,d-W-blend);if(d>ex)continue;
-        const w=d<W?1:.5+.5*Math.cos(Math.PI*(d-W)/blend);if(w>best){best=w;tgt=r.prof0(r,ti)-.03;}}
-      for(const j of api.junctions){if(j.y==null)continue;const d=Math.hypot(j.c.x-x,j.c.z-z),W=j.R+1.5;if(d>W+blend)continue;const w=d<W?1:.5+.5*Math.cos(Math.PI*(d-W)/blend);if(w>=best){best=w;tgt=j.y-.065;}}
+        const w=d<W?1:.5+.5*Math.cos(Math.PI*(d-W)/blend),rt=r.prof0(r,ti)-.03;if(w>best+1e-6||(w>=best-1e-6&&rt<tgt)){best=w;tgt=rt;}}
+      /* junction disc: never lifts the ground above a road arm that passes through it (that buried the downhill arms) */
+      for(const j of api.junctions){if(j.y==null)continue;const d=Math.hypot(j.c.x-x,j.c.z-z),W=j.R+1.5;if(d>W+blend)continue;const w=d<W?1:.5+.5*Math.cos(Math.PI*(d-W)/blend),jt=j.y-.065;
+        if(best>.5){if(jt<tgt)tgt=jt;best=Math.max(best,w);}else if(w>best){best=w;tgt=jt;}}
       /* step 6: next to the road corridor, iron out small bumps (local average) so the land rolls in broad, gentle hills */
       if(dmin<10&&best<1){const k=3,gl=(g0+H(x+k,z)+H(x-k,z)+H(x,z+k)+H(x,z-k)+H(x+2*k,z)+H(x-2*k,z)+H(x,z+2*k)+H(x,z-2*k))/9,w2=dmin<=0?1:.5+.5*Math.cos(Math.PI*Math.min(1,dmin/10));g0=g0+(gl-g0)*w2;}
       return g0+(tgt-g0)*best;},
@@ -373,24 +375,54 @@ function create(o){const scene=o.scene,H=o.heightAt||(()=>0),roads=[],bridges=[]
       roads.forEach(r=>{r.prof0=profAt;});
       /* walk along a road from its junction point until it leaves a circle of radius rad */
       const leave=(r,t0,dir,c,rad)=>{const L=r.cv.getLength(),dt=.2/L;let t=t0;for(let n=0;n<4000;n++){const p=r.cv.getPointAt(Math.min(1,Math.max(0,t)));if(Math.hypot(p.x-c.x,p.z-c.z)>=rad)return t;t+=dir*dt;if(t<=0)return 0;if(t>=1)return 1;}return t;};
-      roads.forEach((r,ri)=>{const t=r.t,W=r.W,L=r.cv.getLength();const cutA=[],cutK=[];
-        J.forEach(j=>j.roads.forEach(([k,tt])=>{if(k!==ri)return;
+      /* T-junctions and plain crossroads (not roundabouts): the widest road that runs through stays whole; every other arm stops at
+         its edge, and each corner gets a rounded asphalt fillet with a kerb and footpath that bend round it into the main footpath.
+         Junctions where every road ends (corners) keep the round pad. */
+      const TA=roads.map(()=>[]),TK=roads.map(()=>[]);
+      const X2=(ax,az,bx,bz)=>ax*bz-az*bx;
+      const meet=(px,pz,dx,dz,qx,qz,ex,ez)=>{const d=X2(dx,dz,ex,ez);if(Math.abs(d)<.08)return null;const u=X2(qx-px,qz-pz,ex,ez)/d;return{x:px+dx*u,z:pz+dz*u};};
+      J.forEach(j=>{if(j.round)return;const thr=j.roads.filter(([k,tt])=>tt>.02&&tt<.98&&!roads[k].bridge);if(!thr.length)return;
+        const [mk,mt]=thr.sort((a,b)=>roads[b[0]].W-roads[a[0]].W)[0],M0=roads[mk],Lm=M0.cv.getLength();const c=M0.cv.getPointAt(mt),tg=M0.cv.getTangentAt(mt);const m={x:tg.x,z:tg.z},nm={x:-tg.z,z:tg.x},Wm=M0.W;
+        const tee={main:mk,arms:[],corners:[]};j.tee=tee;j.c=c.clone();
+        j.roads.forEach(([k,tt])=>{if(k===mk)return;const r=roads[k],L=r.cv.getLength(),dirs=tt<.02?[1]:tt>.98?[-1]:[-1,1];
+          dirs.forEach(dir=>{const q=r.cv.getPointAt(Math.max(0,Math.min(1,tt+dir*Math.min(.5,6/L))));let ax=q.x-c.x,az=q.z-c.z;const al=Math.hypot(ax,az)||1;ax/=al;az/=al;
+            const na={x:-az,z:ax},s=Math.sign(ax*nm.x+az*nm.z)||1,Wa=r.W,rc=Math.max(1.3,Math.max(r.t.foot||0,M0.t.foot||0)+.7);let dK=0;const kT=[],mouth=[];
+            [-1,1].forEach(e=>{const A0x=c.x+na.x*e*Wa/2,A0z=c.z+na.z*e*Wa/2,B0x=c.x+nm.x*s*Wm/2,B0z=c.z+nm.z*s*Wm/2;const P=meet(A0x,A0z,ax,az,B0x,B0z,m.x,m.z);
+              const O=meet(c.x+na.x*e*(Wa/2+rc),c.z+na.z*e*(Wa/2+rc),ax,az,c.x+nm.x*s*(Wm/2+rc),c.z+nm.z*s*(Wm/2+rc),m.x,m.z);if(!P||!O)return;
+              const T1={x:O.x-na.x*e*rc,z:O.z-na.z*e*rc},T2={x:O.x-nm.x*s*rc,z:O.z-nm.z*s*rc};dK=Math.max(dK,(T1.x-c.x)*ax+(T1.z-c.z)*az);kT.push((T2.x-c.x)*m.x+(T2.z-c.z)*m.z);
+              mouth.push([P,T1]);tee.corners.push({P,O,T1,T2,rc,kerb:Math.max(r.t.kerb||0,M0.t.kerb||0),foot:Math.max(r.t.foot||0,M0.t.foot||0)});});
+            const dA=Math.max(.3,(Wm/2-.06)/Math.max(.35,Math.abs(ax*nm.x+az*nm.z)));const ta=tt+dir*dA/L,tk=tt+dir*Math.max(dK,dA)/L;
+            TA[k].push(dir>0?[tt-(tt<.02?1:0),ta]:[ta,tt+(tt>.98?1:0)]);TK[k].push(dir>0?[tt-(tt<.02?1:0),tk,0]:[tk,tt+(tt>.98?1:0),0]);
+            j.exits.push({k,t:Math.max(0,Math.min(1,tk)),dir});
+            if(mouth.length===2){const[a1,b1]=mouth[0],[a2,b2]=mouth[1],ex=.6;/* the arm mouth from the main edge to where the kerbs start, a little past both */tee.mouths=(tee.mouths||[]).concat([[{x:a1.x-ax*.3,z:a1.z-az*.3},{x:b1.x+ax*ex,z:b1.z+az*ex},{x:b2.x+ax*ex,z:b2.z+az*ex},{x:a2.x-ax*.3,z:a2.z-az*.3}]]);}
+            if(kT.length===2){const lo=Math.min(...kT),hi=Math.max(...kT);TK[mk].push([mt+lo/Lm,mt+hi/Lm,s]);}});});});
+      roads.forEach((r,ri)=>{const t=r.t,W=r.W,L=r.cv.getLength();const cutA=TA[ri].slice(),cutK=TK[ri].slice();
+        J.forEach(j=>j.roads.forEach(([k,tt])=>{if(k!==ri||j.tee)return;
           /* the arm's edge meets the pad circle where the centreline is sqrt(R^2-(W/2)^2) from the centre: asphalt starts .5 inside that
              (fully under the pad, no grass gap at the corners), kerbs and footpaths start exactly there so they meet the kerb ring */
           const rin=Math.sqrt(Math.max(.25,j.R*j.R-(W/2)*(W/2)));const lo=leave(r,tt,-1,j.c,Math.max(.3,rin-.5)),hi=leave(r,tt,1,j.c,Math.max(.3,rin-.5));cutA.push([lo,hi]);cutK.push([leave(r,tt,-1,j.c,rin),leave(r,tt,1,j.c,rin)]);
           if(lo>0)j.exits.push({k,t:leave(r,tt,-1,j.c,j.R),dir:-1});if(hi<1)j.exits.push({k,t:leave(r,tt,1,j.c,j.R),dir:1});}));
         const brH=r.bridge?r.bridge.height:0;const yfn=(p,tt)=>{const g0=profAt(r,tt);if(!brH)return g0;const ramp=Math.min(1,Math.min(tt,1-tt)*L/12);return Math.max(g0,g0+brH*Math.sin(ramp*Math.PI/2));};
-        const keep=cuts=>{const out=[];let s0=0;cuts.sort((a,b)=>a[0]-b[0]).forEach(([a,b])=>{if(a>s0)out.push([s0,a]);s0=Math.max(s0,b);});if(s0<1)out.push([s0,1]);return out.filter(([a,b])=>b-a>.002);};
+        const keep=cuts=>{const out=[];let s0=0;cuts.slice().sort((a,b)=>a[0]-b[0]).forEach(([a,b])=>{if(a>s0)out.push([s0,a]);s0=Math.max(s0,b);});if(s0<1)out.push([s0,1]);return out.filter(([a,b])=>b-a>.002);};
         keep(cutA).forEach(([a,b])=>{ribbon(r.cv,a,b,-W/2,W/2,.03,yfn,8,mat(r.type),[0,1]);if(t.shoulder)[-1,1].forEach(sd=>ribbon(r.cv,a,b,sd*W/2,sd*(W/2+1),.02,yfn,2,plain(t.shoulder),[0,1]));if(t.median)ribbon(r.cv,a,b,-.4,.4,.08,yfn,2,plain('#6a8a50'),[0,1]);
           if(brH){[-1,1].forEach(sd=>wall(r.cv,a,b,sd*(W/2+.2),.9,.03,yfn,'#d8d4cc'));const Lb=r.cv.getLength();for(let s=.1;s<.9;s+=10/Lb){const p=r.cv.getPointAt(s),y=yfn(p,s);if(y-H(p.x,p.z)<1)continue;const pier=new THREE.Mesh(new THREE.BoxGeometry(1,y,W*.8),plain('#bcb6aa'));pier.position.set(p.x,y/2,p.z);const tg=r.cv.getTangentAt(s);pier.rotation.y=-Math.atan2(tg.z,tg.x);pier.castShadow=true;group.add(pier);}}});
-        if(t.kerb)keep(cutK).forEach(([a,b])=>[-1,1].forEach(sd=>{wall(r.cv,a,b,sd*W/2,t.kerb,.0,yfn,'#c8c4ba');if(t.foot)ribbon(r.cv,a,b,sd*W/2,sd*(W/2+t.foot),t.kerb+.01,yfn,2,plain('#cfc9bc'),[0,1]);}));
+        if(t.kerb)[-1,1].forEach(sd=>keep(cutK.filter(q=>!q[2]||q[2]===sd)).forEach(([a,b])=>{wall(r.cv,a,b,sd*W/2,t.kerb,.0,yfn,'#c8c4ba');if(t.foot)ribbon(r.cv,a,b,sd*W/2,sd*(W/2+t.foot),t.kerb+.01,yfn,2,plain('#cfc9bc'),[0,1]);}));
         r.yfn=yfn;});
       /* ground-following strips round a junction: a flat ring (r0..r1) or a kerb face at r0, between two angles */
       const arc=(c,r0,r1,a0,a1,y0,y1,col,vertical)=>{const n=Math.max(2,Math.ceil((a1-a0)*r1/.4)),P=[],I=[];for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n,ca=Math.cos(a),sa=Math.sin(a);const x0=c.x+ca*r0,z0=c.z+sa*r0,x1=c.x+ca*r1,z1=c.z+sa*r1;
           if(vertical){const y=SM&&c.__y!=null?c.__y:H(x0,z0);P.push(x0,y+y0,z0,x0,y+y1,z0);}else P.push(x0,(SM&&c.__y!=null?c.__y:H(x0,z0))+y0,z0,x1,(SM&&c.__y!=null?c.__y:H(x1,z1))+y0,z1);}
         for(let i=0;i<n;i++){const k=i*2;I.push(k,k+1,k+2,k+1,k+3,k+2);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setIndex(I);g.computeVertexNormals();const m=new THREE.Mesh(g,plain(col));m.material.side=THREE.DoubleSide;m.receiveShadow=true;if(vertical)m.castShadow=true;group.add(m);return m;};
       const padMat=new THREE.MeshLambertMaterial({color:lin('#55585c'),polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
-      J.forEach(j=>{const c=j.c,R=j.R;if(SM)c.__y=j.y;
+      J.forEach(j=>{if(!j.tee)return;const y=(SM?j.y:H(j.c.x,j.c.z));j.y=y+.035;
+        (j.tee.mouths||[]).forEach(Q=>{const P=[],yy=SM?y:H(j.c.x,j.c.z);Q.forEach(q=>P.push(q.x,yy+.031,q.z));const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setIndex([0,1,2,0,2,3]);g.computeVertexNormals();const mm=new THREE.Mesh(g,padMat);mm.material.side=THREE.DoubleSide;mm.receiveShadow=true;group.add(mm);});
+        j.tee.corners.forEach(C=>{const O=C.O,yy=SM?y:H(C.P.x,C.P.z);let a1=Math.atan2(C.T1.z-O.z,C.T1.x-O.x),a2=Math.atan2(C.T2.z-O.z,C.T2.x-O.x),d=a2-a1;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
+          /* asphalt fillet: fan from the corner point P over the arc */const n=10,P=[C.P.x,yy+.032,C.P.z],I=[];for(let i=0;i<=n;i++){const a=a1+d*i/n;P.push(O.x+Math.cos(a)*C.rc,yy+.032,O.z+Math.sin(a)*C.rc);if(i)I.push(0,i,i+1);}
+          const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setIndex(I);g.computeVertexNormals();const fm=new THREE.Mesh(g,padMat);fm.material.side=THREE.DoubleSide;fm.receiveShadow=true;group.add(fm);
+          const a0=d<0?a1+d:a1,a3=d<0?a1:a1+d,oc={x:O.x,z:O.z,__y:SM?yy:null};
+          if(C.kerb){arc(oc,C.rc,C.rc,a0,a3,0,C.kerb,'#c8c4ba',true);if(C.foot)arc(oc,Math.max(.05,C.rc-C.foot),C.rc,a0,a3,C.kerb+.01,0,'#cfc9bc',false);}});
+        j.exits.forEach(e=>{const r=roads[e.k];if(r.type!=='street'&&r.type!=='arterial')return;const L=r.cv.getLength();const t2=e.t+e.dir*1.2/L;if(t2<0||t2>1)return;const p=r.cv.getPointAt(t2),tg=r.cv.getTangentAt(t2),nx=-tg.z,nz=tg.x;
+          for(let s=-r.W/2+.3;s<r.W/2-.2;s+=.6){const st=new THREE.Mesh(new THREE.PlaneGeometry(.35,1.4),new THREE.MeshLambertMaterial({color:0xf2efe6,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4}));st.rotation.x=-Math.PI/2;st.rotation.z=-Math.atan2(tg.z,tg.x)+Math.PI/2;st.position.set(p.x+nx*s,r.yfn(p,t2)+.05,p.z+nz*s);group.add(st);}});});
+      J.forEach(j=>{if(j.tee)return;const c=j.c,R=j.R;if(SM)c.__y=j.y;
         /* the pad: a disc whose every vertex sits on the ground, so it meets the road ends on slopes too */
         const pg=new THREE.CircleGeometry(R,Math.max(28,Math.ceil(R*8)),0,Math.PI*2).rotateX(-Math.PI/2);const pp=pg.attributes.position;for(let i=0;i<pp.count;i++)pp.setY(i,(SM?j.y:H(c.x+pp.getX(i),c.z+pp.getZ(i)))+.035);pg.computeVertexNormals();
         const pad=new THREE.Mesh(pg,padMat);pad.position.set(c.x,0,c.z);pad.receiveShadow=true;group.add(pad);if(!SM)j.y=H(c.x,c.z);const jy=j.y;j.y=jy+.035;
