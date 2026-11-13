@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Props Engine Lab</title>
 <style>body{margin:0;overflow:hidden;background:#9fd3ea;font-family:system-ui,sans-serif}#ui{position:fixed;left:10px;top:10px;background:rgba(20,28,40,.84);color:#fff;padding:10px 12px;border-radius:12px;font-size:13px;max-width:300px;max-height:90vh;overflow:auto}
 #ui b{font-size:14px}#ui label{display:block;margin:4px 0;cursor:pointer}#ui button{margin:6px 6px 0 0;padding:6px 10px;border:0;border-radius:8px;background:#3e7d5c;color:#fff;font-weight:600;cursor:pointer}#ui input[type=range]{width:130px;vertical-align:middle}#fps{opacity:.75;margin-top:6px}</style></head><body>
-<div id="ui"><b>Props Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">Real 3D street, park and beach furniture: lamps that light at night, benches, bins, signs, bus stop, bollards, planters, picnic tables, umbrellas, bike racks, fences, jetty, buoys, rocks, crates, taps, surfboard rack, beach towels, deck chairs, ice-cream cart, waving flag, fountain, post box, direction post, beach shower, life ring, kayak rack, sprinkler, hedges.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
+<div id="ui"><b>Props Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">Real 3D street, park and beach furniture: lamps that light at night, benches, bins, signs, bus stop, bollards, planters, picnic tables, umbrellas, bike racks, fences, jetty, buoys, rocks, crates, taps, surfboard rack, beach towels, deck chairs, ice-cream cart, waving flag, fountain, post box, direction post, beach shower, life ring, kayak rack, sprinkler, hedges, lake boardwalk, lookout deck.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>/* Terrain Engine (Paul Perth Library, Nov 2026) — natural ground for three.js r128.
@@ -17,7 +17,7 @@
    Quality: T.setQuality(0..2) changes the detail layers (blade strokes and speckles off on 0). */
 (function(g){
 const lin=h=>{const c=new THREE.Color(h);c.convertSRGBToLinear();return`vec3(${c.r.toFixed(4)},${c.g.toFixed(4)},${c.b.toFixed(4)})`;};
-const DEF={g0:'#44723a',g1:'#558841',g2:'#5f9146',g3:'#6a9b4b',g4:'#84aa5a',dry:'#a8a46a',sandW:'#b8ab8a',sand:'#f2ede0',sandB:'#e2d6b2',dirt:'#8a6a48',rock:'#9a948a',
+const DEF={/* Rottnest: muted island greens (scrub heath + settlement lawn), bright white limestone sand */g0:'#536a3c',g1:'#637a47',g2:'#71864f',g3:'#80925a',g4:'#97a26a',dry:'#b2a876',sandW:'#c4bba2',sand:'#f5f1e8',sandB:'#ebe4d2',dirt:'#8a6a48',rock:'#9a948a',
   lake:'#e8a6b8',path:'#d9cfb4',pathE:'#bdb294',lane:'#7c7f82',laneL:'#f2efe6',gravel:'#8e8a82'};
 function create(o){const P=Object.assign({},DEF,o.palette||{}),W=o.size[0],D=o.size[1],cx=(o.center||[0,0])[0],cz=(o.center||[0,0])[1],x0=cx-W/2,z0=cz-D/2,R=o.res||.5;
   const H=o.heightAt,SEA=o.seaLevel||0,NX=Math.ceil(W/R),NZ=Math.ceil(D/R);
@@ -317,11 +317,15 @@ const K={
   kayakrack(G){[-.9,.9].forEach(x=>{box(G,.08,1.2,.08,'#8a6440',x,.6,0);});[.5,1].forEach((y,i)=>{box(G,1.9,.06,.4,'#8a6440',0,y,0);sph(G,.22,['#f1c64a','#e8734a'][i],0,y+.14,0,4,.5,1);});},
   sprinkler(G){cyl(G,.04,.04,.15,'#3e7d5c',0,.08,0,6);G.userData.spray=1;},
   hedge(G,o){const L=o.len||3;box(G,L,.8,.6,'#3e6e34',0,.4,0);for(let i=0;i<L*3;i++)sph(G,.3,'#4f8240',-L/2+i/3+.15,.75,(i%2-.5)*.2);G.userData.foot=[-L/2,-.3,L/2,.3];},
+  boardwalk(G,o){/* low timber walk with rails over a lake or dune; o.lines world points */const L=o.lines||[[0,0],[0,10]];for(let i=1;i<L.length;i++){const a=L[i-1],b=L[i],len=Math.hypot(b[0]-a[0],b[1]-a[1]),ang=Math.atan2(b[1]-a[1],b[0]-a[0]);const D=new THREE.Group();D.position.set((a[0]+b[0])/2,Math.max(o.H(a[0],a[1]),o.H(b[0],b[1]),o.H((a[0]+b[0])/2,(a[1]+b[1])/2),0),(a[1]+b[1])/2);D.rotation.y=-ang;G.add(D);
+    box(D,len,.08,1.6,'#a8845a',0,.45,0);for(let k=0;k<=len;k+=2){[-.8,.8].forEach(z=>{box(D,.1,.95,.1,'#7a5a3a',-len/2+k,.45,z);});}[-.8,.8].forEach(z=>box(D,len,.07,.07,'#8a6440',0,.95,z));}},
+  lookout(G){box(G,4,.15,3,'#a8845a',0,1.2,0);[[-1.9,-1.4],[1.9,-1.4],[-1.9,1.4],[1.9,1.4]].forEach(([x,z])=>box(G,.15,1.2,.15,'#7a5a3a',x,.6,z));[[0,-1.45,4,.07],[0,1.45,4,.07]].forEach(([x,z,w,d])=>box(G,w,.07,d,'#8a6440',x,2,z));[-1.95,1.95].forEach(x=>box(G,.07,.07,3,'#8a6440',x,2,0));
+    for(let k=0;k<4;k++)box(G,1,.08,.4,'#a8845a',0,.2+k*.3,1.7+k*.4);const sg=signTex(['LOOKOUT'],'#3e5a44','#f5ecd8');const p2=new THREE.Mesh(new THREE.PlaneGeometry(1,1/sg.a),new THREE.MeshLambertMaterial({map:sg.t,side:THREE.DoubleSide}));p2.position.set(1.4,2.3,1.5);G.add(p2);G.userData.foot=[-2,-1.5,2,3];},
   jetty(G,o){const L=o.lines||[[0,0],[0,10]],a=L[0],b=L[1],len=Math.hypot(b[0]-a[0],b[1]-a[1]),ang=Math.atan2(b[1]-a[1],b[0]-a[0]),w=o.width||2;const D=new THREE.Group();D.position.set((a[0]+b[0])/2,0,(a[1]+b[1])/2);D.rotation.y=-ang;G.add(D);
     for(let k=0;k<len/.3;k++)box(D,.28,.08,w,k%2?'#a0764a':'#b08454',-len/2+.15+k*.3,.6,0);for(let k=0;k<=len/2;k++)[-w/2+.1,w/2-.1].forEach(z=>cyl(D,.09,.1,2.4,'#6a4a30',-len/2+k*2,-.4,z,8));G.userData.foot=null;}};
 function o2(G,c){return c;}
 function create(o){const scene=o.scene,H=o.heightAt||(()=>0),list=[];const api={night:0,list,
-  add(kind,x,z,op){op=op||{};const G=new THREE.Group();(K[kind]||K.crate)(G,op);const y=kind==='jetty'||kind==='fence'?0:H(x,z);if(kind!=='jetty'&&kind!=='fence')G.position.set(x,y,z);
+  add(kind,x,z,op){op=op||{};op.H=H;const G=new THREE.Group();(K[kind]||K.crate)(G,op);const y=kind==='jetty'||kind==='fence'||kind==='boardwalk'?0:H(x,z);if(kind!=='jetty'&&kind!=='fence'&&kind!=='boardwalk')G.position.set(x,y,z);
     G.rotation.y=op.rot||0;if(op.scale)G.scale.setScalar(op.scale);G.userData.prop={kind};G.traverse(q=>{q.__pxSkip=1;});(op.parent||scene).add(G);list.push(G);return G;},
   along(kind,pts,sp,op){op=op||{};let carry=sp/2;for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),ang=Math.atan2(b[1]-a[1],b[0]-a[0]);let d=carry;
       while(d<L){const t=d/L,nx=-(b[1]-a[1])/L,nz=(b[0]-a[0])/L,off=op.offset||0;api.add(kind,a[0]+(b[0]-a[0])*t+nx*off,a[1]+(b[1]-a[1])*t+nz*off,Object.assign({},op,{rot:-ang+(op.turn||0)}));d+=sp;}carry=d-L;}},
@@ -357,6 +361,8 @@ const hr=document.getElementById("hr");ctl.target.set(-2,0,2);cam.position.set(-
 onFrame((t,dt)=>{S.update(dt,{hour:+hr.value});P.night=S.state.night;P.update(t);sea.setSun(S.state.sunDir,S.state.sunColor,S.state.skyColor);});setRender(t=>sea.render(t));
 P.add('surfrack',-4.5,3,{rot:1.2});P.add('towel',-7.5,-2,{rot:.3});P.add('towel',-8,0,{rot:.2,color:'#e85a6a'});P.add('deckchair',-6.5,-4,{rot:1.4});P.add('deckchair',-6,-6,{rot:1.5,color:'#f2c14e'});P.add('icecart',3,4);P.add('flagpole',-2,-6);P.add('fountain',12,8);P.add('postbox',-1,6);
 P.add('arrowpost',4,-1);P.add('shower',-4.5,7);P.add('lifering',-5.5,9);P.add('kayakrack',-3.5,12,{rot:1});P.add('hedge',14,-8,{len:4});P.add('hedge',8,12,{len:3,rot:.4});
+
+P.add('boardwalk',0,0,{lines:[[-14,14],[-10,17],[-6,16]]});P.add('lookout',10,14,{rot:.4});
 
 let fr=0,ft=performance.now(),last=performance.now();const fe=document.getElementById('fps');(function loop(){requestAnimationFrame(loop);ctl.update();const now=performance.now(),t=now/1000,dt=Math.min(.1,(now-last)/1000);last=now;frames.forEach(f=>f(t,dt));
   if(renderFn)renderFn(t);else R.render(scene,cam);fr++;if(now-ft>1000){fe.textContent=fr+' fps';fr=0;ft=now;}})();})();

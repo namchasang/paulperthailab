@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Building Kit Lab</title>
 <style>body{margin:0;overflow:hidden;background:#9fd3ea;font-family:system-ui,sans-serif}#ui{position:fixed;left:10px;top:10px;background:rgba(20,28,40,.84);color:#fff;padding:10px 12px;border-radius:12px;font-size:13px;max-width:300px;max-height:90vh;overflow:auto}
 #ui b{font-size:14px}#ui label{display:block;margin:4px 0;cursor:pointer}#ui button{margin:6px 6px 0 0;padding:6px 10px;border:0;border-radius:8px;background:#3e7d5c;color:#fff;font-weight:600;cursor:pointer}#ui input[type=range]{width:130px;vertical-align:middle}#fps{opacity:.75;margin-top:6px}</style></head><body>
-<div id="ui"><b>Building Kit Lab</b><div style="opacity:.8;margin:4px 0 6px">Buildings made from real 3D parts in seven styles. Detail layers: night window lights, shop interiors, flower boxes, grime and streaks, roof moss, gutters and downpipes, chimney smoke, washing lines, solar panels, rooftop units and tanks, antennas and dishes, picket fences with letterboxes, pot plants. Tick a box to show or hide each one.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
+<div id="ui"><b>Building Kit Lab</b><div style="opacity:.8;margin:4px 0 6px">Buildings made from real 3D parts in sixteen styles, including island limestone cottages and cabins, Victoria Park shops and houses and Perth CBD towers. Detail layers: night window lights, shop interiors, flower boxes, grime and streaks, roof moss, gutters and downpipes, chimney smoke, washing lines, solar panels, rooftop units and tanks, antennas and dishes, picket fences with letterboxes, pot plants. Tick a box to show or hide each one.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>/* Terrain Engine (Paul Perth Library, Nov 2026) — natural ground for three.js r128.
@@ -17,7 +17,7 @@
    Quality: T.setQuality(0..2) changes the detail layers (blade strokes and speckles off on 0). */
 (function(g){
 const lin=h=>{const c=new THREE.Color(h);c.convertSRGBToLinear();return`vec3(${c.r.toFixed(4)},${c.g.toFixed(4)},${c.b.toFixed(4)})`;};
-const DEF={g0:'#44723a',g1:'#558841',g2:'#5f9146',g3:'#6a9b4b',g4:'#84aa5a',dry:'#a8a46a',sandW:'#b8ab8a',sand:'#f2ede0',sandB:'#e2d6b2',dirt:'#8a6a48',rock:'#9a948a',
+const DEF={/* Rottnest: muted island greens (scrub heath + settlement lawn), bright white limestone sand */g0:'#536a3c',g1:'#637a47',g2:'#71864f',g3:'#80925a',g4:'#97a26a',dry:'#b2a876',sandW:'#c4bba2',sand:'#f5f1e8',sandB:'#ebe4d2',dirt:'#8a6a48',rock:'#9a948a',
   lake:'#e8a6b8',path:'#d9cfb4',pathE:'#bdb294',lane:'#7c7f82',laneL:'#f2efe6',gravel:'#8e8a82'};
 function create(o){const P=Object.assign({},DEF,o.palette||{}),W=o.size[0],D=o.size[1],cx=(o.center||[0,0])[0],cz=(o.center||[0,0])[1],x0=cx-W/2,z0=cz-D/2,R=o.res||.5;
   const H=o.heightAt,SEA=o.seaLevel||0,NX=Math.ceil(W/R),NZ=Math.ceil(D/R);
@@ -228,11 +228,15 @@ const K={
   kayakrack(G){[-.9,.9].forEach(x=>{box(G,.08,1.2,.08,'#8a6440',x,.6,0);});[.5,1].forEach((y,i)=>{box(G,1.9,.06,.4,'#8a6440',0,y,0);sph(G,.22,['#f1c64a','#e8734a'][i],0,y+.14,0,4,.5,1);});},
   sprinkler(G){cyl(G,.04,.04,.15,'#3e7d5c',0,.08,0,6);G.userData.spray=1;},
   hedge(G,o){const L=o.len||3;box(G,L,.8,.6,'#3e6e34',0,.4,0);for(let i=0;i<L*3;i++)sph(G,.3,'#4f8240',-L/2+i/3+.15,.75,(i%2-.5)*.2);G.userData.foot=[-L/2,-.3,L/2,.3];},
+  boardwalk(G,o){/* low timber walk with rails over a lake or dune; o.lines world points */const L=o.lines||[[0,0],[0,10]];for(let i=1;i<L.length;i++){const a=L[i-1],b=L[i],len=Math.hypot(b[0]-a[0],b[1]-a[1]),ang=Math.atan2(b[1]-a[1],b[0]-a[0]);const D=new THREE.Group();D.position.set((a[0]+b[0])/2,Math.max(o.H(a[0],a[1]),o.H(b[0],b[1]),o.H((a[0]+b[0])/2,(a[1]+b[1])/2),0),(a[1]+b[1])/2);D.rotation.y=-ang;G.add(D);
+    box(D,len,.08,1.6,'#a8845a',0,.45,0);for(let k=0;k<=len;k+=2){[-.8,.8].forEach(z=>{box(D,.1,.95,.1,'#7a5a3a',-len/2+k,.45,z);});}[-.8,.8].forEach(z=>box(D,len,.07,.07,'#8a6440',0,.95,z));}},
+  lookout(G){box(G,4,.15,3,'#a8845a',0,1.2,0);[[-1.9,-1.4],[1.9,-1.4],[-1.9,1.4],[1.9,1.4]].forEach(([x,z])=>box(G,.15,1.2,.15,'#7a5a3a',x,.6,z));[[0,-1.45,4,.07],[0,1.45,4,.07]].forEach(([x,z,w,d])=>box(G,w,.07,d,'#8a6440',x,2,z));[-1.95,1.95].forEach(x=>box(G,.07,.07,3,'#8a6440',x,2,0));
+    for(let k=0;k<4;k++)box(G,1,.08,.4,'#a8845a',0,.2+k*.3,1.7+k*.4);const sg=signTex(['LOOKOUT'],'#3e5a44','#f5ecd8');const p2=new THREE.Mesh(new THREE.PlaneGeometry(1,1/sg.a),new THREE.MeshLambertMaterial({map:sg.t,side:THREE.DoubleSide}));p2.position.set(1.4,2.3,1.5);G.add(p2);G.userData.foot=[-2,-1.5,2,3];},
   jetty(G,o){const L=o.lines||[[0,0],[0,10]],a=L[0],b=L[1],len=Math.hypot(b[0]-a[0],b[1]-a[1]),ang=Math.atan2(b[1]-a[1],b[0]-a[0]),w=o.width||2;const D=new THREE.Group();D.position.set((a[0]+b[0])/2,0,(a[1]+b[1])/2);D.rotation.y=-ang;G.add(D);
     for(let k=0;k<len/.3;k++)box(D,.28,.08,w,k%2?'#a0764a':'#b08454',-len/2+.15+k*.3,.6,0);for(let k=0;k<=len/2;k++)[-w/2+.1,w/2-.1].forEach(z=>cyl(D,.09,.1,2.4,'#6a4a30',-len/2+k*2,-.4,z,8));G.userData.foot=null;}};
 function o2(G,c){return c;}
 function create(o){const scene=o.scene,H=o.heightAt||(()=>0),list=[];const api={night:0,list,
-  add(kind,x,z,op){op=op||{};const G=new THREE.Group();(K[kind]||K.crate)(G,op);const y=kind==='jetty'||kind==='fence'?0:H(x,z);if(kind!=='jetty'&&kind!=='fence')G.position.set(x,y,z);
+  add(kind,x,z,op){op=op||{};op.H=H;const G=new THREE.Group();(K[kind]||K.crate)(G,op);const y=kind==='jetty'||kind==='fence'||kind==='boardwalk'?0:H(x,z);if(kind!=='jetty'&&kind!=='fence'&&kind!=='boardwalk')G.position.set(x,y,z);
     G.rotation.y=op.rot||0;if(op.scale)G.scale.setScalar(op.scale);G.userData.prop={kind};G.traverse(q=>{q.__pxSkip=1;});(op.parent||scene).add(G);list.push(G);return G;},
   along(kind,pts,sp,op){op=op||{};let carry=sp/2;for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),ang=Math.atan2(b[1]-a[1],b[0]-a[0]);let d=carry;
       while(d<L){const t=d/L,nx=-(b[1]-a[1])/L,nz=(b[0]-a[0])/L,off=op.offset||0;api.add(kind,a[0]+(b[0]-a[0])*t+nx*off,a[1]+(b[1]-a[1])*t+nz*off,Object.assign({},op,{rot:-ang+(op.turn||0)}));d+=sp;}carry=d-L;}},
@@ -241,7 +245,7 @@ g.PropsEngine={create,kinds:Object.keys(K)};})(typeof window!=='undefined'?windo
 </script>
 <script>/* Building Kit Engine (Paul Perth Library, Nov 2026) — buildings assembled from parts, for three.js r128.
    const B=BuildingKit.create({scene,heightAt});
-   B.build({x,z,rot, w,d,floors, style:'cottage'|'shop'|'terrace'|'cafe'|'lighthouse'|'kiosk'|'house', wall:'#..', roof:'gable'|'hip'|'flat'|'skillion',
+   B.build({x,z,rot, w,d,floors, style:'cottage'|'shop'|'terrace'|'cafe'|'lighthouse'|'kiosk'|'house'|'strip'|'pub'|'bigbox'|'bungalow'|'flats'|'heritage'|'mallshop'|'tower'|'slab', (tower/slab: floors, glass, frame, crown:'flat'|'spire'|'stepped'|'slant', podium) wall:'#..', roof:'gable'|'hip'|'flat'|'skillion',
             roofColor, trim, verandah:true, awning:'#e85a6a', sign:'TEXT', windows:'sash'|'shop'|'round', chimney:true, steps:true}) -> Group
    B.street(pts,{styles:[...],gap,lot}) lines a street with buildings facing it.
    Parts: walls with real window and door openings (frames, sills, glass with a sky tint, shutters), cornices and quoins, gable,
@@ -258,7 +262,7 @@ function tiles(c,kind){const S=4,cv=document.createElement('canvas');cv.width=cv
 const TC={};const roofMat=(c,k)=>{const key=c+k;return TC[key]||(TC[key]=new THREE.MeshLambertMaterial({map:tiles(c,k),side:THREE.DoubleSide}));};
 function signTex(t,bg,fg){const S=4,cv=document.createElement('canvas');cv.width=160*S;cv.height=28*S;const x=cv.getContext('2d');x.fillStyle=bg;x.fillRect(0,0,cv.width,cv.height);x.fillStyle=fg;x.textAlign='center';x.textBaseline='middle';let fs=18*S;x.font=`bold ${fs}px Georgia,serif`;while(x.measureText(t).width>cv.width-16*S){fs-=S;x.font=`bold ${fs}px Georgia,serif`;}x.fillText(t,cv.width/2,cv.height/2+S);const tx=new THREE.CanvasTexture(cv);tx.encoding=THREE.sRGBEncoding;tx.anisotropy=8;return tx;}
 function windowPart(G,x,y,z,w,h,face,o){/* frame, sill, glass, glazing bars, shutters; face = outward normal angle */const W=new THREE.Group();W.position.set(x,y,z);W.rotation.y=face;G.add(W);
-  box(W,w+.12,h+.12,.06,o.trim,0,0,.02);const gl=box(W,w,h,.03,GLASS,0,0,.05);if(o.__win)o.__win.push({W,w,h,x,y,z,face});if(o.windows!=='shop'){box(W,w,.03,.035,o.trim,0,0,.07);box(W,.03,h,.035,o.trim,0,0,.07);}box(W,w+.24,.06,.16,o.trim,0,-h/2-.06,.08);
+  box(W,w+.12,h+.12,.06,o.trim,0,0,.02);const gl=box(W,w,h,.03,GLASS,0,0,.05);if(o.__win)o.__win.push({W,w,h,x,y,z,face});if(o.windows==='round'){const ar=new THREE.Mesh(new THREE.CylinderGeometry(w/2+.08,w/2+.08,.08,14,1,false,-Math.PI/2,Math.PI),M(o.trim));ar.rotation.x=Math.PI/2;ar.position.set(0,h/2+.02,.04);W.add(ar);const ks=new THREE.Mesh(new THREE.BoxGeometry(.18,.26,.1),M(o.trim));ks.position.set(0,h/2+w/2+.06,.06);W.add(ks);}if(o.windows!=='shop'){box(W,w,.03,.035,o.trim,0,0,.07);box(W,.03,h,.035,o.trim,0,0,.07);}box(W,w+.24,.06,.16,o.trim,0,-h/2-.06,.08);
   if(o.shutters)[-1,1].forEach(s=>box(W,w*.5,h,.04,o.shutters,s*(w*.75+.04),0,.05));}
 function doorPart(G,x,z,face,o){const D=new THREE.Group();D.position.set(x,0,z);D.rotation.y=face;G.add(D);box(D,.95,2.05,.06,o.trim,0,1.03,.02);box(D,.8,1.95,.05,o.door||'#5a3a26',0,1.0,.05);box(D,.06,.06,.06,'#d8b040',.28,1,.09);if(o.steps!==false)box(D,1.3,.16,.5,'#bdb4a2',0,.08,.3);}
 function roof(G,w,d,y,o){const kind=o.roof||'gable',rc=o.roofColor||'#c2603a',mat=roofMat(rc,o.roofKind||(kind==='skillion'||o.style==='kiosk'?'tin':'tile')),ov=.35,rise=o.rise||Math.min(w,d)*.42;
@@ -274,19 +278,57 @@ const STY={cottage:{w:6,d:5,floors:1,wall:'#f6f0e2',roof:'gable',roofColor:'#c26
   terrace:{w:4.5,d:8,floors:2,wall:'#d8b8a0',roof:'skillion',roofColor:'#7a8088',roofKind:'tin',trim:'#f2ece0',verandah:true,balcony:true},
   cafe:{w:8,d:6,floors:1,wall:'#f6f2e8',roof:'gable',roofColor:'#e07040',trim:'#ffffff',windows:'shop',awning:'#3e7d5c',verandah:false,deck:true},
   kiosk:{w:3.5,d:3,floors:1,wall:'#f2e6c8',roof:'skillion',roofColor:'#3a8ad0',roofKind:'tin',trim:'#ffffff',windows:'shop',awning:'#f2c14e'},
-  lighthouse:{w:3,d:3,floors:6,wall:'#f8f6f0',trim:'#c8344a',round:true}};
-function create(o){const scene=o.scene,H=o.heightAt||(()=>0),list=[];
-  function build(op){const o2=Object.assign({},STY[op.style||'cottage'],op);o2.__win=[];const G=new THREE.Group(),w=o2.w,d=o2.d,fh=2.8,hh=fh*o2.floors;
+  lighthouse:{w:3,d:3,floors:6,wall:'#f8f6f0',trim:'#c8344a',round:true},
+  /* Rottnest settlement: whitewashed limestone cottages with tin roofs and green trim, small holiday cabins */
+  islandcottage:{w:7,d:6,floors:1,wall:'#f3eee0',roof:'hip',roofColor:'#8f969c',roofKind:'tin',trim:'#3e5a44',verandah:true,shutters:'#3e5a44',chimney:true,limestone:true},
+  cabin:{w:5,d:4.5,floors:1,wall:'#e8e2d0',roof:'skillion',roofColor:'#7a8088',roofKind:'tin',trim:'#c8b48a',verandah:true},
+  /* Victoria Park (Albany Highway strip and the streets behind it) */
+  strip:{w:5.4,d:8,floors:1,fh:3.4,wall:'#f2e6c8',roof:'flat',windows:'shop',parapet:true,parapetH:1.6,verandah:true,roofColor:'#7a8088',trim:'#f4ecd8'},
+  pub:{w:10,d:10,floors:2,fh:3.2,wall:'#e2d2a8',roof:'hip',roofColor:'#8a3a2a',trim:'#f4ecd8',verandah:true,balcony:true,parapet:true,parapetH:1.1,chimney:true},
+  bigbox:{w:16,d:14,floors:1,fh:5,wall:'#f6f6f0',roof:'flat',windows:'shop',parapet:true,parapetH:1.4,awning:'#d8343a',trim:'#e8e8e4'},
+  bungalow:{w:8,d:9,floors:1,wall:'#b25a40',roof:'hip',roofColor:'#a8503a',trim:'#f2e6cc',verandah:true,chimney:true,brick:true},
+  flats:{w:12,d:9,floors:3,wall:'#e6d8b8',roof:'hip',roofColor:'#6a7078',trim:'#f6f2e8',verandah:true,balcony:true,brick:true},
+  /* Perth CBD (St Georges Terrace, Hay Street Mall) */
+  heritage:{w:11,d:8,floors:3,fh:3.4,wall:'#e8d4a8',roof:'flat',parapet:true,parapetH:1.2,trim:'#f6ecd4',windows:'round'},
+  mallshop:{w:5.6,d:8,floors:2,fh:3.4,wall:'#f2ead8',roof:'flat',windows:'shop',parapet:true,parapetH:1,awning:'#1d3a6e',trim:'#f8f2e4'},
+  tower:{w:9,d:9,floors:16,tower:true,glass:'#86a8c4',frame:'#c8d2d8',crown:'flat',podium:true},
+  slab:{w:13,d:8,floors:10,tower:true,glass:'#4e6070',frame:'#d8d0c0',bands:true,crown:'flat',podium:true}};
+/* curtain wall: 4 bays x 4 floors per tile, so lit windows at night don't repeat in an obvious grid */
+const TWT={};function towerTex(glass,frame,bands,lit,seed){const k=[glass,frame,bands,lit,seed].join();if(TWT[k])return TWT[k];const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');let s=seed||7;const r=()=>(s=(s*16807)%2147483647)/2147483647;
+  x.fillStyle=lit?'#000':frame;x.fillRect(0,0,256,256);for(let f=0;f<4;f++)for(let b=0;b<4;b++){const X=b*64,Y=f*64,sp=bands?26:10;
+    if(lit){if(r()<.42){x.fillStyle=['#ffd890','#fff0c8','#ffe2a8'][r()*3|0];x.fillRect(X+3,Y+3,58,64-sp-6);}continue;}
+    const g=x.createLinearGradient(X,Y,X+64,Y+64);const cc=new THREE.Color(glass);const l=(m)=>'rgb('+[cc.r,cc.g,cc.b].map(v=>Math.min(255,v*255*m)|0).join(',')+')';g.addColorStop(0,l(1.25));g.addColorStop(.55,l(.9));g.addColorStop(1,l(1.05+r()*.2));x.fillStyle=g;x.fillRect(X+2,Y+2,60,64-sp-2);
+    x.fillStyle='rgba(255,255,255,.12)';x.fillRect(X+2,Y+2,60,4);x.fillStyle='rgba(0,0,0,.18)';x.fillRect(X+31,Y+2,2,64-sp-2);}
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;return TWT[k]=t;}
+let LIME=null;function limeTex(){if(LIME)return LIME;const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');x.fillStyle='#d8d2c4';x.fillRect(0,0,128,128);let s=9;const r=()=>(s=(s*16807)%2147483647)/2147483647;
+  for(let row=0;row<6;row++){let X=-r()*20;const h=128/6;while(X<128){const w=14+r()*22,v=.9+r()*.12;x.fillStyle='rgb('+[255*v,255*v*.985,255*v*.95].map(q=>Math.min(255,q|0)).join(',')+')';x.beginPath();x.roundRect?x.roundRect(X+1.5,row*h+1.5,w-3,h-3,4):x.rect(X+1.5,row*h+1.5,w-3,h-3);x.fill();X+=w;}}
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;return LIME=t;}
+let BRICK=null;function brickTex(){if(BRICK)return BRICK;const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle='#d8d0c4';x.fillRect(0,0,64,64);let s=5;const r=()=>(s=(s*16807)%2147483647)/2147483647;
+  for(let row=0;row<8;row++)for(let k=-1;k<4;k++){const v=.82+r()*.3;x.fillStyle='rgb('+[255*v,255*v*.97,255*v*.94].map(q=>Math.min(255,q|0)).join(',')+')';x.fillRect(k*16+(row%2)*8+1,row*8+1,14,6);}
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;return BRICK=t;}
+function create(o){const scene=o.scene,H=o.heightAt||(()=>0),list=[],NIGHT=[];
+  function build(op){const o2=Object.assign({},STY[op.style||'cottage'],op);o2.__win=[];const G=new THREE.Group(),w=o2.w,d=o2.d,fh=o2.fh||2.8,hh=fh*o2.floors;
     if(o2.round){const tw=new THREE.Mesh(new THREE.CylinderGeometry(w*.35,w*.5,hh,24),M(o2.wall));tw.position.y=hh/2;tw.castShadow=true;G.add(tw);for(let f=1;f<o2.floors;f+=2){const b=new THREE.Mesh(new THREE.CylinderGeometry(w*.5-.1*f/o2.floors*w*.15+.02,w*.5-.1*(f)/o2.floors*w*.15+.02,.6,24),M(o2.trim));b.position.y=f*fh;G.add(b);}
       const gal=new THREE.Mesh(new THREE.CylinderGeometry(w*.48,w*.48,.15,24),M('#2a2e33'));gal.position.y=hh+.1;G.add(gal);const lan=new THREE.Mesh(new THREE.CylinderGeometry(w*.25,w*.25,1.4,12),GLASS);lan.position.y=hh+.9;G.add(lan);const cap=new THREE.Mesh(new THREE.ConeGeometry(w*.3,.9,12),M(o2.trim));cap.position.y=hh+2;G.add(cap);
       doorPart(G,0,w*.47,0,o2);}
-    else{box(G,w,hh,d,o2.wall,0,hh/2,0);box(G,w+.1,.3,d+.1,o2.trim,0,.15,0);/* plinth */
+    else if(o2.tower){const FH=3.2,n=o2.floors,H0=o2.podium?4.4:0,th=n*FH,seed=(Math.abs(op.x||0)*7+Math.abs(op.z||0)*13+n)|0||3;
+      const face=(L)=>{const m=new THREE.MeshLambertMaterial({map:towerTex(o2.glass,o2.frame,o2.bands,false,1).clone(),emissiveMap:towerTex(o2.glass,o2.frame,o2.bands,true,seed).clone(),emissive:new THREE.Color(0)});
+        [m.map,m.emissiveMap].forEach(t=>{t.needsUpdate=true;t.repeat.set(L/12,n/4);});NIGHT.push(m);return m;};
+      const shaft=(sw,sd,y0,hgt,nf)=>{const mf=face(sw),ms=face(sd),top=M(o2.frame);[mf,ms].forEach(m=>[m.map,m.emissiveMap].forEach(t=>t.repeat.y=nf/4));const b=new THREE.Mesh(new THREE.BoxGeometry(sw,hgt,sd),[ms,ms,top,top,mf,mf]);b.position.y=y0+hgt/2;b.castShadow=b.receiveShadow=true;G.add(b);return b;};
+      if(o2.podium){box(G,w+2.4,H0,d+2.4,o2.frame,0,H0/2,0);const sf=new THREE.Mesh(new THREE.PlaneGeometry(w+1.6,H0*.62),GLASS);sf.position.set(0,H0*.36,d/2+1.21);G.add(sf);box(G,w+3,.22,1.8,'#2a2e33',0,H0*.74,d/2+2.1);for(let k=-1;k<=1;k+=2)box(G,.25,H0+.3,.25,o2.frame,k*(w/2+1.1),H0/2,d/2+1.2);}
+      const crown=o2.crown;if(crown==='stepped'){const n1=Math.round(n*.7);shaft(w,d,H0,n1*FH,n1);shaft(w*.72,d*.72,H0+n1*FH,(n-n1)*FH,n-n1);}else shaft(w,d,H0,th,n);
+      const top=H0+th;if(crown==='flat'||crown==='stepped'){box(G,w*.5,2,d*.45,'#b8bcc0',0,top+1,-d*.1);box(G,(crown==='stepped'?w*.72:w)+.2,.8,.2,o2.frame,0,top+.4,(crown==='stepped'?d*.36:d/2));}
+      if(crown==='spire'){box(G,w*.6,2.4,d*.6,o2.frame,0,top+1.2,0);const sp=new THREE.Mesh(new THREE.ConeGeometry(.5,12,8),M('#d8dee2'));sp.position.y=top+8.4;sp.castShadow=true;G.add(sp);}
+      if(crown==='slant'){const g=new THREE.BoxGeometry(w,6,d),pp=g.attributes.position;for(let i=0;i<pp.count;i++)if(pp.getY(i)>0&&pp.getZ(i)>0)pp.setY(i,-2.4);g.computeVertexNormals();const sl=new THREE.Mesh(g,GLASS);sl.position.y=top+3;sl.castShadow=true;G.add(sl);}
+      if(o2.sign){const sg=new THREE.Mesh(new THREE.PlaneGeometry(Math.min(w*.9,6),Math.min(w*.9,6)*28/160),new THREE.MeshLambertMaterial({map:signTex(o2.sign,o2.signBg||'#1d3a6e',o2.signFg||'#f5ecd8')}));sg.position.set(0,o2.podium?H0+.6:3,d/2+(o2.podium?1.25:.06));G.add(sg);}
+      o2.__win=null;}
+    else{const wb=box(G,w,hh,d,o2.wall,0,hh/2,0);if(o2.brick||o2.limestone){const t=(o2.limestone?limeTex():brickTex()).clone();t.needsUpdate=true;t.repeat.set(Math.max(w,d)/(o2.limestone?4:2),hh/(o2.limestone?3:2));wb.material=new THREE.MeshLambertMaterial({color:lin(o2.wall),map:t});}box(G,w+.1,.3,d+.1,o2.trim,0,.15,0);/* plinth */
       for(let f=0;f<o2.floors;f++){const y=f*fh+fh*.55,front=d/2+.01;
         if(f===0&&o2.windows==='shop'){windowPart(G,-w*.25,y-.2,front,w*.36,1.7,0,o2);windowPart(G,w*.3,y-.2,front,w*.26,1.7,0,o2);doorPart(G,w*.04,front,0,o2);}
         else{const n=Math.max(1,Math.round(w/2.2));for(let k=0;k<n;k++){const x=-w/2+(k+.5)*w/n;if(f===0&&k===Math.floor(n/2))doorPart(G,x,front,0,o2);else windowPart(G,x,y,front,.8,1.1,0,o2);}}
         const ns=Math.max(1,Math.round(d/2.6));for(let k=0;k<ns;k++){const z=-d/2+(k+.5)*d/ns;[-1,1].forEach(s=>windowPart(G,s*(w/2+.01),y,z,.7,1,s*Math.PI/2,o2));}
         if(f>0)box(G,w+.16,.14,d+.16,o2.trim,0,f*fh,0);}
-      if(o2.parapet){box(G,w+.1,.9,.2,o2.trim,0,hh+.45,d/2);}
+      if(o2.parapet){const ph=o2.parapetH||.9;box(G,w+.1,ph,.2,o2.trim,0,hh+ph/2,d/2);if(o2.parapetH)box(G,w+.3,.16,.3,o2.trim,0,hh+ph,d/2);}
       [-1,1].forEach(s=>box(G,.2,hh,.2,o2.trim,s*w/2,hh/2,d/2));/* quoins */box(G,w+.2,.18,d+.2,o2.trim,0,hh-.05,0);/* cornice */
       roof(G,w,d,hh,o2);
       if(o2.chimney){box(G,.6,1.6,.6,'#b8806a',w*.3,hh+1,-d*.15);box(G,.7,.12,.7,'#8a5a4a',w*.3,hh+1.8,-d*.15);}
@@ -295,9 +337,9 @@ function create(o){const scene=o.scene,H=o.heightAt||(()=>0),list=[];
       if(o2.awning){const cv=document.createElement('canvas');cv.width=64;cv.height=8;const x=cv.getContext('2d');for(let i=0;i<8;i++){x.fillStyle=i%2?'#f6f2e8':o2.awning;x.fillRect(i*8,0,8,8);}const t=new THREE.CanvasTexture(cv);t.encoding=THREE.sRGBEncoding;t.magFilter=THREE.NearestFilter;
         const a=new THREE.Mesh(new THREE.PlaneGeometry(w*.9,1.3),new THREE.MeshLambertMaterial({map:t,side:THREE.DoubleSide}));a.position.set(0,fh*.82,d/2+.55);a.rotation.x=-1.0;a.castShadow=true;G.add(a);}
       if(o2.deck){box(G,w+1,.25,3,'#a8744a',0,.12,d/2+1.5);for(let k=0;k<3;k++){const ty=new THREE.Group();ty.position.set(-w/3+k*w/3,0,d/2+1.6);G.add(ty);box(ty,.08,.75,.08,'#2a2420',0,.6,0);const tp=new THREE.Mesh(new THREE.CylinderGeometry(.45,.45,.05,16),M('#f2ece0'));tp.position.y=.98;ty.add(tp);}}
-      if(o2.sign){const s=new THREE.Mesh(new THREE.PlaneGeometry(Math.min(w*.8,4.2),Math.min(w*.8,4.2)*28/160),new THREE.MeshLambertMaterial({map:signTex(o2.sign,o2.signBg||'#2f5a3a',o2.signFg||'#f5ecd8')}));s.position.set(0,o2.parapet?hh+.45:fh*.98,d/2+(o2.parapet?.11:.06));G.add(s);}}
-    if(!o2.round)extras(G,o2,w,d,hh,fh);
-    G.position.set(op.x||0,H(op.x||0,op.z||0),op.z||0);G.rotation.y=op.rot||0;G.userData.foot=[-w/2,-d/2,w/2,d/2+(o2.verandah?1.8:0)];G.traverse(q=>{q.__pxSkip=1;});scene.add(G);list.push(G);return G;}
+      if(o2.sign){const s=new THREE.Mesh(new THREE.PlaneGeometry(Math.min(w*.8,4.2),Math.min(w*.8,4.2)*28/160),new THREE.MeshLambertMaterial({map:signTex(o2.sign,o2.signBg||'#2f5a3a',o2.signFg||'#f5ecd8')}));s.position.set(0,o2.parapet?hh+(o2.parapetH||.9)/2:fh*.98,d/2+(o2.parapet?.11:.06));G.add(s);}}
+    if(!o2.round&&!o2.tower)extras(G,o2,w,d,hh,fh);
+    G.position.set(op.x||0,H(op.x||0,op.z||0),op.z||0);G.rotation.y=op.rot||0;G.userData.foot=o2.tower&&o2.podium?[-w/2-1.2,-d/2-1.2,w/2+1.2,d/2+2.8]:[-w/2,-d/2,w/2,d/2+(o2.verandah?1.8:0)];G.traverse(q=>{q.__pxSkip=1;});scene.add(G);list.push(G);return G;}
 
   /* ---- detail layers: B.setLayer(name,on), B.update(t,{night}) ---- */
   const LAYERS=['nightlights','interior','flowerboxes','grime','moss','gutters','chimneysmoke','washing','solar','rooftop','antenna','fence','potplants'],hid=new Set(),anim=[];let rs=3;const rr=()=>(rs=(rs*16807)%2147483647)/2147483647;
@@ -345,7 +387,7 @@ function create(o){const scene=o.scene,H=o.heightAt||(()=>0),list=[];
     {const PP=lay(G,'potplants');[-1,1].forEach(sx=>{const x=sx*.85+(shop?w*.04:0),z=d/2+(o.steps===false?.3:.7);const pt=new THREE.Mesh(new THREE.CylinderGeometry(.22,.16,.4,10),M('#b8643a'));pt.position.set(x,.2,z);pt.castShadow=true;PP.add(pt);for(let k=0;k<5;k++){const l=new THREE.Mesh(new THREE.SphereGeometry(.16,7,6),M(['#3e7d4a','#4f8a3a','#5a9a48'][k%3]));l.position.set(x+(rr()-.5)*.2,.5+rr()*.3,z+(rr()-.5)*.2);PP.add(l);}});}
   }
   function setLayer(n,on){if(on)hid.delete(n);else hid.add(n);list.forEach(G=>{const L=G.userData.L;if(L&&L[n])L[n].visible=!!on;});}
-  function update(t,op){op=op||{};const night=op.night||0;list.forEach(G=>{const L=G.userData.L;if(L&&L.nightlights)(L.nightlights.userData.panes||[]).forEach(p=>p.visible=night>.35&&L.nightlights.visible);});
+  function update(t,op){op=op||{};const night=op.night||0;{const k=(night>.35&&!hid.has('nightlights'))?Math.min(1,(night-.35)*3):0;NIGHT.forEach(m=>m.emissive.setRGB(k,k*.92,k*.8));}list.forEach(G=>{const L=G.userData.L;if(L&&L.nightlights)(L.nightlights.userData.panes||[]).forEach(p=>p.visible=night>.35&&L.nightlights.visible);});
     anim.forEach(a=>{if(a.kind==='smoke')a.puffs.forEach(p=>{const k=(p.userData.k+t*.12)%1;p.position.set(a.base[0]+k*1.2+Math.sin(t+k*6)*.15,a.base[1]+k*3,a.base[2]+k*.4);p.scale.setScalar(.4+k*1.6);p.material.opacity=.7*(1-k);});
       else if(a.kind==='wash')a.cl.forEach((c,i)=>{c.rotation.x=Math.sin(t*2.2+i)*.25+.15;c.rotation.y=Math.sin(t*1.3+i*2)*.15;});
       else if(a.kind==='fan')a.fan.rotation.y=t*8;});}
@@ -370,14 +412,22 @@ const ctlBox=document.getElementById('ctl');const ui=h=>{const d=document.create
 document.getElementById('bTop').onclick=()=>{cam.position.set(4,60,8);ctl.target.set(4,0,4);};document.getElementById('bLow').onclick=()=>{cam.position.set(-6,3,14);ctl.target.set(2,1,0);};
 let renderFn=null;const setRender=f=>{renderFn=f;};
 addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();});
-const fl=(x,z)=>.6;const T=TerrainEngine.create({size:[90,70],center:[0,0],res:1,heightAt:fl,seaLevel:-5,paths:[{pts:[[-40,0],[40,0]],w:4,kind:'lane'},{pts:[[-40,3],[40,3]],w:1.8,kind:'path'},{pts:[[-40,-3],[40,-3]],w:1.8,kind:'path'}]});scene.add(T.mesh);
+const fl=(x,z)=>.6;const T=TerrainEngine.create({size:[130,130],center:[0,-12],res:1,heightAt:fl,seaLevel:-5,paths:[{pts:[[-60,0],[60,0]],w:4,kind:'lane'},{pts:[[-60,3],[60,3]],w:1.8,kind:'path'},{pts:[[-60,-3],[60,-3]],w:1.8,kind:'path'},{pts:[[-60,-17],[60,-17]],w:5,kind:'lane'},{pts:[[-60,-20],[60,-20]],w:1.6,kind:'path'},{pts:[[-60,-40],[60,-40]],w:6,kind:'lane'},{pts:[[-60,-36.6],[60,-36.6]],w:1.6,kind:'path'},{pts:[[-60,-43.8],[60,-43.8]],w:1.8,kind:'path'}]});scene.add(T.mesh);
 const S=SkyEngine.create({scene,renderer:R,sun,hemi,target:new THREE.Vector3(0,0,0)});const B=BuildingKit.create({scene,heightAt:fl});
 B.build({x:-14,z:-9,style:'shop',sign:'FREO MARKETS'});B.build({x:-7,z:-9,style:'shop',awning:'#3a8ad0',sign:'BAYSIDE STORE',wall:'#d8e2d0'});B.build({x:-1,z:-9.5,style:'terrace'});B.build({x:4,z:-9.5,style:'terrace',wall:'#c8d8e0'});
 B.build({x:11,z:-8,style:'cafe',sign:'QUOKKA CAFE'});B.build({x:20,z:-9,style:'kiosk',sign:'ICE CREAM'});
-B.build({x:-14,z:10,rot:Math.PI,style:'cottage'});B.build({x:-6,z:10,rot:Math.PI,style:'house'});B.build({x:2,z:10,rot:Math.PI,style:'cottage',wall:'#f2e2c8',roofColor:'#5a6a74',shutters:'#2f6a9a'});B.build({x:16,z:14,style:'lighthouse'});
+B.build({x:-14,z:10,rot:Math.PI,style:'cottage'});B.build({x:-6,z:10,rot:Math.PI,style:'house'});B.build({x:2,z:10,rot:Math.PI,style:'cottage',wall:'#f2e2c8',roofColor:'#5a6a74',shutters:'#2f6a9a'});B.build({x:16,z:14,style:'lighthouse'});B.build({x:26,z:9,rot:Math.PI,style:'islandcottage'});B.build({x:-24,z:10,rot:Math.PI,style:'cabin'});B.build({x:-31,z:10,rot:Math.PI,style:'cabin',wall:'#e2ead8'});
+/* Victoria Park: Albany Highway strip (faces the highway at z=-17) and the brick houses on the next street */
+[['PHO-NOMENAL NOODLES','#c8344a','#f6e8d0'],['KIMCHI QUOKKA GRILL','#1d3a6e','#e8e2d4'],['BUBBLE BURROW TEA','#e8a33a','#fff3d6'],['SIAM SMILE KITCHEN','#7a1f2a','#f2e6c8'],['MOONBEAM COFFEE','#5a3a22','#f2ede4'],['COSY CHAI HOUSE','#e8732a','#fbe9cf']].forEach(([n,c,w],i)=>B.build({x:-40+i*5.6,z:-24.5,style:'strip',sign:n,signBg:c,wall:w,awning:null}));
+B.build({x:-1,z:-26,style:'pub',sign:'THE WATTLE & SWAN HOTEL',signBg:'#2c3b38'});B.build({x:16,z:-28,style:'bigbox',sign:'HOMEBOX',signBg:'#d8343a'});
+B.build({x:32,z:-26,style:'flats'});B.build({x:46,z:-26,style:'bungalow'});B.build({x:46,z:22,rot:Math.PI,style:'bungalow',wall:'#c8704a'});B.build({x:34,z:22,rot:Math.PI,style:'bungalow',wall:'#a84a3a',roofColor:'#6a7078'});B.build({x:22,z:22,rot:Math.PI,style:'flats',wall:'#efe2c4'});
+/* Perth CBD: St Georges Terrace towers behind Hay Street Mall shops and the sandstone heritage block */
+B.build({x:-44,z:-52,style:'tower',floors:13,crown:'flat'});B.build({x:-30,z:-52,style:'tower',floors:18,glass:'#a8c4d4',crown:'spire',sign:'RIVERVIEW TOWER'});B.build({x:-15,z:-52,style:'slab',floors:11});
+B.build({x:1,z:-52,style:'tower',floors:20,glass:'#6a8aa8',crown:'slant',w:10});B.build({x:16,z:-53,style:'tower',floors:16,glass:'#9ab8c0',frame:'#d0c8bc',crown:'stepped',w:11,d:10});B.build({x:32,z:-49,style:'heritage',sign:'CITY MUSEUM',signBg:'#5a3a22'});B.build({x:46,z:-49,style:'heritage',floors:2,wall:'#efe3c4',sign:'GOLD EXCHANGE 1899',signBg:'#8a6a20'});
+[['SWAN BOOKS','#2f5a3a','#f2ead8'],['GUMLEAF FASHION','#8a3a5a','#f6f2e8'],['QUOKKA SWEETS','#e86a8a','#fff3e6'],['CITY PHARMACY','#3f9a6a','#f6f6f0']].forEach(([n,c,w],i)=>B.build({x:-40+i*5.8,style:'mallshop',sign:n,signBg:c,wall:w,awning:c,rot:Math.PI,z:-32.5}));
 const P=PropsEngine.create({scene,heightAt:fl});P.along('lamp',[[-30,-2],[30,-2]],8,{});P.add('bench',6,-4.5,{rot:0});P.add('planter',-10,-4.5);P.add('bikes',-3,4.5,{rot:Math.PI});
-ui('<div id="ly" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;margin:4px 0"></div><div>Time: <input type="range" id="hr" min="5" max="21" step=".05" value="10"></div><div style="opacity:.75">Styles: '+BuildingKit.STYLES.join(', ')+'. Real window and door openings, shutters, cornices, quoins, tile or tin roofs, verandahs, balconies, awnings, chimneys, signs.</div>');
-const hr=document.getElementById('hr');cam.position.set(-4,12,24);ctl.target.set(0,2,0);const ly=document.getElementById('ly');B.layers.forEach(n=>{const l=document.createElement('label');l.innerHTML='<input type=checkbox checked> '+n;l.firstChild.onchange=e=>B.setLayer(n,e.target.checked);ly.appendChild(l);});
+ui('<div id="ly" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;margin:4px 0"></div><div>Time: <input type="range" id="hr" min="5" max="21" step=".05" value="10"></div><div style="opacity:.75">Styles: '+BuildingKit.STYLES.join(', ')+'. Victoria Park strip shops, corner pub, big store, brick bungalows and flats; Perth CBD glass towers (flat, spire, stepped, slanted tops), concrete slab offices, sandstone heritage blocks and mall shops. Real window and door openings, shutters, cornices, quoins, tile or tin roofs, verandahs, balconies, awnings, chimneys, signs.</div>');
+const hr=document.getElementById('hr');cam.position.set(-30,34,40);ctl.target.set(0,4,-20);window.__lab={cam,ctl,B};const ly=document.getElementById('ly');B.layers.forEach(n=>{const l=document.createElement('label');l.innerHTML='<input type=checkbox checked> '+n;l.firstChild.onchange=e=>B.setLayer(n,e.target.checked);ly.appendChild(l);});
 onFrame((t,dt)=>{S.update(dt,{hour:+hr.value});P.night=S.state.night;P.update(t);B.update(t,{night:S.state.night});});
 
 let fr=0,ft=performance.now(),last=performance.now();const fe=document.getElementById('fps');(function loop(){requestAnimationFrame(loop);ctl.update();const now=performance.now(),t=now/1000,dt=Math.min(.1,(now-last)/1000);last=now;frames.forEach(f=>f(t,dt));

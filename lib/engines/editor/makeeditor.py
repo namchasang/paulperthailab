@@ -3,19 +3,40 @@
 import sys
 engines=['terrain/terrain.js','water-sea/water-sea.js','water-sea/waterlife.js','sky/sky.js','foliage/foliage.js','props/props.js','road/road.js','building/building.js','life/life.js']
 eng=''.join('<script>'+open(p).read()+'</script>\n' for p in engines)
-html='''<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><title>Map Editor (8 engines)</title>
-<style>body{margin:0;overflow:hidden;background:#9fd3ea;font-family:system-ui,sans-serif;color:#fff}#view canvas{display:block;touch-action:none}
-#ui{position:fixed;left:10px;top:10px;bottom:10px;width:290px;background:rgba(20,28,40,.88);border-radius:12px;padding:10px 12px;font-size:13px;overflow:auto;box-sizing:border-box}
-#ui h1{font-size:15px;margin:0 0 6px;display:flex;justify-content:space-between;align-items:center}#tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
-button{padding:6px 9px;border:0;border-radius:8px;background:#34495e;color:#fff;font:inherit;font-weight:600;cursor:pointer}button.on{background:#3e9a6c}#tabs button{font-size:12px}
-label{display:block;margin:6px 0}input[type=range]{width:140px;vertical-align:middle}select,input:not([type]),textarea,input[type=number]{background:#1d2633;color:#fff;border:1px solid #47566a;border-radius:6px;padding:4px;font:inherit}
-input[type=number]{width:48px}textarea{width:100%;height:70px;box-sizing:border-box;margin-top:6px;font-size:11px}.row{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}.grid label{margin:3px 0;font-size:12px}
-.hint{opacity:.7;font-size:12px;margin:6px 0}#st{position:fixed;right:10px;bottom:10px;background:rgba(20,28,40,.8);padding:6px 10px;border-radius:8px;font-size:12px;max-width:60vw}
-#foot{margin-top:10px;display:flex;gap:6px}body.mini #ui{bottom:auto;height:auto}body.mini #ui>*:not(h1){display:none}
-@media(max-width:700px){#ui{width:auto;right:10px;bottom:auto;max-height:46vh}}</style></head><body>
-<div id="view"></div><div id="ui"><h1><span>Map Editor</span><span><button id="undo" title="Ctrl+Z">ย้อน</button> <button id="hide">ซ่อน</button></span></h1>
-<div id="tabs"></div><div id="opts"></div><p class="hint">คลิกซ้าย = ใช้เครื่องมือ, คลิกขวาลาก = หมุนกล้อง, ล้อเมาส์ = ซูม, ปุ่มกลาง = เลื่อน. มือถือ: นิ้วเดียว = เครื่องมือ, สองนิ้ว = กล้อง. ทุกอย่างบันทึกเองในเครื่องนี้</p></div><div id="st">กำลังสร้างเกาะ...</div>
+html='''<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Island Builder · Map Editor</title>
+<style>
+:root{--ink:#1e2a3a;--card:#fffaf0;--edge:#e6d9bf;--go:#3ccf6a;--acc:#ffb83a}
+*{box-sizing:border-box}body{margin:0;overflow:hidden;background:#9fd3ea;font-family:system-ui,"Noto Sans Thai",sans-serif;color:var(--ink);-webkit-user-select:none;user-select:none}
+#view canvas{display:block;touch-action:none}
+button{font:inherit;cursor:pointer;border:0}
+#top{position:fixed;left:10px;right:10px;top:10px;display:flex;gap:8px;align-items:center;pointer-events:none}
+#hud{display:flex;gap:6px;flex-wrap:wrap;pointer-events:auto}#hud span{background:rgba(255,250,240,.94);border-radius:999px;padding:7px 12px;font-weight:700;font-size:14px;box-shadow:0 3px 0 rgba(0,0,0,.15)}#hud .nm{background:var(--ink);color:#fff}
+#top .sp{flex:1}.rb{pointer-events:auto;width:46px;height:46px;border-radius:50%;background:var(--card);font-size:22px;box-shadow:0 4px 0 rgba(0,0,0,.18);display:grid;place-items:center}.rb:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.18)}
+#bar{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:6px;background:rgba(30,42,58,.9);padding:7px;border-radius:22px;box-shadow:0 6px 18px rgba(0,0,0,.25);max-width:calc(100vw - 16px);overflow-x:auto}
+.cat{display:flex;flex-direction:column;align-items:center;gap:2px;width:68px;padding:6px 0;border-radius:16px;background:transparent;color:#fff}.cat .ic{font-size:26px;line-height:1}.cat .nm{font-size:11px;font-weight:700;opacity:.9}
+.cat.on{background:var(--acc);color:var(--ink)}.cat[data-k=bulldoze].on{background:#ff6a5a;color:#fff}
+#tray{position:fixed;left:50%;bottom:94px;transform:translate(-50%,20px);width:min(980px,calc(100vw - 16px));max-height:min(250px,40vh);overflow:auto;background:rgba(255,250,240,.97);border-radius:20px;padding:10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.18s}
+#tray.open{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+.grp>b{display:block;font-size:12px;margin:2px 4px 4px;opacity:.7}.cards{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px}
+.card{flex:0 0 auto;width:92px;border-radius:14px;background:#fff;border:2px solid var(--edge);padding:4px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--ink);box-shadow:0 3px 0 var(--edge)}
+.card img{width:80px;height:80px;object-fit:contain;background:linear-gradient(#e8f4fb,#f8f2e2);border-radius:10px}.card i{font-style:normal;font-size:40px;line-height:80px;height:80px}.card span{font-size:12px;font-weight:700;text-align:center;line-height:1.15}
+.card.on{border-color:var(--go);box-shadow:0 3px 0 var(--go);background:#eefcf2}.card.stepper i{font-size:30px;line-height:44px;height:44px}.card.stepper div{display:flex;gap:6px;align-items:center}
+.opts{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:4px;font-size:13px;font-weight:600}.opts input[type=range]{width:110px;vertical-align:middle}.opts input:not([type]){width:130px;border:2px solid var(--edge);border-radius:8px;padding:4px 6px;font:inherit}
+.chips{display:flex;gap:6px;margin-bottom:6px}.chip{padding:5px 12px;border-radius:999px;background:#eef3f7;font-weight:700;font-size:13px}.chip.on{background:var(--ink);color:#fff}.mini{background:var(--ink);color:#fff;border-radius:10px;padding:4px 10px;font-weight:800}
+#bubble{position:fixed;transform:translate(-50%,-110%);background:var(--card);border-radius:16px;padding:6px;display:none;gap:4px;align-items:center;box-shadow:0 6px 16px rgba(0,0,0,.25);white-space:nowrap}
+#bubble.on{display:flex}#bubble b{padding:0 6px;font-size:13px}#bubble button{width:38px;height:38px;border-radius:12px;background:#eef3f7;font-size:18px}#bubble button[data-a=del]{background:#ffe2de}
+#toast{position:fixed;left:50%;top:70px;transform:translate(-50%,-10px);background:var(--ink);color:#fff;padding:8px 16px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;transition:.2s;pointer-events:none}#toast.on{opacity:1;transform:translate(-50%,0)}
+#menu{position:fixed;inset:0;background:rgba(10,16,24,.45);display:none;align-items:center;justify-content:center}#menu.on{display:flex}
+#menu .box{width:min(560px,calc(100vw - 20px));max-height:80vh;overflow:auto;background:var(--card);border-radius:20px;padding:14px}#menu .tabs{display:flex;gap:6px;margin-bottom:10px}#menu .tabs button{padding:8px 14px;border-radius:12px;background:#eef3f7;font-weight:700}#menu .tabs button.on{background:var(--acc)}
+#menu .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 8px;font-size:13px;margin-bottom:8px}#menu textarea{width:100%;height:80px;font-size:11px;border-radius:10px;border:2px solid var(--edge)}#menu .row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}#menu .row button{padding:9px 12px;border-radius:12px;background:var(--ink);color:#fff;font-weight:700}
+#menu input:not([type]){border:2px solid var(--edge);border-radius:8px;padding:5px;font:inherit}.hint{font-size:12px;opacity:.7}
+@media(max-width:640px){.cat{width:54px}.cat .ic{font-size:22px}.card{width:78px}.card img{width:66px;height:66px}.card i{font-size:32px;line-height:66px;height:66px}#tray{bottom:84px}#hud span{padding:5px 9px;font-size:12px}}
+</style></head><body>
+<div id="view"></div>
+<div id="top"><div id="hud"></div><div class="sp"></div><button class="rb" id="daynight" title="กลางวัน/กลางคืน">☀️</button><button class="rb" id="undo" title="ย้อน (Ctrl+Z)">↶</button><button class="rb" id="menuBtn" title="เมนู">⚙️</button></div>
+<div id="tray"></div><div id="bar"></div><div id="bubble"></div><div id="toast"></div>
+<div id="menu"><div class="box"><div class="tabs"><button data-t="file">ไฟล์</button><button data-t="layers">Layers</button><button data-t="help">วิธีใช้</button><span style="flex:1"></span><button id="menuX">✕</button></div><div id="menuBody"></div></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-%s<script>%s</script></body></html>'''
-open(sys.argv[1],'w').write(html.replace('%s',eng,1).replace('<script>%s</script>','<script>'+open('editor/editor.js').read()+'</script>'))
+@@ENG@@<script>@@ED@@</script></body></html>'''
+open(sys.argv[1],'w').write(html.replace('@@ENG@@',eng,1).replace('@@ED@@',open('editor/editor.js').read()))

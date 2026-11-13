@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Life Engine Lab</title>
 <style>body{margin:0;overflow:hidden;background:#9fd3ea;font-family:system-ui,sans-serif}#ui{position:fixed;left:10px;top:10px;background:rgba(20,28,40,.84);color:#fff;padding:10px 12px;border-radius:12px;font-size:13px;max-width:300px;max-height:90vh;overflow:auto}
 #ui b{font-size:14px}#ui label{display:block;margin:4px 0;cursor:pointer}#ui button{margin:6px 6px 0 0;padding:6px 10px;border:0;border-radius:8px;background:#3e7d5c;color:#fff;font-weight:600;cursor:pointer}#ui input[type=range]{width:130px;vertical-align:middle}#fps{opacity:.75;margin-top:6px}</style></head><body>
-<div id="ui"><b>Life Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">Things that live on their own: walkers, joggers, cyclists, quokkas, kangaroos, gulls, butterflies, pelicans, dolphins, boats, kayaks, picnics, kids building sandcastles, dogs playing fetch, bird flocks, jumping fish, people on benches, swimmers, sunbathers and beach fishers. Tick a box to show or hide each one.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
+<div id="ui"><b>Life Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">Things that live on their own: walkers, joggers, cyclists, quokkas, kangaroos, gulls, butterflies, pelicans, dolphins, boats, kayaks, picnics, kids building sandcastles, dogs playing fetch, bird flocks, jumping fish, people on benches, swimmers, sunbathers and beach fishers and seals. Tick a box to show or hide each one.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>/* Terrain Engine (Paul Perth Library, Nov 2026) — natural ground for three.js r128.
@@ -17,7 +17,7 @@
    Quality: T.setQuality(0..2) changes the detail layers (blade strokes and speckles off on 0). */
 (function(g){
 const lin=h=>{const c=new THREE.Color(h);c.convertSRGBToLinear();return`vec3(${c.r.toFixed(4)},${c.g.toFixed(4)},${c.b.toFixed(4)})`;};
-const DEF={g0:'#44723a',g1:'#558841',g2:'#5f9146',g3:'#6a9b4b',g4:'#84aa5a',dry:'#a8a46a',sandW:'#b8ab8a',sand:'#f2ede0',sandB:'#e2d6b2',dirt:'#8a6a48',rock:'#9a948a',
+const DEF={/* Rottnest: muted island greens (scrub heath + settlement lawn), bright white limestone sand */g0:'#536a3c',g1:'#637a47',g2:'#71864f',g3:'#80925a',g4:'#97a26a',dry:'#b2a876',sandW:'#c4bba2',sand:'#f5f1e8',sandB:'#ebe4d2',dirt:'#8a6a48',rock:'#9a948a',
   lake:'#e8a6b8',path:'#d9cfb4',pathE:'#bdb294',lane:'#7c7f82',laneL:'#f2efe6',gravel:'#8e8a82'};
 function create(o){const P=Object.assign({},DEF,o.palette||{}),W=o.size[0],D=o.size[1],cx=(o.center||[0,0])[0],cz=(o.center||[0,0])[1],x0=cx-W/2,z0=cz-D/2,R=o.res||.5;
   const H=o.heightAt,SEA=o.seaLevel||0,NX=Math.ceil(W/R),NZ=Math.ceil(D/R);
@@ -302,8 +302,8 @@ function crown(R,n,cy,seed){/* leaf cards spread over a ball of radius R at heig
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setIndex(I);g.computeVertexNormals();return g;}
 function merge(geos){const P=[],U=[],N=[],I=[];let o=0;geos.forEach(g=>{const p=g.attributes.position,u=g.attributes.uv,n=g.attributes.normal;for(let i=0;i<p.count;i++){P.push(p.getX(i),p.getY(i),p.getZ(i));U.push(u?u.getX(i):0,u?u.getY(i):0);N.push(n.getX(i),n.getY(i),n.getZ(i));}
     const ix=g.index?g.index.array:[...Array(p.count).keys()];ix.forEach(v=>I.push(v+o));o+=p.count;});const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setIndex(I);return g;}
-const DEFPAL={blades:['#3f6e34','#558841','#6a9a4a','#85b25a','#9fc56a'],flowers:['#ffffff','#f6e27a','#c9a2f0','#f5a3c0','#ffffff','#f08a5a'],
-  bush:['#2f5a2a','#3e6e34','#4f8240','#5f9448'],gum:['#4a6a44','#5a7a50','#6b8a5a','#7c9a68'],pine:['#22462e','#2c5636','#376640','#2a4a32'],pepper:['#3c6a36','#4c7c40','#5e8e4c','#6f9e56'],palm:['#3f7a3a','#4f8c44','#5f9c4e'],
+const DEFPAL={/* Rottnest palette: grey-olive heath, muted lawn blades, white and lilac island daisies */blades:['#4e663a','#5f7846','#70884f','#869a5e','#a0a872'],flowers:['#ffffff','#f6e27a','#c9a2f0','#f5a3c0','#ffffff','#f08a5a'],
+  bush:['#4c5e3e','#5a6c48','#6a7a52','#7c8a62'],gum:['#4a6a44','#5a7a50','#6b8a5a','#7c9a68'],pine:['#22462e','#2c5636','#376640','#2a4a32'],pepper:['#3c6a36','#4c7c40','#5e8e4c','#6f9e56'],palm:['#3f7a3a','#4f8c44','#5f9c4e'],
   bark:{gum:'#d8cfc0',pine:'#5a3a26',pepper:'#6a4a32',palm:'#8a7458'}};
 function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.chunk||10,RAD=o.radius||40,pal=Object.assign({},DEFPAL,o.palette||{}),D=Object.assign({tuft:2.2,flower:.35,bush:.03,tree:.012},o.density||{});
   const U={uT:{value:0},uWind:{value:o.wind==null?1:o.wind},uPush:{value:new THREE.Vector4(0,0,1.2,0)}};let Q=2;
@@ -423,7 +423,9 @@ function sunbather(r){const G=new THREE.Group();const c=document.createElement('
 function fisher(r){const G=new THREE.Group();const P=person(r);G.add(P);const rod=msh(G,CYL,'#3a2a20',.2,1.3,.9,.012,2.2,.012);rod.rotation.x=1.0;
   const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(.2,1.85,1.85),new THREE.Vector3(.2,0,3.4)]),new THREE.LineBasicMaterial({color:0xe8e8e8}));G.add(line);msh(G,SPH,'#e85a6a',.2,.02,3.4,.05,.05,.05);
   msh(G,BOX,'#3a6a8a',-.5,.15,.1,.4,.3,.28);G.userData={legs:[],arms:P.userData.arms,rod};return G;}
-const MAKE={picnic,sandcastle,dogfetch,flock,fishjump,sitter,swimmer,sunbather,fisher,walker:person,jogger:person,cyclist:person,quokka,kangaroo:roo,gull,butterfly:bfly,pelican,dolphin,boat,kayak};
+function seal(r){const G=new THREE.Group(),c=['#5a4e44','#6a5c50','#4e443c'][r()*3|0];const b=msh(G,SPH,c,0,.22,0,.3,.24,.75);msh(G,SPH,c,0,.34,.62,.2,.19,.24);msh(G,SPH,'#1a1412',.08,.4,.8,.03,.03,.03);msh(G,SPH,'#1a1412',-.08,.4,.8,.03,.03,.03);
+  const fl=[-1,1].map(sx=>{const f=msh(G,SPH,c,sx*.3,.1,.25,.2,.05,.1);return f;});const tail=msh(G,SPH,c,0,.12,-.78,.25,.06,.14);G.userData={legs:[],arms:[],fl,tail,body:b};return G;}
+const MAKE={seal,picnic,sandcastle,dogfetch,flock,fishjump,sitter,swimmer,sunbather,fisher,walker:person,jogger:person,cyclist:person,quokka,kangaroo:roo,gull,butterfly:bfly,pelican,dolphin,boat,kayak};
 function rnd(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 function create(o){const scene=o.scene,H=o.heightAt||(()=>0),K=o.kindAt||(()=>'grass'),W=o.water||((x,z)=>H(x,z)<0),B=o.bounds||[-50,-50,50,50],P=o.paths||[],agents=[],r=rnd(o.seed||7);
   const pathPt=(pi,s)=>{const p=P[pi];let L=0;for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);let d=Math.max(0,Math.min(1,s))*L;for(let i=1;i<p.length;i++){const a=p[i-1],b=p[i],l=Math.hypot(b[0]-a[0],b[1]-a[1]);if(d<=l){const t=d/l;return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,L];}d-=l;}const e=p[p.length-1];return[e[0],e[1],L];};
@@ -437,6 +439,7 @@ function create(o){const scene=o.scene,H=o.heightAt||(()=>0),K=o.kindAt||(()=>'g
       else if(kind==='sitter'){if(P.length){const pi=r()*P.length|0,p=pathPt(pi,.1+r()*.8),q=pathPt(pi,Math.min(1,(p[3]||0)+.01));a.x=p[0];a.z=p[1];const pp=pathPt(pi,.5);a.h=r()*6.28;const o2=nearPathDir(a.x,a.z);a.x+=o2[0]*1.6;a.z+=o2[1]*1.6;a.h=Math.atan2(-o2[0],-o2[1]);}else [a.x,a.z]=where((x,z)=>K(x,z)==='grass');a.home=[a.x,a.z];}
       else if(kind==='sandcastle'||kind==='sunbather'){[a.x,a.z]=where((x,z)=>K(x,z)==='sand'&&!W(x,z));a.home=[a.x,a.z];a.h=r()*6.28;}
       else if(kind==='fisher'){[a.x,a.z]=where((x,z)=>K(x,z)==='sand'&&!W(x,z)&&seaDir(x,z));const d=seaDir(a.x,a.z)||[0,1];a.h=Math.atan2(d[0],d[1]);a.home=[a.x,a.z];}
+      else if(kind==='seal'){const onRock=r()<.6;[a.x,a.z]=where(onRock?(x,z)=>!W(x,z)&&(seaDir(x,z)!=null):(x,z)=>W(x,z)&&H(x,z)>-1.2);a.home=[a.x,a.z];a.h=r()*6.28;a.swim=!onRock;}
       else if(kind==='swimmer'){[a.x,a.z]=where((x,z)=>W(x,z)&&H(x,z)>-1&&H(x,z)<-.35);a.home=[a.x,a.z];}
       else if(kind==='fishjump'){[a.x,a.z]=where((x,z)=>W(x,z)&&H(x,z)<-.8);a.home=[a.x,a.z];}
       else if(kind==='butterfly'){[a.x,a.z]=where((x,z)=>K(x,z)==='grass');a.home=[a.x,a.z];}
@@ -448,7 +451,7 @@ function create(o){const scene=o.scene,H=o.heightAt||(()=>0),K=o.kindAt||(()=>'g
   const avoid=(a,x,z)=>agents.some(b=>b!==a&&(b.kind==='walker'||b.kind==='jogger'||b.kind==='cyclist')&&Math.hypot(b.x-x,b.z-z)<3);
   return{agents,spawn,setLayer(k,on){if(on)hidden.delete(k);else hidden.add(k);},
     near:(x,z,R)=>agents.filter(a=>Math.hypot(a.x-x,a.z-z)<R),
-    update(t,dt,op){op=op||{};const night=op.night||0;agents.forEach(a=>{a.t+=dt;const G=a.G,u=G.userData;const out=hidden.has(a.kind)||(night>.6&&a.kind!=='gull'&&a.kind!=='dolphin'&&a.kind!=='boat'&&a.kind!=='fishjump');G.visible=!out;if(out)return;
+    update(t,dt,op){op=op||{};const night=op.night||0;agents.forEach(a=>{a.t+=dt;const G=a.G,u=G.userData;const out=hidden.has(a.kind)||(night>.6&&a.kind!=='gull'&&a.kind!=='dolphin'&&a.kind!=='boat'&&a.kind!=='fishjump'&&a.kind!=='seal');G.visible=!out;if(out)return;
       if(a.kind==='walker'||a.kind==='jogger'||a.kind==='cyclist'){if(a.st==='rest'){a.rest-=dt;if(a.rest<=0)a.st='go';}else{const [,,L]=pathPt(a.pi,0);a.s+=a.dir*a.v*dt/L;if(a.s>1||a.s<0){a.dir*=-1;a.s=Math.max(0,Math.min(1,a.s));if(a.kind==='walker'&&r()<.5){a.st='rest';a.rest=2+r()*5;}}
           const p=pathPt(a.pi,a.s),q=pathPt(a.pi,a.s+a.dir*.01),hh=Math.atan2(q[0]-p[0],q[1]-p[1]);a.h=hh;const nx=Math.cos(hh),nz=-Math.sin(hh);a.x=p[0]+nx*a.side;a.z=p[1]+nz*a.side;}
         const mv=a.st==='go'?1:0,ph=a.t*(a.kind==='walker'?6:a.kind==='jogger'?11:8);u.legs.forEach((l,i)=>l.rotation.x=Math.sin(ph+i*Math.PI)*.6*mv);u.arms.forEach((l,i)=>l.rotation.x=a.kind==='cyclist'?-1.1:Math.sin(ph+i*Math.PI+Math.PI)*.5*mv);
@@ -475,6 +478,8 @@ function create(o){const scene=o.scene,H=o.heightAt||(()=>0),K=o.kindAt||(()=>'g
           const f=k>.05?Math.sin(a.t*12+o[2])*.6:0;b.userData.wings.forEach((w,j)=>w.rotation.z=(j?-1:1)*f);if(!k)b.position.y+=Math.max(0,Math.sin(a.t*3+o[2]*5))*.04;});}
       else if(a.kind==='fishjump'){const per=7+a.ph,c=(a.t%per)/per;G.position.set(a.home[0],0,a.home[1]);const j=c<.08?c/.08:-1;const f=u.fish;f.visible=j>=0;if(j>=0){f.position.set(0,Math.sin(j*Math.PI)*.8-.05,(j-.5)*1.2);f.rotation.x=(j-.5)*2.4;}
         const rg=u.ring;const rc=c<.08?0:Math.min(1,(c-.08)/.25);rg.visible=c>=.08&&rc<1;rg.scale.setScalar(.5+rc*3);rg.material.opacity=.6*(1-rc);rg.position.set(0,.03,.6);if(c>.6){a.home=[a.home[0]+(r()-.5)*.5,a.home[1]+(r()-.5)*.5];}}
+      else if(a.kind==='seal'){if(a.swim){a.ang=(a.ang||r()*6)+dt*.25;const x=a.home[0]+Math.cos(a.ang)*4,z=a.home[1]+Math.sin(a.ang)*4;G.position.set(x,Math.sin(a.t*1.5+a.ph)*.05-.18,z);G.rotation.y=-a.ang;}
+        else{G.position.set(a.home[0],H(a.home[0],a.home[1]),a.home[1]);G.rotation.y=a.h;const roll=Math.max(0,Math.sin(a.t*.13+a.ph*3))>.97;G.rotation.z=roll?Math.sin(a.t*3)*.4:0;u.fl.forEach((f,i)=>f.rotation.z=Math.sin(a.t*.8+i+a.ph)*.3);u.tail.rotation.x=Math.sin(a.t*.6+a.ph)*.25;u.body.scale.y=.24*(1+Math.sin(a.t*1.2+a.ph)*.04);}}
       else if(a.kind==='swimmer'){a.ang=(a.ang||r()*6)+dt*.15;const x=a.home[0]+Math.cos(a.ang)*3,z=a.home[1]+Math.sin(a.ang)*3;G.position.set(x,Math.sin(a.t*2+a.ph)*.03-.05,z);G.rotation.y=a.ang+Math.PI;a.x=x;a.z=z;u.arms.forEach((l,i)=>l.rotation.x=a.t*3+i*Math.PI);}
       else if(a.kind==='butterfly'){const x=a.home[0]+Math.sin(a.t*.4+a.ph)*2+Math.sin(a.t*1.3)*.4,z=a.home[1]+Math.cos(a.t*.33+a.ph)*2;G.position.set(x,H(x,z)+.5+Math.sin(a.t*2.3)*.25,z);G.rotation.y=a.t*.4+a.ph;const f=Math.sin(a.t*22)*1.1;u.wings.forEach((w,i)=>w.rotation.z=(i?-1:1)*f);a.x=x;a.z=z;}
       else if(a.kind==='dolphin'){const c=Math.sin(a.t*1.2+a.ph);a.ang=(a.ang||0)+dt*.15;const x=a.home[0]+Math.cos(a.ang)*10,z=a.home[1]+Math.sin(a.ang)*10;G.position.set(x,Math.max(-.6,c)*.5-.25,z);G.rotation.y=a.ang+Math.PI;G.rotation.x=-Math.cos(a.t*1.2+a.ph)*.6;a.x=x;a.z=z;}
@@ -503,7 +508,7 @@ const S=SkyEngine.create({scene,renderer:R,sun,hemi,target:new THREE.Vector3(0,0
 const sea=WaterSea.create({renderer:R,scene,camera:cam,heightAt:H,size:200,ground:null,level:0});
 const F=FoliageEngine.create({scene,bounds:[-41,-35,49,35],heightAt:H,kindAt:kind,radius:40,density:{tuft:1,flower:.25,bush:.03,tree:.008}});
 const L=LifeEngine.create({scene,heightAt:H,kindAt:kind,paths:PATHS.map(p=>p.pts),bounds:[-41,-35,49,35]});
-L.spawn('walker',10);L.spawn('jogger',3);L.spawn('cyclist',4);L.spawn('quokka',10);L.spawn('kangaroo',3);L.spawn('gull',6);L.spawn('butterfly',8);L.spawn('pelican',2);L.spawn('dolphin',4);L.spawn('boat',3);L.spawn('kayak',2);L.spawn('picnic',3);L.spawn('sandcastle',3);L.spawn('dogfetch',2);L.spawn('flock',2);L.spawn('fishjump',5);L.spawn('sitter',4);L.spawn('swimmer',5);L.spawn('sunbather',5);L.spawn('fisher',3);
+L.spawn('walker',10);L.spawn('jogger',3);L.spawn('cyclist',4);L.spawn('quokka',10);L.spawn('kangaroo',3);L.spawn('gull',6);L.spawn('butterfly',8);L.spawn('pelican',2);L.spawn('dolphin',4);L.spawn('boat',3);L.spawn('kayak',2);L.spawn('picnic',3);L.spawn('sandcastle',3);L.spawn('dogfetch',2);L.spawn('flock',2);L.spawn('fishjump',5);L.spawn('sitter',4);L.spawn('swimmer',5);L.spawn('sunbather',5);L.spawn('fisher',3);L.spawn('seal',5);
 ui('<div id="ly" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px 6px;margin:4px 0;font-size:12px"></div><div>Time: <input type="range" id="hr" min="5" max="21" step=".05" value="10"></div><div style="opacity:.75">'+L.agents.length+' living things: walkers, joggers, cyclists, quokkas, kangaroos, gulls, butterflies, pelicans, dolphins, boats, kayaks, picnics, kids with sandcastles, dogs playing fetch, flocks that take off when people pass, jumping fish, people on benches, swimmers, sunbathers and beach fishers. At night everyone goes home but the gulls and the sea life.</div>');
 const ly=document.getElementById('ly');LifeEngine.kinds.forEach(n=>{const l=document.createElement('label');l.innerHTML='<input type=checkbox checked> '+n;l.firstChild.onchange=e=>L.setLayer(n,e.target.checked);ly.appendChild(l);});const hr=document.getElementById('hr');cam.position.set(-14,12,18);ctl.target.set(-2,0,0);
 onFrame((t,dt)=>{S.update(dt,{hour:+hr.value});F.update(t,ctl.target.x,ctl.target.z);L.update(t,dt,{night:S.state.night});sea.setSun(S.state.sunDir,S.state.sunColor,S.state.skyColor);});setRender(t=>sea.render(t));
