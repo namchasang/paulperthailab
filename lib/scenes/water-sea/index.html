@@ -1,0 +1,9 @@
+<!DOCTYPE html><html><body style="margin:0"><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="../../env/water-sea.js"></script><script>
+const R=new THREE.WebGLRenderer();R.setSize(800,500);R.outputEncoding=THREE.sRGBEncoding;document.body.appendChild(R.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color('#bfe4ff');const cam=new THREE.PerspectiveCamera(45,1.6,.5,500);cam.position.set(-10,18,30);cam.lookAt(10,0,0);
+scene.add(new THREE.HemisphereLight(0xbfe4ff,0x8a7a58,.5));const sun=new THREE.DirectionalLight(0xffffff,1);sun.position.set(-30,60,30);scene.add(sun);
+const H=(x,z)=>1-Math.max(0,x)*.12;const g=new THREE.PlaneGeometry(80,80,120,120).rotateX(-Math.PI/2);const p=g.attributes.position;for(let i=0;i<p.count;i++)p.setY(i,H(p.getX(i),p.getZ(i)));g.computeVertexNormals();
+const gm=new THREE.MeshLambertMaterial({color:0xf2eedf});scene.add(new THREE.Mesh(g,gm));
+const sea=WaterSea.create({renderer:R,scene,camera:cam,size:80,heightAt:H,ground:gm});sea.setSun(sun.position,sun.color,new THREE.Color('#bfe4ff'));
+let t0=performance.now();(function L(){requestAnimationFrame(L);sea.render((performance.now()-t0)/1000);})();
+</script></body></html>

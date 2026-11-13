@@ -145,6 +145,17 @@
    "th": "ทะเลไล่สีตามความลึก ระลอกคลื่น ฟองชายฝั่ง"
   },
   {
+   "id": "water-sea",
+   "group": "env",
+   "status": "ready",
+   "file": "env/water-sea.js",
+   "deps": [],
+   "from": "quokka-cafe lib/engines/water-sea (Rottnest sea)",
+   "th": "Water Sea Engine: น้ำทะเลใสตามความลึกจริง หักเหแสง คลื่นซัดหาด ทรายเปียก ปรับระดับน้ำได้",
+   "style": "3d",
+   "approved": "2026-11-13"
+  },
+  {
    "id": "heightfield",
    "group": "terrain",
    "status": "ready",
@@ -529,6 +540,18 @@
    ],
    "from": "new (Nov 2026): engine/ — World, smooth + true-pixel renderer, ~80 assets, scene editor, shop template",
    "th": "Paul Engine: เอนจิน + ตัวแก้ฉาก + เทมเพลตบริหารร้าน"
+  },
+  {
+   "id": "water-sea-lab",
+   "group": "scenes",
+   "status": "ready",
+   "file": "scenes/water-sea/lab.html",
+   "deps": [
+    "water-sea"
+   ],
+   "from": "quokka-cafe water lab",
+   "th": "ห้องทดลองทะเล: สีน้ำ ชายหาด เรือ เทียบแบบเก่า/ใหม่",
+   "style": "3d"
   }
  ]
 }

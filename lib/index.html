@@ -135,7 +135,7 @@ const PREV = {
   'perth-overworld': () => { window.open('scenes/perth-overworld/', '_blank'); return '<a href="scenes/perth-overworld/" target="_blank">เปิดเล่นโลก 3D (แท็บใหม่)</a> · Terrain: Terrain Tiles on AWS'; },
   'town-models': () => { window.open('scenes/town-models/', '_blank'); return '<a href="scenes/town-models/" target="_blank">เปิดดูโมเดลเมือง (แท็บใหม่)</a>'; },
   kit: () => { frame = { dist: 6, h: 1.4, look: .8 }; return 'ฟังก์ชันพื้นฐาน: สุ่มแบบกำหนด seed, noise, รวม geometry, ระบายสี, วัสดุ, สีแบบ sRGB → linear'; },
-  ocean: () => 'ดูของจริงในเกมกอล์ฟ', heightfield: () => 'ดูของจริงในเกมกอล์ฟ', 'terrain-pack': () => 'เครื่องมือ Python ดึงความสูงจริงจาก lat/lon'
+  ocean: () => 'ดูของจริงในเกมกอล์ฟ', 'water-sea': () => '<a href="scenes/water-sea/">เปิดเดโม</a> · <a href="scenes/water-sea/lab.html">ห้องทดลอง</a>', 'water-sea-lab': () => '<a href="scenes/water-sea/lab.html">เปิดห้องทดลอง</a>', heightfield: () => 'ดูของจริงในเกมกอล์ฟ', 'terrain-pack': () => 'เครื่องมือ Python ดึงความสูงจริงจาก lat/lon'
 };
 let showWx = false;
 const WXS = [['เช้า', 8.3, 'hazy'], ['บ่าย', 15, 'clear'], ['เย็นทอง', 17.9, 'clear'], ['ครึ้ม', 15, 'overcast'], ['ฝน', 16, 'rain']];
