@@ -404,6 +404,16 @@ button.k:disabled{opacity:.3;pointer-events:none}
 .rulechip b{white-space:nowrap}
 
 /* Cutscenes: a short clip before Day 1 of a chapter */
+.card.letter{background:#FBF4E2;background-image:repeating-linear-gradient(180deg,transparent 0 27px,rgba(120,90,40,.12) 27px 28px);border:1px solid #E6D6B0}
+.letter .lpic{width:96px;height:96px;border-radius:50%;object-fit:cover;justify-self:center;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.2)}
+.letter .lpic[src=""]{display:none}
+.letter .eyebrow{text-align:center}
+.letter .ltext{font-size:15px;line-height:28px;white-space:pre-line;color:#3B2E1A}
+.letter .ltext p{margin:0 0 6px;opacity:0;transform:translateY(4px);transition:opacity .4s,transform .4s}
+.letter .ltext p.on{opacity:1;transform:none}
+.letter button:disabled{opacity:.55}
+.letter .lsign{text-align:right;font-weight:700;font-style:italic;color:#6B4E1E}
+.letter.scene .lsign{display:none}
 .ov.cutov{place-items:stretch;padding:0;background:#000;z-index:35;backdrop-filter:none;-webkit-backdrop-filter:none}
 .cutov video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:none}
 .cutcap{position:absolute;left:0;right:0;bottom:0;padding:60px max(18px,env(safe-area-inset-left,0px)) max(22px,env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;display:grid;gap:2px;animation:capin .8s .3s both}
@@ -592,6 +602,16 @@ button.k:disabled{opacity:.3;pointer-events:none}
       <div class="shead"><div><div class="eyebrow" id="msEyebrow"></div><h2 id="msTitle"></h2></div></div>
       <div class="ups" id="msList"></div>
       <button class="big" id="msClose"></button>
+    </div>
+  </div>
+  <div class="ov" id="ovLetter" hidden>
+    <div class="card letter">
+      <img class="lpic" id="lPic" alt="">
+      <div class="eyebrow" id="lEyebrow"></div>
+      <div class="ltext" id="lText"></div>
+      <div class="lsign">Kip</div>
+      <button class="big" id="lBtn"></button>
+      <button class="sec" id="lBtn2" hidden></button>
     </div>
   </div>
   <div class="ov cutov" id="ovCut" hidden>
@@ -1864,7 +1884,7 @@ function endDay(){const L=T();S.phase='idle';const max=S.total*3,r=S.starsTotal/
  let msg=L.msg[ds>=2?0:1];if(S.dayN===3){msg=(b.outro&&b.outro[LANG])||L.home.done;if(b.id===STORY.branches[STORY.branches.length-1].id&&STORY.ending)msg=STORY.ending[LANG].join(' ')}
  if(bonus)msg=L.bonusTxt(money(bonus))+' '+msg;if(newly.length)msg=L.home.unlocked(newly.join(', '))+' '+msg;$('#eMsg').textContent=msg;
  {const ev=$('#eVid');if(ev&&ev.dataset.ok){ev.hidden=false;try{ev.currentTime=0}catch(e){}ev.play().catch(()=>{})}}
- $('#bNext').textContent=S.dayN<3?L.next:L.home.map;$('#bReplay').textContent=L.replay;$('#bMap').textContent=L.home.map;$('#bMap').hidden=S.dayN>=3;$('#ovEnd').hidden=false}
+ $('#bNext').textContent=S.dayN<3?L.next:L.home.map;$('#bReplay').textContent=L.replay;$('#bMap').textContent=L.home.map;$('#bMap').hidden=S.dayN>=3;$('#bReplay').hidden=S.dayN>=3&&!!LETTERS[b.id]&&!(PROG.seen||{})['L-'+b.id];$('#ovEnd').hidden=false}
 function save(){PROG.coins=+S.coins.toFixed(2);store.set('kip.prog',PROG)}
 function endlessEnd(ds){const L=T(),E=EN(),day=E.day;const eb=[0,20,50,90][ds];if(eb){S.coins+=eb;S.dayCoins+=eb}if(S.dayCoins>E.best){E.best=+S.dayCoins.toFixed(2);E.bestDay=day}E.day++;save();
  $('#eEyebrow').textContent=ENDLESS.name[LANG]+' · '+L.endEyebrow;$('#eTitle').textContent=L.endTitle(day);
@@ -1997,7 +2017,29 @@ $('#bCloseBook').onclick=()=>{$('#ovBook').hidden=true};
 {const ev=$('#eVid');ev.muted=true;ev.setAttribute('muted','');ev.addEventListener('loadedmetadata',()=>{ev.dataset.ok=1},{once:true});ev.addEventListener('canplay',()=>{ev.dataset.ok=1},{once:true});ev.addEventListener('error',()=>ev.remove(),{once:true});ev.src='kip-dance.mp4'}
 const stopDance=()=>{const ev=$('#eVid');if(ev&&ev.pause){ev.pause();ev.hidden=true}};
 ['#bNext','#bReplay','#bMap'].forEach(id=>$(id).addEventListener('click',stopDance));
-$('#bNext').onclick=()=>{$('#ovEnd').hidden=true;$('#bReplay').hidden=false;if(S.branch==='endless'){startDay();return}if(S.dayN<3){S.dayN++;startDay()}else openHome()};
+const LETTERS={
+ rott:{th:'แม่กับพ่อครับ ร้านเปิดแล้ว! วันแรกมือสั่นจนนมหกไปสองเหยือก แต่นกนางนวลชื่อ Sal บอกว่าลาเต้ของผมอร่อยที่สุดในท่าเรือ ผมคิดถึงบ้านนิดหน่อย แต่ไม่เป็นไรครับ',en:"Dear Mum and Dad, the café is open! My paws shook so much I spilled two jugs of milk. But a gull called Sal says my latte is the best on the jetty. I miss home a little. I'm okay."},
+ frem:{th:'ตลาดนัดวุ่นวายมากครับ มีคนสั่งแฟลตไวท์เยอะมาก ทำให้นึกถึงแม่ แม่ชอบแบบนมสดธรรมดา ไม่เล็กไม่ใหญ่ ใช่ไหมครับ วันนี้ Bob ลืมสมุดไว้ที่ร้าน ผมไม่ได้แอบอ่านนะ!',en:"The market crowd was huge. So many flat whites, they made me think of you, Mum. Plain full cream, not too big, not too small, right? Bob left his notebook here today. I didn't peek. Much."},
+ cott:{th:'ตอนเย็นที่นี่ฟ้าเป็นสีส้มทั้งท่าเรือ ผมแขวนไฟเส้นเล็ก ๆ ไว้ใต้กันสาด เหมือนที่พ่อเคยแขวนไว้หน้าบ้านตอนคริสต์มาส ลูกค้านั่งกันนานขึ้น ผมก็มีเวลาคุยกับพวกเขามากขึ้นครับ',en:'Sunsets here turn the whole jetty orange. I hung little lights under the awning, like Dad does at home every Christmas. Customers stay longer now, and I get to know them.'},
+ sperth:{th:'เรือเพิ่มเที่ยวแล้ว คนมาทีละลำ ผมเกือบทำไม่ทัน เลยนึกถึงพ่อที่ดื่มกาแฟดำทุกเช้า ไม่ใส่นม แก้วเล็กใบเดิม พ่อบอกว่า "ทำทีละแก้ว เดี๋ยวก็เสร็จ" ผมเลยสูดหายใจแล้วทำต่อครับ',en:'The extra ferries came. Boat after boat. I nearly panicked, then I thought of Dad with his black coffee every morning, no milk, his same small cup. "One cup at a time, Kip." So I breathed and kept going.'},
+ cbd:{th:'คิวยาวถึงปลายท่าเลยครับ บางวันผมก็เหนื่อยจนอยากกลับบ้าน แต่คืนนี้ผมได้อ่านบทที่ 9 ของ Bob แล้ว เขาเขียนถึงร้านเรา ผมร้องไห้นิดหน่อยครับ',en:"The queue reached the end of the jetty. Some days I'm so tired I want to come home. But tonight I read Bob's chapter nine. It's about our café. I cried a little."},
+ nbridge:{th:'ตอนนี้เปิดรอบดึกด้วยครับ ดาวเต็มฟ้า ผมยังจำได้ว่าแม่ชอบอะไร พ่อชอบอะไร ทุกคำเลย พอจะมาหาผมได้ไหมครับ ผมอยากทำกาแฟให้ดื่มสักแก้ว',en:'We open late now. The sky is full of stars. I still remember exactly how you both take your coffee. Could you come and visit? I want to make you a cup.'},
+ vicpark:{th:'พ่อแม่กลับไปแล้ว แต่ร้านไม่เงียบเลยครับ Sal, Bob, Pete, Maggie และ Rosie ยังมาทุกเช้า ผมคิดว่าผมมีบ้านสองที่แล้ว',en:"You've gone home, but the café isn't quiet. Sal, Bob, Pete, Maggie and Rosie still come every morning. I think I have two homes now."}};
+const CLIFF={th:['ร้านปิดแล้ว Kip เจอสมุดของ Bob วางอยู่บนเคาน์เตอร์','หน้าที่เปิดอยู่เขียนว่า "บทที่ 9: ควอกกาตัวเล็กที่..." แล้วหยุดแค่นั้น Kip ปิดสมุด เก็บไว้คืนพรุ่งนี้','ที่เสาท่าเรือมีประกาศใหม่: "หน้าร้อนนี้ เรือเพิ่มเป็นวันละ 6 เที่ยว"','Kip: "ร้านเล็ก ๆ ของเราจะรับไหวไหมนะ..."'],
+ en:['After closing, Kip finds Bob\'s notebook on the counter.','The open page says "Chapter nine: the little quokka who..." and stops. Kip closes it. He\'ll give it back tomorrow.','A new notice is pinned to the jetty post: "This summer, ferries run six times a day."','Kip: "Can our little café cope...?"']};
+const STXT={th:{letterEy:n=>`จดหมายถึงบ้าน · บทที่ ${n}`,post:'ส่งจดหมาย',sceneEy:'คืนนั้นที่ท่าเรือ',more:'ต่อ',done:'ไปต่อ',fullEy:'เดโมจบแล้ว',fullTitle:'เรื่องของ Kip ยังไม่จบ',fullTxt:'อีก 5 บท ลูกค้าประจำ 5 ตัว ความลับในสมุดของ Bob และแขกพิเศษ 2 คนรออยู่ในเกมเต็ม',soon:'เกมเต็มเร็ว ๆ นี้',back:'กลับแผนที่'},
+ en:{letterEy:n=>`Letter home · Chapter ${n}`,post:'Post it',sceneEy:'That night at the jetty',more:'Next',done:'Continue',fullEy:'End of the demo',fullTitle:"Kip's story isn't over",fullTxt:"Five more chapters, five regulars, the secret in Bob's notebook and two very special guests are waiting in the full game.",soon:'Full game coming soon',back:'Back to map'}};
+function showLetter(o,done){const ov=$('#ovLetter'),c=ov.querySelector('.card'),t=$('#lText');c.classList.toggle('scene',!!o.scene);$('#lPic').src=o.pic||'';$('#lEyebrow').textContent=o.ey;
+ const ps=o.lines;t.innerHTML=ps.map(x=>`<p>${x.replace(/[<>&]/g,'')}</p>`).join('');const pe=[...t.children];let i=0;
+ const b=$('#lBtn'),b2=$('#lBtn2');b2.hidden=!o.btn2;if(o.btn2){b2.textContent=o.btn2;b2.onclick=()=>{ov.hidden=true;done()}}
+ const step=()=>{if(i<pe.length){pe[i++].classList.add('on')}b.disabled=false;if(i>=pe.length){b.textContent=o.btn;b.disabled=!!o.btnOff;b.onclick=()=>{ov.hidden=true;(o.onBtn||done)()}}else{b.textContent=STXT[LANG].more;b.onclick=step}};
+ if(o.all&&pe[0])pe[0].style.cssText='font-size:20px;font-weight:700';if(!o.scene||o.all){pe.forEach(e=>e.classList.add('on'));i=pe.length}step();ov.hidden=false}
+function chapterOutro(b,done){const X=STXT[LANG],seq=[];PROG.seen=PROG.seen||{};const n=STORY.branches.indexOf(b)+1;
+ if(!PROG.seen['L-'+b.id]&&LETTERS[b.id])seq.push(next=>{PROG.seen['L-'+b.id]=1;save();showLetter({ey:X.letterEy(n),lines:[LETTERS[b.id][LANG]],btn:X.post,pic:'kip-intro-end.jpg'},next)});
+ if(b.id==='frem'&&!PROG.seen.cliff)seq.push(next=>{PROG.seen.cliff=1;save();showLetter({scene:1,ey:X.sceneEy,lines:CLIFF[LANG],btn:X.done,pic:'cust-bob.jpg'},next)});
+ if(b.id==='frem'&&DEMO)seq.push(next=>showLetter({scene:1,all:1,ey:X.fullEy,lines:[X.fullTitle,X.fullTxt],btn:X.soon,btnOff:1,btn2:X.back,pic:'kip-intro-end.jpg'},next));
+ const run=()=>{const f=seq.shift();f?f(run):done()};run()}
+$('#bNext').onclick=()=>{$('#ovEnd').hidden=true;$('#bReplay').hidden=false;if(S.branch==='endless'){startDay();return}if(S.dayN<3){S.dayN++;startDay()}else chapterOutro(BRN(),openHome)};
 $('#bMap').onclick=()=>{$('#bReplay').hidden=false;openHome()};
 $('#bQuit').onclick=()=>{$('#ovBook').hidden=true;openHome()};
 $('#bRadio2').onclick=()=>$('#bSound').click();
