@@ -609,6 +609,19 @@
    "lab": "scenes/road-engine/index.html"
   },
   {
+   "id": "vehicle-engine",
+   "group": "models/vehicles",
+   "status": "ready",
+   "file": "engines/vehicle.js",
+   "deps": [
+    "engines/road/road.js"
+   ],
+   "from": "quokka-cafe lib/engines (Nov 2026)",
+   "th": "Vehicle Engine: ยานพาหนะทุกแบบในเกม 33 แบบ รถ 15 แบบ (รวม Pip Mini, Ranger Lux) รถไฟ 2 เรือ 12 เครื่องบิน 3 จักรยาน วิ่งชิดซ้าย หลีกทางที่แยก ไฟเลี้ยว เรือโคลงและมีคลื่นท้ายเรือ เครื่องบินขึ้นลง ไฟตอนกลางคืน",
+   "style": "3d",
+   "lab": "scenes/vehicle-engine/index.html"
+  },
+  {
    "id": "life-engine",
    "group": "systems",
    "status": "ready",

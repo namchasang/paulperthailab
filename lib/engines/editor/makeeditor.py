@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build the Map Editor page: python3 tools/makeeditor.py editor/index.html"""
 import sys
-engines=['terrain/terrain.js','water-sea/water-sea.js','water-sea/waterlife.js','sky/sky.js','foliage/foliage.js','props/props.js','road/road.js','building/building.js','life/life.js']
+engines=['terrain/terrain.js','water-sea/water-sea.js','water-sea/waterlife.js','sky/sky.js','foliage/foliage.js','props/props.js','road/road.js','building/building.js','life/life.js','vehicle/vehicle.js']
 eng=''.join('<script>'+open(p).read()+'</script>\n' for p in engines)
 html='''<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Island Builder · Map Editor</title>
 <style>
