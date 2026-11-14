@@ -1304,7 +1304,7 @@ function starter(){return{v:1,name:'New island',sea:0,h:islandGrid(),
   life:{walker:6,jogger:2,cyclist:3,quokka:8,gull:6,butterfly:6,pelican:1,dolphin:3,boat:2,kayak:2,picnic:2,sandcastle:2,dogfetch:1,flock:1,fishjump:4,sitter:2,swimmer:3,sunbather:3,fisher:2,seal:3},
   veh:[],sky:{hour:10,wx:'sunny'},layers:{},money:25000,day:1,clock:0,biz:[],costs:true,gm:false};}
 /* Player version (Paul, 14 Nov 2026): what players get in the story to build their own Rottnest. No ground, life or sky tools, no nature density sliders, roads only along the X and Z axes. Turned on by window.IB_PLAYER (tools/makeeditor.py --player). */
-const PLAYER=!!window.IB_PLAYER,BS=window.IB_BSCALE||(PLAYER?.75:1)/* building scale: player version 75% (Paul, 14 Nov 2026: buildings looked too big next to the roads) */,SKEY=PLAYER?'ppl-mapedit-player':'ppl-mapedit';
+const PLAYER=!!window.IB_PLAYER,GRID=PLAYER?5:0/* player version: roads on a 5-unit block grid (Paul, 14 Nov 2026: city-block layout so buildings line up) */,gs=v=>GRID?Math.round(v/GRID)*GRID:v,BS=window.IB_BSCALE||(PLAYER?.75:1)/* building scale: player version 75% (Paul, 14 Nov 2026: buildings looked too big next to the roads) */,SKEY=PLAYER?'ppl-mapedit-player':'ppl-mapedit';
 let doc;try{doc=JSON.parse(localStorage.getItem(SKEY)||'null');}catch(e){}if(!doc||!doc.h||doc.h.length!==N*N)doc=starter();else doc=Object.assign(starter(),doc,{life:Object.assign(starter().life,doc.life||{})});
 const Hfn=(x,z)=>{const fx=x+60,fz=z+60;if(fx<0||fz<0||fx>=S||fz>=S)return -6;const i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,g=doc.h,a=g[j*N+i],b=g[j*N+i+1],c=g[(j+1)*N+i],d=g[(j+1)*N+i+1];return(a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v;};
 /* ground fitted to the roads (smooth, level road beds); everything except the road engine itself stands on this */
@@ -1313,24 +1313,36 @@ const segD=(x,z,a,b)=>{const vx=b[0]-a[0],vz=b[1]-a[1],L=vx*vx+vz*vz||1e-6;let t
 const lineD=(x,z,pts)=>{let m=1e9;for(let i=1;i<pts.length;i++)m=Math.min(m,segD(x,z,pts[i-1],pts[i]));return m;};
 const RW={bikepath:1.3,island:2.4,street:3.3,arterial:5,highway:4.6,lane:1.6,bridge:4.6};
 const inBld=(x,z,m)=>doc.bld.some(b=>{const c=Math.cos(b.r||0),s=Math.sin(b.r||0),dx=x-b.x,dz=z-b.z,lx=dx*c-dz*s,lz=dx*s+dz*c;return Math.abs(lx)<4+m&&Math.abs(lz)<4.5+m;});
-const kindAt=(x,z)=>{const h=Hg(x,z);if(h<doc.sea)return'water';if(doc.paths.some(p=>lineD(x,z,p.pts)<p.w/2+.3))return'path';if(doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]))return'path';if(inBld(x,z,0))return'none';
+/* the island railway (Paul, 14 Nov 2026): it stays, along its own line, and players cannot edit it. doc.rail holds the line (the real-map import will
+   bring the real Rottnest line); nothing can be built on it, roads may only cross it. */
+const RAIL0=[[-31,6],[-16,10],[0,11],[16,10],[30,5]];
+const railPts=()=>PLAYER?(doc.rail||RAIL0):(doc.rail||[]);
+const onRail=(x,z,m)=>{const R=railPts();return R.length>1&&lineD(x,z,R)<(m||2.4);};
+const kindAt=(x,z)=>{const h=Hg(x,z);if(h<doc.sea)return'water';if(onRail(x,z,1.3))return'path';if(doc.paths.some(p=>lineD(x,z,p.pts)<p.w/2+.3))return'path';if(doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]))return'path';if(inBld(x,z,0))return'none';
   /* the ground engine decides where the beach is, so no grass grows on the sand */if(E.terr&&E.terr.groundKind)return E.terr.groundKind(x,z)==='sand'?'sand':'grass';if(h<doc.sea+.9)return'sand';return'grass';};
-const keepOut=(x,z)=>inBld(x,z,.5)||doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]+.6)||doc.props.some(p=>Math.hypot(p.x-x,p.z-z)<1.2);
+const keepOut=(x,z)=>onRail(x,z,1.6)||inBld(x,z,.5)||doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]+.6)||doc.props.some(p=>Math.hypot(p.x-x,p.z-z)<1.2);
 
 /* ---------- engines, each in its own group so it can be rebuilt alone ---------- */
-const G={};['terr','water','fol','wl','props','road','bld','biz','life','veh'].forEach(k=>{G[k]=new THREE.Group();G[k].name=k;scene.add(G[k]);});
+const G={};['terr','water','fol','wl','props','road','bld','biz','life','veh','rail'].forEach(k=>{G[k]=new THREE.Group();G[k].name=k;scene.add(G[k]);});
 const clear=g=>{while(g.children.length){const c=g.children.pop();c.traverse&&c.traverse(o=>{if(o.geometry)o.geometry.dispose();});}};
 const E={};const Sky=SkyEngine.create({scene,renderer:R,sun,hemi,target:ctl.target});E.sky=Sky;
 const BOUNDS=[-60,-60,60,60];
 const mk={
-  terr(){clear(G.terr);E.terr=TerrainEngine.create({size:[S,S],center:[0,0],res:.5,heightAt:Hg,seaLevel:doc.sea,paths:doc.paths.map(p=>({pts:p.pts,w:p.w,kind:p.kind}))});G.terr.add(E.terr.mesh);},
+  terr(){clear(G.terr);E.terr=TerrainEngine.create({size:[S,S],center:[0,0],res:.5,heightAt:Hg,seaLevel:doc.sea,paths:doc.paths.map(p=>({pts:p.pts,w:p.w,kind:p.kind})).concat(railPts().length>1?[{pts:railPts(),w:2.2,kind:'gravel'}]:[])/* the rail bed */});G.terr.add(E.terr.mesh);},
   water(){if(E.water&&E.water.dispose)E.water.dispose();clear(G.water);E.water=WaterSea.create({renderer:R,scene,camera:cam,heightAt:Hg,size:220,ground:null,level:doc.sea,parent:G.water});},
-  fol(){clear(G.fol);E.fol=FoliageEngine.create({scene:G.fol,bounds:BOUNDS,heightAt:Hg,kindAt,keepOut,density:doc.fol,radius:46});doc.trees.forEach(t=>{if(t.k==='peppermint')t.k='pepper';try{E.fol.addTree(t.x,t.z,{kind:t.k,size:t.s||1});}catch(e){}});},
+  fol(){clear(G.fol);E.fol=FoliageEngine.create({scene:G.fol,bounds:BOUNDS,heightAt:Hg,kindAt,keepOut,density:doc.fol,radius:46});doc.trees.forEach(t=>{if(t.k==='peppermint')t.k='pepper';if(onRail(t.x,t.z,2.6))return;/* never on the railway */try{E.fol.addTree(t.x,t.z,{kind:t.k,size:t.s||1});}catch(e){}});},
   wl(){clear(G.wl);E.wl=WaterLife.create({scene:G.wl,heightAt:Hg,level:doc.sea,bounds:BOUNDS});},
   props(){clear(G.props);E.props=PropsEngine.create({scene:G.props,heightAt:Hg});doc.props.forEach(addProp);},
   road(){clear(G.road);E.road=RoadEngine.create({scene:G.road,heightAt:Hfn,smooth:true,maxGrade:.06});doc.roads.forEach(r=>{if(r.pts.length<2)return;if(r.type==='bridge')E.road.bridge(r.pts,{type:'highway',height:4});else E.road.road(r.pts,{type:r.type});});E.road.build();if(doc.roads.length&&!PLAYER)E.road.cars(doc.cars||0);/* player version: no generic traffic, only the island's own vehicles */},
   bld(){clear(G.bld);E.bld=BuildingKit.create({scene:G.bld,heightAt:Hg});const L=doc.bld.map(addBld);L.forEach((g,i)=>yard(g,doc.bld[i],G.bld));},
   biz(){clear(G.biz);const BB=BuildingKit.create({scene:G.biz,heightAt:Hg}),BP=PropsEngine.create({scene:G.biz,heightAt:Hg});E.biz={list:doc.biz.map(b=>makeBiz(b,BB,BP,G.biz))};E.biz.list.forEach((g,i)=>{const b=doc.biz[i];if(BIZ[b.t]&&!BIZ[b.t].boat)yard(g,b,G.biz);});},
+  rail(){clear(G.rail);const R=railPts();if(R.length<2)return;const cv=new THREE.CatmullRomCurve3(R.map(p=>new THREE.Vector3(p[0],0,p[1])),false,'centripetal'),P=cv.getSpacedPoints(Math.ceil(cv.getLength()/1.2));
+    const sl=new THREE.MeshLambertMaterial({color:new THREE.Color('#6a4a32').convertSRGBToLinear()}),rl=new THREE.MeshLambertMaterial({color:new THREE.Color('#9aa0a6').convertSRGBToLinear()}),tg=new THREE.BoxGeometry(.28,.08,1.7),rg=new THREE.BoxGeometry(1,.07,.07);
+    const sleepers=new THREE.InstancedMesh(tg,sl,P.length),rails=new THREE.InstancedMesh(rg,rl,(P.length-1)*2),m=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),up=new THREE.Vector3(0,1,0);let ri=0;
+    P.forEach((p,i)=>{const a=P[Math.max(0,i-1)],b=P[Math.min(P.length-1,i+1)],ang=-Math.atan2(b.z-a.z,b.x-a.x),y=Math.max(Hg(p.x,p.z),doc.sea)+.05;q.setFromAxisAngle(up,ang);sleepers.setMatrixAt(i,m.compose(new THREE.Vector3(p.x,y,p.z),q,sc.set(1,1,1)));
+      if(i){const c=P[i-1],L=p.distanceTo(c),an=-Math.atan2(p.z-c.z,p.x-c.x),mx=(p.x+c.x)/2,mz=(p.z+c.z)/2,my=Math.max(Hg(mx,mz),doc.sea)+.12;q.setFromAxisAngle(up,an);[-.55,.55].forEach(o=>{rails.setMatrixAt(ri++,m.compose(new THREE.Vector3(mx+Math.sin(an)*o,my,mz+Math.cos(an)*o),q,sc.set(L+.02,1,1)));});}});
+    sleepers.receiveShadow=rails.castShadow=true;G.rail.add(sleepers,rails);
+    /* the island train runs the line back and forth and stops at each end */E.train=VehicleEngine.create({scene:G.rail,heightAt:(x,z)=>Math.max(Hg(x,z),doc.sea)+.1,waterLevel:doc.sea});const t=E.train.add('islandtrain',R[0][0],R[0][1],{cars:3});E.train.rail(t,R,{speed:3,stops:[.02,.98]});},
   veh(){clear(G.veh);E.veh=VehicleEngine.create({scene:G.veh,heightAt:Hg,waterLevel:doc.sea});if(PLAYER)doc.veh=(doc.veh||[]).filter(o=>vehOK(o.k));E.veh.list=(doc.veh||[]).map(addVeh);},
   life(){clear(G.life);E.life=LifeEngine.create({scene:G.life,heightAt:Hg,kindAt,paths:doc.paths.map(p=>p.pts),water:(x,z)=>Hg(x,z)<doc.sea,bounds:[-55,-55,55,55]});
     KINDS_LIFE.forEach(k=>{const n=doc.life[k]|0;if(!n)return;if(!doc.paths.length&&(k==='walker'||k==='jogger'||k==='cyclist'))return;try{E.life.spawn(k,n);}catch(e){console.warn(k,e);}});}};
@@ -1411,12 +1423,15 @@ function islandVehicles(){if(!PLAYER||doc.vehdef)return;doc.vehdef=1;if((doc.veh
   const a=r.pts[0],b=r.pts[r.pts.length-1],at=t=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t],ang=-Math.atan2(b[1]-a[1],b[0]-a[0]);
   const p1=at(.25),p2=at(.6),p3=at(.8);doc.veh=[{k:'islandbus',x:p1[0],z:p1[1],r:ang,go:true},{k:'bike',x:p2[0],z:p2[1],r:ang,go:true},{k:'bike',x:p3[0],z:p3[1],r:ang+Math.PI,go:true}];
   /* the food truck parks on the grass beside the road, a little away from the shops */const p4=at(.45);let fx=p4[0],fz=p4[1]+5.2;if(doc.bld.some(o=>Math.hypot(o.x-fx,o.z-fz)<6))fz=p4[1]-5.2;doc.veh.push({k:'foodtruck',x:+fx.toFixed(2),z:+fz.toFixed(2),r:ang,go:false});rebuild(['veh']);save();}
-function settleOffRoads(){islandVehicles();if(mergeRoads()){rebuild(REB.roads);save();}const KEY='settled3_'+BS;if(doc[KEY])return;let n=0;doc.bld.forEach((b,i)=>{const G=E.bld&&E.bld.list?E.bld.list[i]:null;if(!G)return;const F=realFoot(G);if(!footOnRoad(b.x,b.z,b.r||0,F,.1)){/* not on a road: still pull it up to the kerb + yard if it faces a road close by (sizes changed) */const sn=snapB(b.x,b.z,0,F);if(!sn||Math.abs(((sn.r-(b.r||0)+Math.PI*3)%(Math.PI*2))-Math.PI)>.3||Math.hypot(sn.x-b.x,sn.z-b.z)<.3||footOnRoad(sn.x,sn.z,sn.r,F,.1)||doc.bld.some((o,k)=>k!==i&&Math.hypot(o.x-sn.x,o.z-sn.z)<4))return;b.x=sn.x;b.z=sn.z;b.r=sn.r;n++;return;}const sn=snapB(b.x,b.z,0,F);if(sn&&!footOnRoad(sn.x,sn.z,sn.r,F,.1)){b.x=sn.x;b.z=sn.z;b.r=sn.r;n++;}});
+function gridRoads(){if(!GRID||doc.gridfix)return;doc.gridfix=1;let ch=0;doc.roads.forEach(r=>{if(r.type==='bridge')return;const P=[];r.pts.forEach(q=>{const a=[gs(q[0]),gs(q[1])];const l=P[P.length-1];if(!l||l[0]!==a[0]||l[1]!==a[1])P.push(a);});
+    /* a diagonal step becomes an L along the grid */const Q=[];P.forEach((a,i)=>{const l=Q[Q.length-1];if(l&&l[0]!==a[0]&&l[1]!==a[1])Q.push([a[0],l[1]]);Q.push(a);});if(JSON.stringify(Q)!==JSON.stringify(r.pts)){r.pts=Q;ch++;}});
+  doc.roads=doc.roads.filter(r=>r.pts.length>1);if(ch){mergeRoads();doc.settled3_0_75=0;Object.keys(doc).filter(k=>k.startsWith('settled3_')).forEach(k=>delete doc[k]);rebuild();save();}}
+function settleOffRoads(){gridRoads();islandVehicles();if(mergeRoads()){rebuild(REB.roads);save();}const KEY='settled3_'+BS;if(doc[KEY])return;let n=0;doc.bld.forEach((b,i)=>{const G=E.bld&&E.bld.list?E.bld.list[i]:null;if(!G)return;const F=realFoot(G);if(!footOnRoad(b.x,b.z,b.r||0,F,.1)){/* not on a road: still pull it up to the kerb + yard if it faces a road close by (sizes changed) */const sn=snapB(b.x,b.z,0,F);if(!sn||Math.abs(((sn.r-(b.r||0)+Math.PI*3)%(Math.PI*2))-Math.PI)>.3||Math.hypot(sn.x-b.x,sn.z-b.z)<.3||footOnRoad(sn.x,sn.z,sn.r,F,.1)||doc.bld.some((o,k)=>k!==i&&Math.hypot(o.x-sn.x,o.z-sn.z)<4))return;b.x=sn.x;b.z=sn.z;b.r=sn.r;n++;return;}const sn=snapB(b.x,b.z,0,F);if(sn&&!footOnRoad(sn.x,sn.z,sn.r,F,.1)){b.x=sn.x;b.z=sn.z;b.r=sn.r;n++;}});
   doc[KEY]=1;if(n){rebuild(REB.bld||['bld']);save();toast('ขยับร้าน '+n+' หลังออกจากถนน');}}/* front yard between the front of a shop (terrace included) and the kerb */
 function addBld(b){const G=E.bld.build({style:b.s,x:b.x,z:b.z,rot:b.r||0,sign:b.sign||undefined,wall:b.wall||undefined});if(G&&BS!==1)G.scale.setScalar(BS);return G;}
 const LAYER_ENG={terr:'Ground',fol:'Plants',sky:'Sky',wl:'Sea life',road:'Roads',bld:'Buildings'};
 function applyLayers(k){const e=E[k],L=doc.layers[k];if(!e||!e.setLayer||!L)return;Object.keys(L).forEach(n=>e.setLayer(n,L[n]));}
-const ORDER=['road','terr','water','fol','wl','props','bld','biz','life','veh'];
+const ORDER=['road','terr','water','fol','wl','props','bld','biz','life','veh','rail'];
 window.__ED={get doc(){return doc;},E,G,cam,get mergeRoads(){return mergeRoads;},get rebuild(){return rebuild;}};/* for tests and the agent team */
 function rebuild(list){const t0=performance.now();(list||ORDER).forEach(k=>{try{mk[k]();applyLayers(k);}catch(e){console.error(k,e);status('Error in '+k+': '+e.message);}});status('Rebuilt '+(list||['all']).join(', ')+' in '+Math.round(performance.now()-t0)+' ms');}
 
@@ -1459,7 +1474,7 @@ CATS.forEach(([k,ic,name])=>{const b=document.createElement('button');b.classNam
 function setMode(){/* how the camera answers the left button / one finger */const drawing=(st.cat==='land'&&st.pick)||(st.cat==='road'&&st.pick);
   ctl.mouseButtons={LEFT:drawing?-1:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.ROTATE};ctl.touches={ONE:drawing?-1:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_ROTATE};
   ring.visible=st.cat==='land'&&!!st.pick;R.domElement.style.cursor=st.cat==='bulldoze'?'not-allowed':st.pick?'crosshair':'grab';}
-function openCat(k){if(pend)cancelPend();st.cat=k;st.hold=false;st.pick=null;st.draw=null;drawLine();clearGhost();deselect();[...bar.children].forEach(b=>b.classList.toggle('on',b.dataset.k===k));tray.classList.toggle('open',!!k&&k!=='bulldoze');fillTray();setMode();
+function openCat(k){if(pend)cancelPend();if(GOV)GOV.visible=false;st.cat=k;st.hold=false;st.pick=null;st.draw=null;drawLine();clearGhost();deselect();[...bar.children].forEach(b=>b.classList.toggle('on',b.dataset.k===k));tray.classList.toggle('open',!!k&&k!=='bulldoze');fillTray();setMode();
   if(k==='bulldoze')toast('แตะของที่อยากรื้อ (ย้อนได้ด้วย ↶)');}
 const card=(key,label,html,on)=>`<button class="card${on?' on':''}" data-key="${key}">${html}<span>${label}</span></button>`;
 function fillTray(){const k=st.cat;let h='';
@@ -1471,8 +1486,8 @@ function fillTray(){const k=st.cat;let h='';
     `<div class=opts><label><input type=checkbox id=o_vgo ${st.vgo!==false?'checked':''}> ให้วิ่ง (วางบนถนน/ในน้ำ)</label><label>สี <input type=color id=o_vc value="${st.vc||'#c8344a'}"><input type=checkbox id=o_vcon ${st.vc?'checked':''}></label><button class=mini id=o_rot>⟳ หมุน</button></div>`;}
   if(k==='nature')h=`<div class=cards>${[['gum','🌳','ยูคาลิปตัส'],['pine','🌲','สน'],['pepper','🌿','เปปเปอร์มินต์'],['palm','🌴','ปาล์ม']].map(([t,e,n])=>card(t,n,`<i>${e}</i>`,st.pick===t)).join('')}</div>
     <div class=opts>${PLAYER?'':['tuft','flower','bush','tree'].map(q=>`<label>${{tuft:'หญ้า',flower:'ดอกไม้',bush:'พุ่มไม้',tree:'ป่า'}[q]} <input type=range class=o_den data-k=${q} min=0 max=${{tuft:3,flower:1,bush:.12,tree:.03}[q]} step=${{tuft:.1,flower:.05,bush:.005,tree:.001}[q]} value=${doc.fol[q]}></label>`).join('')}</div>`;
-  if(k==='road')h=`<div class=grp><b>ถนน (ลากเพื่อวาด)</b><div class=cards>${[['island','🛵','ถนนบนเกาะ'],['bikepath','🚲','ทางจักรยานแดง'],['street','🛣️','ถนนเมือง'],['arterial','🛤️','ถนนใหญ่'],['highway','🏎️','ทางหลวง'],['lane','🌾','ถนนชนบท'],['bridge','🌉','สะพาน']].map(([t,e,n])=>card('r:'+t,n,`<i>${e}</i>`,st.pick==='r:'+t)).join('')}</div></div>
-    <div class=grp><b>ทางเดิน</b><div class=cards>${[['path','👣','ทางเดิน'],['lane','🚴','เลนจักรยาน'],['gravel','🪨','ทางกรวด']].map(([t,e,n])=>card('p:'+t,n,`<i>${e}</i>`,st.pick==='p:'+t)).join('')}</div></div>
+  if(k==='road')h=`<div class=grp><b>ถนน (ลากเพื่อวาด)</b><div class=cards>${[['island','🛵','ถนนบนเกาะ'],['bikepath','🚲','ทางจักรยานแดง'],['street','🛣️','ถนนเมือง'],['arterial','🛤️','ถนนใหญ่'],['highway','🏎️','ทางหลวง'],['lane','🌾','ถนนชนบท'],['bridge','🌉','สะพาน']].filter(r=>!PLAYER||['island','bikepath','lane'].includes(r[0]))/* player version: island roads only (Paul, 14 Nov 2026) */.map(([t,e,n])=>card('r:'+t,n,`<i>${e}</i>`,st.pick==='r:'+t)).join('')}</div></div>
+    ${PLAYER?'':`<div class=grp><b>ทางเดิน</b><div class=cards>${[['path','👣','ทางเดิน'],['lane','🚴','เลนจักรยาน'],['gravel','🪨','ทางกรวด']].map(([t,e,n])=>card('p:'+t,n,`<i>${e}</i>`,st.pick==='p:'+t)).join('')}</div></div>`}
     <div class=opts>${PLAYER?'<label>แนวตรง X / Z</label>':`<label><input type=checkbox id=o_s8 ${st.snap8!==false?'checked':''}> แนว 8 ทิศ</label>`}${PLAYER?'':`<label>🚗 รถ <button class=mini data-step=-2>−</button> <b id=o_cars>${doc.cars||0}</b> <button class=mini data-step=2>+</button></label>`}</div>`;
   if(k==='land')h=`<div class=cards>${[['raise','⛰️','ยกขึ้น'],['lower','🕳️','กดลง'],['flatten','▭','ปรับเรียบ'],['smooth','〰️','ลบเหลี่ยม'],['beach','🏖️','หาดทราย'],['sea','🌊','ขุดทะเล'],['noise','🪨','ขรุขระ']].map(([t,e,n])=>card(t,n,`<i>${e}</i>`,st.pick===t)).join('')}</div>
     <div class=opts><label>ขนาดแปรง <input type=range id=o_rad min=1 max=16 step=.5 value=${st.rad}></label><label>แรง <input type=range id=o_str min=.1 max=1.5 step=.05 value=${st.str}></label></div>`;
@@ -1504,6 +1519,13 @@ function okPend(){const p=pend;if(!p)return;pend=null;cf.classList.remove('on');
 function cancelPend(quiet){const p=pend;if(!p)return;pend=null;cf.classList.remove('on');tray.classList.remove('peek');p.no&&p.no();if(!quiet)toast('ยกเลิกแล้ว');}
 /* ---------- ghost preview + validity ring ---------- */
 const ghost={grp:new THREE.Group(),obj:null,ok:true};scene.add(ghost.grp);ghost.grp.visible=false;
+/* block grid overlay round the pointer (player version, build and road modes): lines laid on the ground every GRID units */
+const GOV=(()=>{if(!GRID)return null;const n=9,seg=8,pts=(n+1)*2*seg*2,g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(pts*3*2),3));
+  const L=new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.45,depthTest:false}));L.renderOrder=9;L.frustumCulled=false;L.visible=false;scene.add(L);
+  L.place=(x,z)=>{const P=g.attributes.position.array;let k=0;const cx=Math.round(x/GRID)*GRID-GRID*(n/2)+GRID/2,cz=Math.round(z/GRID)*GRID-GRID*(n/2)+GRID/2,S=GRID*n,
+      put=(ax,az)=>{P[k++]=ax;P[k++]=Math.max(Hg(ax,az),doc.sea)+.08;P[k++]=az;};/* block edges sit half a block off the road centre lines */
+    for(let i=0;i<=n;i++){const lx=cx+i*GRID-GRID/2,lz=cz+i*GRID-GRID/2;for(let j=0;j<seg;j++){const a=cz-GRID/2+S*j/seg,b=cz-GRID/2+S*(j+1)/seg;put(lx,a);put(lx,b);const c=cx-GRID/2+S*j/seg,d=cx-GRID/2+S*(j+1)/seg;put(c,lz);put(d,lz);}}
+    while(k<P.length)P[k++]=0;g.attributes.position.needsUpdate=true;g.setDrawRange(0,k/3);L.visible=true;};return L;})();
 const okRing=new THREE.Mesh(new THREE.RingGeometry(.85,1,40).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0x3ccf6a,transparent:true,opacity:.85,depthTest:false}));okRing.renderOrder=10;ghost.grp.add(okRing);
 const gB=BuildingKit.create({scene:new THREE.Group(),heightAt:()=>0}),gP=PropsEngine.create({scene:new THREE.Group(),heightAt:()=>0});let gV=null;
 function seeThrough(G){G.traverse(o=>{if(o.material){const m=(Array.isArray(o.material)?o.material:[o.material]).map(x=>{const c=x.clone();c.transparent=true;c.opacity=.6;c.depthWrite=false;return c;});o.material=Array.isArray(o.material)?m:m[0];o.castShadow=false;}});}
@@ -1520,10 +1542,11 @@ function makeGhost(){if(ghost.obj){ghost.grp.remove(ghost.obj);ghost.obj=null;}c
 const KERB={bikepath:1.1,island:2.35,street:2.8,arterial:4.9,highway:3.8,lane:1.4,bridge:3.8};
 function snapB(x,z,front,F){if(F)front=F[3];let best=null,bd=1e9;doc.roads.forEach(r=>{if(r.type==='bridge')return;for(let i=1;i<r.pts.length;i++){const a=r.pts[i-1],b=r.pts[i],vx=b[0]-a[0],vz=b[1]-a[1],L2=vx*vx+vz*vz||1e-6;let t=((x-a[0])*vx+(z-a[1])*vz)/L2;t=Math.max(0,Math.min(1,t));const px=a[0]+vx*t,pz=a[1]+vz*t,d=Math.hypot(px-x,pz-z);if(d<bd){bd=d;best={px,pz,r};}}});
   if(!best)return null;const off=KERB[best.r.type]+front+(F?YARD:.25);if(bd>off+6)return null;let nx=best.px-x,nz=best.pz-z;const l=Math.hypot(nx,nz)||1;nx/=l;nz/=l;
-  return{x:+(best.px-nx*off).toFixed(2),z:+(best.pz-nz*off).toFixed(2),r:+Math.atan2(nx,nz).toFixed(3)};}
-function validAt(x,z,skip){const k=st.cat,p=st.pick||'',h=Hg(x,z);if(k==='biz'&&BIZ[p]&&BIZ[p].boat)return h<doc.sea-.5&&Math.abs(x)<58&&Math.abs(z)<58&&!doc.biz.some((b,i)=>i!==skip&&BIZ[b.t].boat&&Math.hypot(b.x-x,b.z-z)<7);if(k==='veh'){const w=VCAT(p)==='water'||p==='seaplane';if(Math.abs(x)>58||Math.abs(z)>58)return false;return w?h<doc.sea-.3:h>=doc.sea+.15&&!inBld(x,z,0);}const water=p==='jetty'||p==='buoy';
+  let X=best.px-nx*off,Z=best.pz-nz*off;if(GRID){/* line lots up along the road: centre on a half-block step */const tx=-nz,tz=nx,a=X*tx+Z*tz,h=GRID/2,d=Math.round(a/h)*h-a;X+=tx*d;Z+=tz*d;}
+  return{x:+X.toFixed(2),z:+Z.toFixed(2),r:+Math.atan2(nx,nz).toFixed(3)};}
+function validAt(x,z,skip){const k=st.cat,p=st.pick||'',h=Hg(x,z);if(onRail(x,z,k==='build'||k==='biz'?Math.max(2.4,(ghost.rad||2)*.7):2))return false;if(k==='biz'&&BIZ[p]&&BIZ[p].boat)return h<doc.sea-.5&&Math.abs(x)<58&&Math.abs(z)<58&&!doc.biz.some((b,i)=>i!==skip&&BIZ[b.t].boat&&Math.hypot(b.x-x,b.z-z)<7);if(k==='veh'){const w=VCAT(p)==='water'||p==='seaplane';if(Math.abs(x)>58||Math.abs(z)>58)return false;return w?h<doc.sea-.3:h>=doc.sea+.15&&!inBld(x,z,0);}const water=p==='jetty'||p==='buoy';
   if(!water&&h<doc.sea+.15)return false;if(Math.abs(x)>58||Math.abs(z)>58)return false;
-  if(k==='build'||k==='biz'){const r=ghost.rad*.8;if(doc.biz.some((b,i)=>(k!=='biz'||i!==skip)&&Math.hypot(b.x-x,b.z-z)<r+3))return false;for(const[a,b]of[[r,0],[-r,0],[0,r],[0,-r]])if(Hg(x+a,z+b)<doc.sea+.1)return false;if(doc.bld.some((b,i)=>i!==skip&&Math.hypot(b.x-x,b.z-z)<r+3.5))return false;if(ghost.obj&&!(k==='biz'&&BIZ[p]&&BIZ[p].boat)){const F=realFoot(ghost.obj),rr=st.snapTo?st.snapTo.r:st.rot;if(footOnRoad(x,z,rr,F,.15))return false;}else if(doc.roads.some(rd=>lineD(x,z,rd.pts)<RW[rd.type]+r*.6))return false;}
+  if(k==='build'||k==='biz'){const r=ghost.rad*.8;if(doc.biz.some((b,i)=>(k!=='biz'||i!==skip)&&Math.hypot(b.x-x,b.z-z)<r+3))return false;for(const[a,b]of[[r,0],[-r,0],[0,r],[0,-r]])if(Hg(x+a,z+b)<doc.sea+.1)return false;if(doc.bld.some((b,i)=>i!==skip&&Math.hypot(b.x-x,b.z-z)<r+3.5))return false;if(ghost.obj&&!(k==='biz'&&BIZ[p]&&BIZ[p].boat)){const F=realFoot(ghost.obj),rr=st.snapTo?st.snapTo.r:st.rot;if(footOnRoad(x,z,rr,F,.15))return false;if(railPts().length>1&&footPts(x,z,rr,F).some(q=>onRail(q[0],q[1],1.4)))return false;}else if(doc.roads.some(rd=>lineD(x,z,rd.pts)<RW[rd.type]+r*.6))return false;}
   if(k==='nature'&&(kindAt(x,z)==='path'||inBld(x,z,0)))return false;return true;}
 
 /* ---------- picking ---------- */
@@ -1575,7 +1598,7 @@ function placeMoved(p){const m=st.moving,arr=doc[m.type];snap();let o=arr[m.i];i
 
 /* ---------- placing ---------- */
 const boatPick=()=>st.cat==='biz'&&BIZ[st.pick]&&!!BIZ[st.pick].boat;
-function placeAt(p){const k=st.cat;let rr=null;if((k==='build'||k==='biz')&&st.snapTo){p={x:st.snapTo.x,z:st.snapTo.z};rr=st.snapTo.r;}const x=+p.x.toFixed(2),z=+p.z.toFixed(2);if(!validAt(x,z)){toast('สร้างตรงนี้ไม่ได้');return;}
+function placeAt(p){const k=st.cat;let rr=null;if((k==='build'||(k==='biz'&&!boatPick()))&&!st.snapTo&&ghost.obj){/* a tap with no hover first (phones): snap now */const f=ghost.obj.userData.foot||[0,0,0,3],sn=snapB(p.x,p.z,f[3],realFoot(ghost.obj));if(sn)st.snapTo=sn;else if(GRID){const h=GRID/2;p={x:Math.round(p.x/h)*h,z:Math.round(p.z/h)*h};}}if((k==='build'||k==='biz')&&st.snapTo){p={x:st.snapTo.x,z:st.snapTo.z};rr=st.snapTo.r;}const x=+p.x.toFixed(2),z=+p.z.toFixed(2);if(!validAt(x,z)){toast('สร้างตรงนี้ไม่ได้');return;}
   if(pend)cancelPend(true);st.hold=true;ghost.grp.visible=true;ghost.grp.position.set(x,boatPick()?doc.sea:Hg(x,z),z);okRing.material.color.set(0x3ccf6a);okRing.position.y=boatPick()?.15:Math.max(0,doc.sea-Hg(x,z))+.12;
   const cost=priceOf(k,st.pick);if(!canPay(cost)){toast('เงินไม่พอ ต้องใช้ '+money(cost));st.hold=false;ghost.grp.visible=false;return;}
   const label=k==='biz'?'ซื้อ'+BIZ[st.pick].n+' '+money(cost)+'?':k==='build'?'สร้าง'+(BNAME[st.pick]||'')+(cost&&doc.costs&&!doc.gm?' '+money(cost):'')+'?':k==='decor'?'วาง '+st.pick+' ตรงนี้?':k==='veh'?'วาง '+VehicleEngine.KINDS[st.pick].name+' ตรงนี้?':'ปลูกต้นไม้ตรงนี้?';
@@ -1601,18 +1624,19 @@ cv.addEventListener('pointerdown',e=>{if(e.button!==0||!e.isPrimary)return;down=
   if(st.cat==='land'&&st.pick){if(!pend||pend.kind!=='brush'){const pre=JSON.stringify(doc),h0=doc.h.slice();pend&&cancelPend(true);
       propose({kind:'brush',x:p.x,z:p.z,label:'ใช้พื้นแบบนี้?',ok:()=>{undo.push(pre);redo.length=0;rebuild();save();toast('ปรับพื้นแล้ว');__undoUI();},no:()=>{doc.h=h0;rebuild(['terr']);}});cf.classList.remove('on');}
     st.flat=Hfn(p.x,p.z);down.brush=p;lastT=performance.now();brush(p,.05);}
-  if(st.cat==='road'&&st.pick){if(pend)cancelPend(true);const isR=st.pick.startsWith('r:'),t=st.pick.slice(2);tray.classList.add('peek');st.draw={kind:isR?'road':'path',type:t,w:isR?RW[t]*1.1:1.4,pts:[[p.x,p.z]]};drawLine();}});
+  if(st.cat==='road'&&st.pick){if(pend)cancelPend(true);const isR=st.pick.startsWith('r:'),t=st.pick.slice(2);tray.classList.add('peek');st.draw={kind:isR?'road':'path',type:t,w:isR?RW[t]*1.1:1.4,pts:[[isR?gs(p.x):p.x,isR?gs(p.z):p.z]]};drawLine();}});
 cv.addEventListener('pointermove',e=>{if(down&&down.drag){const D=down.drag;if(!D.armed){if(Math.hypot(e.clientX-down.x,e.clientY-down.y)>=8){clearTimeout(D.timer);down.drag=null;}/* moved before the hold: it is a camera pan */}else{const q=pick(e);if(!q)return;D.moved=true;
     let x=q.x+D.dx,z=q.z+D.dz,r=D.or;const isBoat=D.n.type==='biz'&&BIZ[D.o.t].boat;if(D.n.type==='bld'||(D.n.type==='biz'&&!isBoat)){const sn=snapB(x,z,(D.G.userData.foot||[0,0,0,3])[3],realFoot(D.G));if(sn){x=sn.x;z=sn.z;r=sn.r;}}D.x=x;D.z=z;D.r=r;D.G.position.set(x,isBoat?doc.sea:Hg(x,z),z);D.G.rotation.y=r;
-    selRing.visible=true;const ok=isBoat?Hg(x,z)<doc.sea-.5:D.n.type==='props'||(Hg(x,z)>doc.sea+.1&&!footOnRoad(x,z,r,realFoot(D.G),.15)&&!doc.bld.some((b,i)=>(D.n.type!=='bld'||i!==D.n.i)&&Math.hypot(b.x-x,b.z-z)<7));D.ok=ok;selRing.material.color.set(ok?0x3ccf6a:0xff4a4a);selRing.scale.setScalar(D.n.type==='bld'?6:1.6);selRing.position.set(x,Math.max(Hg(x,z),doc.sea)+.2,z);D.G.position.y+=.35;return;}}
-  let p=pick(e);if(!p){ghost.grp.visible=false;return;}
+    selRing.visible=true;const ok=isBoat?Hg(x,z)<doc.sea-.5:D.n.type==='props'&&!onRail(x,z,1.5)||(Hg(x,z)>doc.sea+.1&&!footOnRoad(x,z,r,realFoot(D.G),.15)&&!(railPts().length>1&&footPts(x,z,r,realFoot(D.G)).some(q=>onRail(q[0],q[1],1.4)))&&!doc.bld.some((b,i)=>(D.n.type!=='bld'||i!==D.n.i)&&Math.hypot(b.x-x,b.z-z)<7));D.ok=ok;selRing.material.color.set(ok?0x3ccf6a:0xff4a4a);selRing.scale.setScalar(D.n.type==='bld'?6:1.6);selRing.position.set(x,Math.max(Hg(x,z),doc.sea)+.2,z);D.G.position.y+=.35;return;}}
+  let p=pick(e);if(!p){ghost.grp.visible=false;if(GOV)GOV.visible=false;return;}
+  if(GOV){if((st.cat==='build'||st.cat==='road'||st.cat==='biz')&&st.pick)GOV.place(p.x,p.z);else GOV.visible=false;}
   if(st.cat==='land'&&st.pick){placeRing(p);if(down&&down.brush){const now=performance.now();brush(p,Math.min(.1,(now-lastT)/1000));lastT=now;down.brush=p;}return;}
   if(st.draw&&down&&!st.draw.done){const D=st.draw,l=D.pts[D.pts.length-1];
     if(PLAYER||st.snap8!==false){const SN=PLAYER?Math.PI/2:Math.PI/4;/* player version: straight along X or Z only. Otherwise 8 directions like the buildings: straight runs N, NE, E ... that bend in 45 degree steps */const A=D.pts[D.anchor||0],dx=p.x-A[0],dz=p.z-A[1],len=Math.hypot(dx,dz);if(len<1)return;
       const raw=Math.atan2(dz,dx),dif=D.ang==null?9:Math.abs(((raw-D.ang+3*Math.PI)%(2*Math.PI))-Math.PI),ang=dif<.55?D.ang:Math.round(raw/SN)*SN,ux=Math.cos(ang),uz=Math.sin(ang);if(D.ang!=null&&Math.abs(((ang-D.ang+3*Math.PI)%(2*Math.PI))-Math.PI)>.01&&D.pts.length-1>(D.anchor||0)){D.anchor=D.pts.length-1;D.ang=null;return;}
-      D.ang=ang;D.pts.length=(D.anchor||0)+1;const n=Math.floor(len/2.5);for(let i=1;i<=n;i++)D.pts.push([A[0]+ux*i*2.5,A[1]+uz*i*2.5]);drawLine();return;}
+      D.ang=ang;D.pts.length=(D.anchor||0)+1;const STEP=GRID&&D.kind==='road'?GRID:2.5,n=GRID&&D.kind==='road'?Math.round(len/STEP):Math.floor(len/2.5);for(let i=1;i<=n;i++)D.pts.push([+(A[0]+ux*i*STEP).toFixed(2),+(A[1]+uz*i*STEP).toFixed(2)]);drawLine();return;}
     if(Math.hypot(p.x-l[0],p.z-l[1])>2.5){D.pts.push([p.x,p.z]);drawLine();}return;}
-  if(((st.cat==='build'||st.cat==='decor'||st.cat==='veh'||st.cat==='nature'||st.cat==='biz')&&st.pick||st.moving)&&!st.hold){ghost.grp.visible=true;st.snapTo=null;if((st.cat==='build'||(st.cat==='biz'&&BIZ[st.pick]&&!BIZ[st.pick].boat))&&ghost.obj){const f=ghost.obj.userData.foot||[0,0,0,3],sn=snapB(p.x,p.z,f[3],realFoot(ghost.obj));if(sn){st.snapTo=sn;p={x:sn.x,y:Hg(sn.x,sn.z),z:sn.z};ghost.obj.rotation.y=sn.r;}else ghost.obj.rotation.y=st.rot;}ghost.grp.position.set(p.x,boatPick()?doc.sea:Hg(p.x,p.z),p.z);const ok=validAt(p.x,p.z);okRing.material.color.set(ok?0x3ccf6a:0xff4a4a);okRing.position.y=boatPick()?.15:Math.max(0,doc.sea-Hg(p.x,p.z))+.12;}});
+  if(((st.cat==='build'||st.cat==='decor'||st.cat==='veh'||st.cat==='nature'||st.cat==='biz')&&st.pick||st.moving)&&!st.hold){ghost.grp.visible=true;st.snapTo=null;if((st.cat==='build'||(st.cat==='biz'&&BIZ[st.pick]&&!BIZ[st.pick].boat))&&ghost.obj){const f=ghost.obj.userData.foot||[0,0,0,3],sn=snapB(p.x,p.z,f[3],realFoot(ghost.obj));if(sn){st.snapTo=sn;p={x:sn.x,y:Hg(sn.x,sn.z),z:sn.z};ghost.obj.rotation.y=sn.r;}else{ghost.obj.rotation.y=st.rot;if(GRID){const h=GRID/2;p={x:Math.round(p.x/h)*h,y:p.y,z:Math.round(p.z/h)*h};}}}ghost.grp.position.set(p.x,boatPick()?doc.sea:Hg(p.x,p.z),p.z);const ok=validAt(p.x,p.z);okRing.material.color.set(ok?0x3ccf6a:0xff4a4a);okRing.position.y=boatPick()?.15:Math.max(0,doc.sea-Hg(p.x,p.z))+.12;}});
 const isB=D=>D.n.type==='biz'&&BIZ[D.o.t].boat;
 addEventListener('pointercancel',()=>{const d=down;if(!d||!d.drag)return;clearTimeout(d.drag.timer);if(d.drag.live){const D=d.drag;D.G.position.set(D.ox,isB(D)?doc.sea:Hg(D.ox,D.oz),D.oz);D.G.rotation.y=D.or;selRing.visible=false;}down=null;ctl.enabled=true;});
 addEventListener('pointerup',e=>{const d=down;down=null;if(!d)return;ctl.enabled=true;if(d.drag)clearTimeout(d.drag.timer);
@@ -1628,6 +1652,7 @@ addEventListener('pointerup',e=>{const d=down;down=null;if(!d)return;ctl.enabled
         doc.roads.forEach(r=>{for(let k=1;k<r.pts.length;k++){const a=r.pts[k-1],b=r.pts[k],ex=b[0]-a[0],ez=b[1]-a[1],den=ux*ez-uz*ex;if(Math.abs(den)<1e-6)continue;const u=((a[0]-q[0])*ez-(a[1]-q[1])*ex)/den,v=((a[0]-q[0])*uz-(a[1]-q[1])*ux)/den;if(v<-.02||v>1.02||u<-4||u>4)continue;if(bestU==null||Math.abs(u)<Math.abs(bestU))bestU=u;}});
         if(bestU!=null){q[0]=+(q[0]+ux*bestU).toFixed(2);q[1]=+(q[1]+uz*bestU).toFixed(2);}return;}
       let best=null,bd=4;doc.roads.forEach(r=>r.pts.forEach(pp=>{const dd=Math.hypot(pp[0]-q[0],pp[1]-q[1]);if(dd<bd){bd=dd;best=pp;}}));if(best){q[0]=best[0];q[1]=best[1];}});
+    {/* roads may cross the railway but not run along it */let run=0,bad=false;D.pts.forEach(q=>{run=onRail(q[0],q[1],2.6)?run+1:0;if(run>=3)bad=true;});if(bad){st.draw=null;drawLine();tray.classList.remove('peek');toast('ถนนวิ่งทับรางรถไฟไม่ได้ ข้ามได้อย่างเดียว');return;}}
     D.done=true;drawLine();const last=D.pts[D.pts.length-1];
     /* the new road wins where it lies along an old one: only the overlapped stretch of the old road is cut out, the rest stays
        and its cut ends are pulled onto the new road so they join it. A plain crossing is not an overlap and stays a junction. */
@@ -1700,7 +1725,7 @@ let last=performance.now();window.__ed={doc:()=>doc,E,rebuild,cam,ctl};
   selRing.material.opacity=.6+Math.sin(t*5)*.3;okRing.material.opacity=.6+Math.sin(t*6)*.25;
   Sky.update(dt,{hour:+doc.sky.hour,target:ctl.target});if(Sky.animate)Sky.animate(t,dt,cam);const night=Sky.state.night;$('daynight').textContent=night>.5?'🌙':'☀️';
   E.terr&&E.terr.update&&E.terr.update(t);E.fol&&E.fol.update(t,ctl.target.x,ctl.target.z);E.wl&&E.wl.update(t,dt);
-  if(E.props){E.props.night=night;E.props.update(t);}if(E.road){E.road.night=night;E.road.update(t,dt);}if(E.veh){E.veh.night=night;E.veh.update(t,dt);}if(E.bld)E.bld.update(t,{night});if(E.life)E.life.update(t,dt,{night});
+  if(E.props){E.props.night=night;E.props.update(t);}if(E.road){E.road.night=night;E.road.update(t,dt);}if(E.veh){E.veh.night=night;E.veh.update(t,dt);}if(E.train){E.train.night=night;E.train.update(t,dt);}if(E.bld)E.bld.update(t,{night});if(E.life)E.life.update(t,dt,{night});
   if(E.water){E.water.setSun&&E.water.setSun(Sky.state.sunDir,Sky.state.sunColor,Sky.state.skyColor);E.water.render(t);}else R.render(scene,cam);})();
 })();
 </script></body></html>
