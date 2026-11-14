@@ -47,5 +47,9 @@ button{font:inherit;cursor:pointer;border:0}
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 @@ENG@@<script>@@ED@@</script></body></html>'''
 player='--player' in sys.argv
+demo=None
+if '--demo' in sys.argv:
+    demo=sys.argv[sys.argv.index('--demo')+1];player=True
+if demo:html=html.replace('<title>Island Builder · Map Editor','<title>Island Builder · Rottnest (demo island)',1).replace('@@ENG@@','<script>window.IB_DEMO='+open(demo).read().strip()+';</script>\n@@ENG@@',1)
 if player:html=html.replace('<title>Island Builder · Map Editor','<title>Island Builder · Rottnest (player)',1).replace('@@ENG@@','<script>window.IB_PLAYER=true;</script>\n@@ENG@@',1)
-open([a for a in sys.argv[1:] if not a.startswith('--')][0],'w').write(html.replace('@@ENG@@',eng,1).replace('@@ED@@',open('editor/editor.js').read()))
+open([a for i,a in enumerate(sys.argv[1:],1) if not a.startswith('--') and sys.argv[i-1]!='--demo'][0],'w').write(html.replace('@@ENG@@',eng,1).replace('@@ED@@',open('editor/editor.js').read()))
