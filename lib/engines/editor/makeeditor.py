@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build the Map Editor page: python3 tools/makeeditor.py editor/index.html
-   Player version (no ground/life/sky, no nature sliders, roads on X/Z only, starts on the real Rottnest): python3 tools/makeeditor.py editor/player.html --player --start editor/demo-map.json"""
+   Player version (no ground/life/sky, no nature sliders, roads on X/Z only, starts on the real Rottnest): python3 tools/makeeditor.py editor/player.html --player --start editor/rottnest-start.json"""
 import sys
 engines=['terrain/terrain.js','water-sea/water-sea.js','water-sea/waterlife.js','sky/sky.js','foliage/foliage.js','props/props.js','road/road.js','building/building.js','life/life.js','vehicle/vehicle.js']
 eng=''.join('<script>'+open(p).read()+'</script>\n' for p in engines)
