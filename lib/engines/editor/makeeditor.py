@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build the Map Editor page: python3 tools/makeeditor.py editor/index.html
-   Player version (no ground/life/sky, no nature sliders, roads on X/Z only): python3 tools/makeeditor.py editor/player.html --player"""
+   Player version (no ground/life/sky, no nature sliders, roads on X/Z only, starts on the real Rottnest): python3 tools/makeeditor.py editor/player.html --player --start editor/demo-map.json"""
 import sys
 engines=['terrain/terrain.js','water-sea/water-sea.js','water-sea/waterlife.js','sky/sky.js','foliage/foliage.js','props/props.js','road/road.js','building/building.js','life/life.js','vehicle/vehicle.js']
 eng=''.join('<script>'+open(p).read()+'</script>\n' for p in engines)
@@ -52,5 +52,7 @@ demo=None
 if '--demo' in sys.argv:
     demo=sys.argv[sys.argv.index('--demo')+1];player=True
 if demo:html=html.replace('<title>Island Builder · Map Editor','<title>Island Builder · Rottnest (demo island)',1).replace('@@ENG@@','<script>window.IB_DEMO='+open(demo).read().strip()+';</script>\n@@ENG@@',1)
+start=sys.argv[sys.argv.index('--start')+1] if '--start' in sys.argv else None
+if start:html=html.replace('@@ENG@@','<script>window.IB_START='+open(start).read().strip()+';</script>\n@@ENG@@',1)
 if player:html=html.replace('<title>Island Builder · Map Editor','<title>Island Builder · Rottnest (player)',1).replace('@@ENG@@','<script>window.IB_PLAYER=true;</script>\n@@ENG@@',1)
-open([a for i,a in enumerate(sys.argv[1:],1) if not a.startswith('--') and sys.argv[i-1]!='--demo'][0],'w').write(html.replace('@@ENG@@',eng,1).replace('@@ED@@',open('editor/editor.js').read()))
+open([a for i,a in enumerate(sys.argv[1:],1) if not a.startswith('--') and sys.argv[i-1] not in('--demo','--start')][0],'w').write(html.replace('@@ENG@@',eng,1).replace('@@ED@@',open('editor/editor.js').read()))
