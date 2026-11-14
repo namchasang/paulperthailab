@@ -390,7 +390,7 @@ const DEFPAL={/* Rottnest palette: grey-olive heath, muted lawn blades, white an
   bush:['#3a4628','#45532e','#516236','#5d6c3e'],gum:['#4a6a44','#5a7a50','#6b8a5a','#7c9a68'],pine:['#22462e','#2c5636','#376640','#2a4a32'],pepper:['#3c6a36','#4c7c40','#5e8e4c','#6f9e56'],palm:['#3f7a3a','#4f8c44','#5f9c4e'],
   /* Rottnest natives (Paul, 14 Nov 2026; colours from his island photos): olive island pine, grey-green tea tree, wattle with yellow flowers,
      grey saltbush and daisy bush, the big settlement trees (fig, Norfolk pine) and the date palm */
-  islandpine:['#2c3f26','#34492b','#3d5430','#2a3a24'],teatree:['#56664a','#627258','#6f7e62','#4c5a42'],wattle:['#4a6232','#56703a','#e3c23c','#f0d24a'],
+  islandpine:['#3c5634','#46623c','#527044','#3e5432'],teatree:['#56664a','#627258','#6f7e62','#4c5a42'],wattle:['#4a6232','#56703a','#e3c23c','#f0d24a'],
   saltbush:['#7d8a72','#8c9a80','#9aa88e','#6f7c66'],daisybush:['#5f6e54','#6c7b60','#f4f1e6','#7a886c'],fig:['#2e5a2a','#386a32','#447a3a','#2a4e26'],
   norfolk:['#2a4a2c','#325634','#3c623c','#2a442a'],datepalm:['#6c7a48','#7c8a52','#8c9a5e'],
   bark:{gum:'#d8cfc0',pine:'#5a3a26',pepper:'#6a4a32',palm:'#8a7458',islandpine:'#5b4632',teatree:'#8b7d6a',wattle:'#5e4a38',saltbush:'#6e6252',daisybush:'#6e6252',fig:'#8f8676',norfolk:'#6a5040',datepalm:'#9a8462'}};
@@ -955,17 +955,32 @@ g.BuildingKit={create,STYLES:Object.keys(STY)};})(typeof window!=='undefined'?wi
    run them faster, quokkas graze and hop between bushes and freeze when someone passes, kangaroos graze in open grass and bound
    away from people, gulls wheel over the beach and land on the sand, butterflies flutter round flowers in the day, pelicans glide
    low over the water, dolphins surface in pods, boats and kayaks cruise and anchor. Everyone goes home at night except gulls.
-   Models are toon 3D built in code (no pictures), coloured from a soft palette. */
+   Models are toon 3D built in code (no pictures), coloured from a soft palette. People are island folk by default: quokkas, wombats,
+   koalas, kangaroos and possums in clothes, like the characters of Quokka Cafe (option folk:false for humans). */
 (function(g){
 const lin=c=>new THREE.Color(c).convertSRGBToLinear(),MC={};const TM=c=>MC[c]||(MC[c]=new THREE.MeshToonMaterial({color:lin(c)}));
 const msh=(G,geo,c,x,y,z,sx,sy,sz)=>{const o=new THREE.Mesh(geo,TM(c));o.position.set(x||0,y||0,z||0);if(sx)o.scale.set(sx,sy,sz);o.castShadow=true;G.add(o);return o;};
 const SPH=new THREE.SphereGeometry(1,14,10),CYL=new THREE.CylinderGeometry(1,1,1,8),BOX=new THREE.BoxGeometry(1,1,1);
 const SKIN=['#f1c7a0','#d8a47a','#c99472','#8d5a3b','#5a3a28'],SHIRT=['#e0434f','#3f7ad0','#f2c14e','#3f9a6a','#8a5ad0','#f08a3c','#f4f2ec','#5ac8c8'],PANTS=['#3b4a6b','#2f3b5c','#5a4a3a','#3a3a3a','#c8b496'],HAIR=['#2a2420','#6b4226','#d8b25a','#1d1712','#a85a2a'];
-function person(r){const G=new THREE.Group(),sk=SKIN[r()*5|0],sh=SHIRT[r()*8|0],pa=PANTS[r()*5|0],ha=HAIR[r()*5|0];
+/* island folk (Paul, 14 Nov 2026): visitors are animals in clothes like the story's characters: quokka, wombat, koala, kangaroo, possum.
+   Option LifeEngine.create({folk:false}) brings back the human walkers. */
+const FOLK=[{n:'quokka',f:'#8a6446',l:'#c8a07a',ear:'round',sn:.07},{n:'wombat',f:'#7a6658',l:'#9a8676',ear:'small',sn:.09,wide:1.25,nose:'#3a2a24'},
+  {n:'koala',f:'#9aa0a6',l:'#e8e6e2',ear:'fluffy',sn:.05,nose:'#2a2426'},{n:'kangaroo',f:'#b0703e',l:'#d8b08a',ear:'tall',sn:.13},{n:'possum',f:'#6e6a68',l:'#d8d2c8',ear:'point',sn:.08,nose:'#e8a0a8'}];
+let FOLK_ON=true;
+function folkHead(G,r){const sp=FOLK[r()*FOLK.length|0],f=sp.f,w=sp.wide||1;msh(G,SPH,f,0,1.08,0,.15*w,.15,.14);
+  msh(G,SPH,sp.l,0,1.04,.1,.08*w,.07,.06+sp.sn*.4);/* muzzle */msh(G,SPH,sp.nose||'#2a2020',0,1.07,.13+sp.sn*.5,.03*w,.025,.025);
+  [-1,1].forEach(s=>{msh(G,SPH,'#1a1412',s*.055*w,1.12,.115,.022,.026,.015);/* eyes */
+    if(sp.ear==='tall'){const e=msh(G,SPH,f,s*.07,1.29,-.01,.035,.1,.025);e.rotation.z=-s*.2;}
+    else if(sp.ear==='fluffy'){msh(G,SPH,f,s*.14,1.2,-.01,.07,.07,.03);msh(G,SPH,sp.l,s*.14,1.2,.01,.045,.045,.02);}
+    else if(sp.ear==='point'){const e=msh(G,SPH,f,s*.08,1.24,0,.04,.07,.02);e.rotation.z=-s*.35;}
+    else msh(G,SPH,f,s*.09*w,1.21,0,sp.ear==='small'?.03:.045,sp.ear==='small'?.03:.045,.025);});
+  if(sp.n==='kangaroo'||sp.n==='possum'||sp.n==='quokka'){const t=msh(G,CYL,f,0,.5,-.18,.04,sp.n==='kangaroo'?.6:.35,.04);t.rotation.x=1.1;}
+  return sp.f;}
+function person(r){const G=new THREE.Group(),sh=SHIRT[r()*8|0],pa=PANTS[r()*5|0],ha=HAIR[r()*5|0];let sk=SKIN[r()*5|0];
   const legs=[-1,1].map(s=>{const L=new THREE.Group();L.position.set(s*.09,.46,0);msh(L,CYL,pa,0,-.22,0,.065,.46,.065);msh(L,SPH,'#2a2a30',0,-.46,.04,.07,.04,.1);G.add(L);return L;});
-  msh(G,CYL,sh,0,.7,0,.17,.48,.12);msh(G,SPH,sk,0,1.07,0,.13,.14,.13);msh(G,SPH,ha,0,1.13,-.02,.135,.1,.13);
+  msh(G,CYL,sh,0,.7,0,.17,.48,.12);if(FOLK_ON)sk=folkHead(G,r);else{msh(G,SPH,sk,0,1.07,0,.13,.14,.13);msh(G,SPH,ha,0,1.13,-.02,.135,.1,.13);}
   const arms=[-1,1].map(s=>{const A=new THREE.Group();A.position.set(s*.21,.9,0);msh(A,CYL,sh,0,-.12,0,.05,.24,.05);msh(A,SPH,sk,0,-.3,0,.05,.06,.05);G.add(A);return A;});
-  if(r()<.35){msh(G,CYL,['#f6f2e8','#e85a6a','#3a8ad0'][r()*3|0],0,1.22,0,.17,.03,.17);msh(G,CYL,'#f6f2e8',0,1.25,0,.11,.08,.11);}G.userData={legs,arms};return G;}
+  if(r()<.35){msh(G,CYL,['#f6f2e8','#e85a6a','#3a8ad0'][r()*3|0],0,1.22,0,.17,.03,.17);msh(G,CYL,'#f6f2e8',0,1.25,0,.11,.08,.11);}/* sun hat */G.userData={legs,arms};return G;}
 function quokka(r){const G=new THREE.Group(),f='#8a6446',l='#c8a07a';msh(G,SPH,f,0,.22,0,.2,.2,.24);msh(G,SPH,l,0,.2,.08,.13,.15,.14);msh(G,SPH,f,0,.42,.12,.13,.12,.12);[-1,1].forEach(s=>msh(G,SPH,f,s*.08,.53,.1,.04,.04,.03));
   msh(G,SPH,'#1a1412',0,.42,.24,.025,.02,.02);msh(G,SPH,f,0,.12,-.24,.05,.05,.16);G.userData={legs:[],arms:[]};return G;}
 function roo(r){const G=new THREE.Group(),f='#b0703e',l='#d8b08a';msh(G,SPH,f,0,.75,0,.28,.42,.3);msh(G,SPH,l,0,.72,.14,.18,.3,.18);const N=msh(G,SPH,f,0,1.2,.18,.13,.15,.18);[-1,1].forEach(s=>msh(G,SPH,f,s*.07,1.38,.14,.04,.1,.03));
@@ -1007,7 +1022,7 @@ function seal(r){const G=new THREE.Group(),c=['#5a4e44','#6a5c50','#4e443c'][r()
   const fl=[-1,1].map(sx=>{const f=msh(G,SPH,c,sx*.3,.1,.25,.2,.05,.1);return f;});const tail=msh(G,SPH,c,0,.12,-.78,.25,.06,.14);G.userData={legs:[],arms:[],fl,tail,body:b};return G;}
 const MAKE={seal,picnic,sandcastle,dogfetch,flock,fishjump,sitter,swimmer,sunbather,fisher,walker:person,jogger:person,cyclist:person,quokka,kangaroo:roo,gull,butterfly:bfly,pelican,dolphin,boat,kayak};
 function rnd(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-function create(o){const scene=o.scene,H=o.heightAt||(()=>0),K=o.kindAt||(()=>'grass'),W=o.water||((x,z)=>H(x,z)<0),B=o.bounds||[-50,-50,50,50],P=o.paths||[],agents=[],r=rnd(o.seed||7);
+function create(o){FOLK_ON=o.folk!==false;const scene=o.scene,H=o.heightAt||(()=>0),K=o.kindAt||(()=>'grass'),W=o.water||((x,z)=>H(x,z)<0),B=o.bounds||[-50,-50,50,50],P=o.paths||[],agents=[],r=rnd(o.seed||7);
   const pathPt=(pi,s)=>{const p=P[pi];let L=0;for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);let d=Math.max(0,Math.min(1,s))*L;for(let i=1;i<p.length;i++){const a=p[i-1],b=p[i],l=Math.hypot(b[0]-a[0],b[1]-a[1]);if(d<=l){const t=d/l;return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,L];}d-=l;}const e=p[p.length-1];return[e[0],e[1],L];};
   const where=test=>{for(let i=0;i<80;i++){const x=B[0]+r()*(B[2]-B[0]),z=B[1]+r()*(B[3]-B[1]);if(test(x,z))return[x,z];}return[0,0];};
   function spawn(kind,n,op){op=op||{};for(let i=0;i<n;i++){const G=MAKE[kind](r);G.traverse(q=>{q.__pxSkip=1;});scene.add(G);const a={kind,G,x:0,z:0,y:0,h:r()*6.28,v:0,t:r()*10,st:'go',ph:r()*6,op};
