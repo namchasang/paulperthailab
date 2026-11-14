@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Foliage Engine Lab</title>
 <style>body{margin:0;overflow:hidden;background:#9fd3ea;font-family:system-ui,sans-serif}#ui{position:fixed;left:10px;top:10px;background:rgba(20,28,40,.84);color:#fff;padding:10px 12px;border-radius:12px;font-size:13px;max-width:300px;max-height:90vh;overflow:auto}
 #ui b{font-size:14px}#ui label{display:block;margin:4px 0;cursor:pointer}#ui button{margin:6px 6px 0 0;padding:6px 10px;border:0;border-radius:8px;background:#3e7d5c;color:#fff;font-weight:600;cursor:pointer}#ui input[type=range]{width:130px;vertical-align:middle}#fps{opacity:.75;margin-top:6px}</style></head><body>
-<div id="ui"><b>Foliage Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">Grass, flowers, bushes and trees planted by ground type and swaying in a travelling wind, plus layers (nothing grows on the beach sand): wildflower meadows, reeds by the water, coastal heath, saplings, leaf litter under trees, falling leaves and grass that parts when someone walks through.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
+<div id="ui"><b>Foliage Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">Grass, flowers, bushes and trees planted by ground type and swaying in a travelling wind, plus layers (nothing grows on the beach sand): wildflower meadows, reeds by the water, coastal heath, saplings, leaf litter under trees, falling leaves and grass that parts when someone walks through. Rottnest natives: island pine, tea tree, wattle, saltbush, daisy bush, big fig, Norfolk Island pine, date palm.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>/* Terrain Engine (Paul Perth Library, Nov 2026) — natural ground for three.js r128.
@@ -47,7 +47,7 @@ function create(o){const P=Object.assign({},DEF,o.palette||{}),W=o.size[0],D=o.s
   const U={tS:{value:ST},uLA:{value:new THREE.Vector4(1,1,1,1)},uLB:{value:new THREE.Vector4(1,1,1,1)},uLC:{value:new THREE.Vector4(1,1,1,1)},tM:{value:MT},tF:{value:FT},uB:{value:new THREE.Vector4(x0,z0,W,D)},uT:{value:0},uQ:{value:2},uSea:{value:SEA}};
   const m=new THREE.MeshLambertMaterial({color:0xffffff});
   m.onBeforeCompile=s=>{Object.assign(s.uniforms,U);
-    s.vertexShader='varying vec3 vTW;varying vec3 vTN;\n'+s.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvTW=(modelMatrix*vec4(transformed,1.)).xyz;vTN=normalize(mat3(modelMatrix)*objectNormal);');
+    s.vertexShader='varying vec3 vTW;varying vec3 vTN;\n'+s.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\n/* local frame lookup: fields are baked in mesh space, so mirrored or moved parents still line up */vTW=transformed;vTN=normalize(mat3(modelMatrix)*objectNormal);');
     s.fragmentShader=`varying vec3 vTW;varying vec3 vTN;uniform sampler2D tF,tM,tS;uniform vec4 uB,uLA,uLB,uLC;uniform float uT,uQ,uSea;
 float th(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float tn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(th(i),th(i+vec2(1,0)),f.x),mix(th(i+vec2(0,1)),th(i+1.),f.x),f.y);}
@@ -195,7 +195,8 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
    const F=FoliageEngine.create({scene,bounds:[x0,z0,x1,z1],heightAt,kindAt:(x,z)=>'grass'|'sand'|'path'|'water'|'none',
                                   density:{tuft:2.2,flower:.35,bush:.03,tree:.012},keepOut:(x,z)=>bool,seed:1,chunk:10,radius:40,palette});
    each frame: F.update(time,camX,camZ)   // builds chunks near the camera, drops far ones, sways everything in the wind
-   F.setWind(strength)  F.setQuality(0..2)  F.addTree(x,z,{kind:'gum'|'pine'|'peppermint'|'palm',size})
+   F.setWind(strength)  F.setQuality(0..2)  F.addTree(x,z,{kind:'gum'|'pine'|'peppermint'|'palm'|'islandpine'|'teatree'|'wattle'|'saltbush'|'daisybush'|'fig'|'norfolk'|'datepalm',size})
+   create option mix:'rottnest' = island pine and tea tree woodland with wattle, saltbush and daisy bush
    What it does: everything is instanced (one draw per kind per chunk). Tufts and flowers are crossed painted cards; bushes and tree
    crowns are leaf-card clusters with crown-shaped normals (they shade like soft balls) and cast dappled shadows through the cards.
    Grass bends from the root, crowns sway from the trunk; the wind is a travelling gust field so neighbours move together. */
@@ -213,7 +214,7 @@ function leafTex(cols,seed){const c=canvas(128,128),x=c.getContext('2d'),r=rnd(s
     x.fillStyle=cols[(r()*cols.length)|0];x.beginPath();x.ellipse(0,0,10,4.5,0,0,6.283);x.fill();x.restore();}const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;}
 const WIND=`uniform float uT,uWind;uniform vec4 uPush;vec2 windAt(vec2 p){float g=sin(p.x*.13+uT*1.1)*.5+sin(p.y*.17+uT*.8+p.x*.05)*.5;return vec2(.8,.3)*(.35+.65*(g*.5+.5))*uWind;}`;
 function swayMat(map,opts){const m=new THREE.MeshLambertMaterial(Object.assign({map,alphaTest:.5,side:THREE.DoubleSide},opts.mat||{}));const U=opts.U;
-  m.onBeforeCompile=s=>{Object.assign(s.uniforms,U);s.vertexShader=WIND+'\n'+s.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
+  m.onBeforeCompile=s=>{Object.assign(s.uniforms,U);s.vertexShader=WIND+'\n'+s.vertexShader.replace('#include <lights_lambert_vertex>','#include <lights_lambert_vertex>\n#ifdef DOUBLE_SIDED\nvLightBack=vLightFront;vIndirectBack=vIndirectFront;\n#endif')/* both faces of a card take the front light: no black blades seen from behind */.replace('#include <begin_vertex>',`#include <begin_vertex>
     {vec4 wp=modelMatrix*instanceMatrix*vec4(transformed,1.);float k=${opts.bend};float w=pow(max(transformed.y,0.)/${opts.h.toFixed(3)},${opts.pow.toFixed(2)})*k;vec2 d=windAt(wp.xz)*w;
      d+=vec2(sin(uT*3.1+wp.x*1.7),cos(uT*2.7+wp.z*1.9))*.04*w*uWind;
      {vec2 pd=wp.xz-uPush.xy;float pl=length(pd);if(pl<uPush.z&&pl>.01)d+=pd/pl*(1.-pl/uPush.z)*.35*w*uPush.w;} /* someone walking through pushes it aside */mat3 IR=transpose(mat3(instanceMatrix));transformed+=IR*vec3(d.x,0.,d.y);}`);
@@ -232,7 +233,14 @@ function merge(geos){const P=[],U=[],N=[],I=[];let o=0;geos.forEach(g=>{const p=
     const ix=g.index?g.index.array:[...Array(p.count).keys()];ix.forEach(v=>I.push(v+o));o+=p.count;});const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setIndex(I);return g;}
 const DEFPAL={/* Rottnest palette: grey-olive heath, muted lawn blades, white and lilac island daisies */blades:['#5d6838','#6f7842','#858a50','#9c9a60','#b2aa72'],flowers:['#ffffff','#f6e27a','#c9a2f0','#f5a3c0','#ffffff','#f08a5a'],
   bush:['#3a4628','#45532e','#516236','#5d6c3e'],gum:['#4a6a44','#5a7a50','#6b8a5a','#7c9a68'],pine:['#22462e','#2c5636','#376640','#2a4a32'],pepper:['#3c6a36','#4c7c40','#5e8e4c','#6f9e56'],palm:['#3f7a3a','#4f8c44','#5f9c4e'],
-  bark:{gum:'#d8cfc0',pine:'#5a3a26',pepper:'#6a4a32',palm:'#8a7458'}};
+  /* Rottnest natives (Paul, 14 Nov 2026; colours from his island photos): olive island pine, grey-green tea tree, wattle with yellow flowers,
+     grey saltbush and daisy bush, the big settlement trees (fig, Norfolk pine) and the date palm */
+  islandpine:['#2c3f26','#34492b','#3d5430','#2a3a24'],teatree:['#56664a','#627258','#6f7e62','#4c5a42'],wattle:['#4a6232','#56703a','#e3c23c','#f0d24a'],
+  saltbush:['#7d8a72','#8c9a80','#9aa88e','#6f7c66'],daisybush:['#5f6e54','#6c7b60','#f4f1e6','#7a886c'],fig:['#2e5a2a','#386a32','#447a3a','#2a4e26'],
+  norfolk:['#2a4a2c','#325634','#3c623c','#2a442a'],datepalm:['#6c7a48','#7c8a52','#8c9a5e'],
+  bark:{gum:'#d8cfc0',pine:'#5a3a26',pepper:'#6a4a32',palm:'#8a7458',islandpine:'#5b4632',teatree:'#8b7d6a',wattle:'#5e4a38',saltbush:'#6e6252',daisybush:'#6e6252',fig:'#8f8676',norfolk:'#6a5040',datepalm:'#9a8462'}};
+/* the island mix: woodland of island pine and tea tree, with wattle, saltbush and daisy bush between (figs, Norfolk pines and palms are planted by hand near buildings) */
+const ROTT_MIX=['islandpine','islandpine','islandpine','teatree','teatree','teatree','wattle','saltbush','daisybush'];
 function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.chunk||10,RAD=o.radius||40,pal=Object.assign({},DEFPAL,o.palette||{}),D=Object.assign({tuft:2.2,flower:.35,bush:.03,tree:.012},o.density||{});
   const U={uT:{value:0},uWind:{value:o.wind==null?1:o.wind},uPush:{value:new THREE.Vector4(0,0,1.2,0)}};let Q=2;
   const LAYERS={tufts:true,flowers:true,bushes:true,trees:true,spinifex:false,wildflowers:true,reeds:true,heath:true,saplings:true,litter:true,fallingleaves:true,push:true};
@@ -244,15 +252,21 @@ function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.c
   const heathG=crown(.5,22,.35,7),heathM=swayMat(leafTex(['#8a9a88','#a8b4a0','#6f7f6a','#b8c0a8'],13),{U,bend:'.05',h:1,pow:1,crown:true,cy:'.35',key:'hz'});
   const sapG=crown(.35,16,.9,9);sapG.merge?0:0;const sapM=swayMat(leafTex(pal.pepper,17),{U,bend:'.12',h:1.2,pow:1.5,crown:true,cy:'.9',key:'sa'});const sapT=new THREE.CylinderGeometry(.03,.05,.9,6);sapT.translate(0,.45,0);
   const litG=new THREE.PlaneGeometry(.18,.1);litG.rotateX(-Math.PI/2);const litM=new THREE.MeshLambertMaterial({color:0xffffff,vertexColors:false});const litCols=['#a0662e','#c08a3a','#8a5a2a','#b8742e','#7a6a3a'].map(c=>lin(c));
-  const KINDS={gum:{h:6.5,R:2.2,n:70,trunk:.22},pine:{h:7.5,R:1.6,n:60,trunk:.2,cone:true},pepper:{h:4.2,R:2,n:60,trunk:.18,droop:true},palm:{h:5.5,R:1.8,n:30,trunk:.16,fronds:true}};
+  const KINDS={gum:{h:6.5,R:2.2,n:70,trunk:.22},pine:{h:7.5,R:1.6,n:60,trunk:.2,cone:true},pepper:{h:4.2,R:2,n:60,trunk:.18,droop:true},palm:{h:5.5,R:1.8,n:30,trunk:.16,fronds:true},
+    /* Rottnest natives */islandpine:{h:5.6,R:1.15,n:90,trunk:.16,cone:true,tiers:7,col:true},teatree:{h:3,R:2.1,n:80,trunk:.12,flat:.55,twist:true},
+    wattle:{h:2.6,R:1.6,n:70,trunk:.08,flat:.8,low:true},saltbush:{h:.9,R:.9,n:34,trunk:.04,flat:.6,low:true},daisybush:{h:1.1,R:1,n:38,trunk:.04,flat:.7,low:true},
+    fig:{h:7.5,R:4.2,n:170,trunk:.55,flat:.62,wide:6},norfolk:{h:12,R:2,n:110,trunk:.22,cone:true,tiers:9,disc:true},datepalm:{h:6.5,R:2.4,n:30,trunk:.3,fronds:true}};
   const TR={};for(const k in KINDS){const s=KINDS[k];let cg;
-    if(s.cone){const parts=[];for(let t=0;t<5;t++){const y=s.h*.35+t*s.h*.13,R=s.R*(1-t*.17);parts.push(crown(R,Math.round(s.n/5),y,20+t));}cg=merge(parts);}
+    if(s.cone){const parts=[],nt=s.tiers||5;for(let t=0;t<nt;t++){const f=t/nt,y=s.h*(s.col?.12:.35)+f*s.h*(s.col?.82:.65),R=s.R*(s.col?(1-f*.7):nt>5?(1-f*.8):(1-t*.17));const c=crown(R,Math.round(s.n/nt),0,20+t+k.length);
+        /* Norfolk pine: thin flat discs (tiers of branches); island pine: a narrow dense column */if(s.disc)c.scale(1,.28,1);c.translate(0,y,0);parts.push(c);}cg=merge(parts);}
+    else if(s.flat){/* low wide crowns: tea tree thickets, wattle, saltbush and daisy bush; the fig spreads several crowns wide */const parts=[],m=crown(s.R,Math.round(s.n*(s.wide?.4:.7)),0,30+k.length);m.scale(1,s.flat,1);m.translate(0,s.h*(s.low?.55:.7),0);parts.push(m);
+      const nw=s.wide||(s.twist?3:2);for(let t=0;t<nw;t++){const a=t/nw*6.283+.4,c=crown(s.R*(s.wide?.55:.62),Math.round(s.n*(s.wide?.6:.3)/nw*(s.wide?1:1.6)),0,40+t+k.length);c.scale(1,s.flat,1);c.translate(Math.cos(a)*s.R*(s.wide?.75:.55),s.h*(s.low?.45:.6),Math.sin(a)*s.R*(s.wide?.75:.55));parts.push(c);}cg=merge(parts);}
     else if(s.fronds){const P=[],U2=[],I=[];for(let f=0;f<9;f++){const a=f/9*6.283,base=f*4,L=s.R*1.4,dx=Math.cos(a),dz=Math.sin(a);[[0,s.h,0,0,0],[dx*L,s.h-.9,dz*L,1,0],[dx*L-dz*.35,s.h-.7,dz*L+dx*.35,1,1],[-dz*.35,s.h+.1,dx*.35,0,1]].forEach(([x,y,z,u,v])=>{P.push(x,y,z);U2.push(u,v);});I.push(base,base+1,base+2,base,base+2,base+3);}
       cg=new THREE.BufferGeometry();cg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));cg.setAttribute('uv',new THREE.Float32BufferAttribute(U2,2));cg.setIndex(I);cg.computeVertexNormals();}
     else{const parts=[crown(s.R,s.n,s.h*.72,30+k.length)];for(let t=0;t<3;t++){const a=t*2.1;const c=crown(s.R*.6,Math.round(s.n*.3),0,40+t);c.translate(Math.cos(a)*s.R*.7,s.h*(s.droop?.55:.62),Math.sin(a)*s.R*.7);parts.push(c);}cg=merge(parts);}
-    const lt=leafTex(pal[k==='pepper'?'pepper':k],60+k.length);const cm=swayMat(lt,{U,bend:'.12',h:s.h,pow:2,crown:true,cy:(s.h*.7).toFixed(2),key:'c'+k,mat:{emissive:lin('#081004')}});
+    const lt=leafTex(pal[k]||pal.gum,60+k.length);const cm=swayMat(lt,{U,bend:'.12',h:s.h,pow:2,crown:true,cy:(s.h*.7).toFixed(2),key:'c'+k,mat:{emissive:lin('#081004')}});
     const dm=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:lt,alphaTest:.5});
-    const tg=new THREE.CylinderGeometry(s.trunk*.6,s.trunk,s.h*.78,7);tg.translate(0,s.h*.39,0);const tm=new THREE.MeshLambertMaterial({color:lin(pal.bark[k])});
+    const th=s.h*(s.low?.45:s.flat?.62:.78);const tg=new THREE.CylinderGeometry(s.trunk*.6,s.trunk,th,7);tg.translate(0,th/2,0);if(s.twist)tg.rotateZ(.12);const tm=new THREE.MeshLambertMaterial({color:lin(pal.bark[k])});
     TR[k]={s,cg,cm,dm,tg,tm};}
   const chunks=new Map(),extra=[];
   function inst(geo,mat,list,shadow,depth){if(!list.length)return null;const im=new THREE.InstancedMesh(geo,mat,list.length),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),Y=new THREE.Vector3(0,1,0);
@@ -264,7 +278,7 @@ function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.c
     place(Math.round(area*D.tuft*qm),(x,z,k)=>{if(k!=='grass')return;L.t.push([x,H(x,z),z,r()*6.28,.7+r()*.6,.8+r()*.5]);});
     place(Math.round(area*D.flower*qm),(x,z,k)=>{if(k!=='grass')return;L.f.push([x,H(x,z),z,r()*6.28,.7+r()*.4,1]);});
     place(Math.round(area*D.bush+r()),(x,z,k)=>{if(k!=='grass')return;L.b.push([x,H(x,z)-.05,z,r()*6.28,.7+r()*.7,.8+r()*.3]);});
-    place(Math.round(area*D.tree+r()*.6),(x,z,k)=>{if(k!=='grass')return;const ks=o.treeKinds||['gum','pepper','pine'];const kk=ks[(r()*ks.length)|0];T[kk].push([x,H(x,z),z,r()*6.28,.75+r()*.5,1]);});
+    place(Math.round(area*D.tree+r()*.6),(x,z,k)=>{if(k!=='grass')return;const ks=o.treeKinds||(o.mix==='rottnest'?ROTT_MIX:['gum','pepper','pine']);const kk=ks[(r()*ks.length)|0];T[kk].push([x,H(x,z),z,r()*6.28,.75+r()*.5,1]);});
     const X={sp:[],wf:[],rd:[],hz:[],sa:[],lit:[]};
     if(LAYERS.spinifex)place(Math.round(area*1.2*qm),(x,z,k)=>{if(k!=='sand')return;const h=H(x,z);if(h<.25)return;X.sp.push([x,h,z,r()*6.28,.8+r()*.6,.7+r()*.4]);});
     if(LAYERS.wildflowers)place(Math.round(area*.9*qm),(x,z,k)=>{if(k!=='grass')return;const n=Math.sin(x*.21+Math.sin(z*.17)*2)*Math.cos(z*.19+x*.07);if(n<.45)return;X.wf.push([x,H(x,z),z,r()*6.28,.6+r()*.4,1]);});
@@ -313,12 +327,20 @@ let renderFn=null;const setRender=f=>{renderFn=f;};
 addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();});
 const T=TerrainEngine.create({size:[90,70],center:[4,0],res:.4,heightAt:H,seaLevel:0,paths:PATHS});scene.add(T.mesh);
 const sea=WaterSea.create({renderer:R,scene,camera:cam,heightAt:H,size:200,ground:null,level:0});sea.setSun(sun.position.clone(),sun.color.clone(),new THREE.Color(0x9fd3ea));
-const F=FoliageEngine.create({scene,bounds:[-41,-35,49,35],heightAt:H,kindAt:(x,z)=>{const k=kind(x,z);return k==='grass'&&T.groundKind(x,z)==='sand'?'sand':k;},radius:45,chunk:10});
+const F=FoliageEngine.create({mix:'rottnest',scene,bounds:[-41,-35,49,35],heightAt:H,kindAt:(x,z)=>{const k=kind(x,z);return k==='grass'&&T.groundKind(x,z)==='sand'?'sand':k;},radius:45,chunk:10});
 /* a walker who pushes the grass aside as she goes */const wk=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,1.2,8),new THREE.MeshLambertMaterial({color:0xe0434f}));wk.castShadow=true;scene.add(wk);
 ui('<div>Wind: <input type="range" id="wnd" min="0" max="2.5" step=".05" value="1"></div><div>Quality: <select id="q"><option value="2">High</option><option value="1">Medium</option><option value="0">Low</option></select></div><div id="cnt" style="opacity:.75"></div><div style="margin-top:4px"><b style="font-size:12px">Layers</b></div>'+F.layers.map(n=>'<label><input type="checkbox" '+(n==='spinifex'?'':'checked')+' data-l="'+n+'"> '+n+(n==='spinifex'?' (beach grass, off)':'')+'</label>').join(''));
 document.querySelectorAll('[data-l]').forEach(c=>c.onchange=()=>F.setLayer(c.dataset.l,c.checked));
 document.getElementById('wnd').oninput=e=>F.setWind(+e.target.value);document.getElementById('q').onchange=e=>F.setQuality(+e.target.value);
 onFrame(t=>{const wx=-2+Math.sin(t*.2)*6,wz=4+Math.cos(t*.15)*6;wk.position.set(wx,H(wx,wz)+.6,wz);F.update(t,ctl.target.x,ctl.target.z,{push:[wx,wz]});T.update(t);document.getElementById('cnt').textContent=F.count()+' plants';});setRender(t=>sea.render(t));
+/* Rottnest natives (Paul, 14 Nov 2026): one of each species in a row on the lawn, with name cards, and the island mix */
+{const SP=[['islandpine','Island pine'],['teatree','Island tea tree'],['wattle','Coastal wattle'],['saltbush','Saltbush'],['daisybush','Coastal daisy bush'],['fig','Big fig'],['norfolk','Norfolk Island pine'],['datepalm','Date palm']];
+  let row=null;const lab=[];
+  function showRow(on){lab.forEach(d=>d.remove());lab.length=0;if(!on)return;let x=-26;SP.forEach(([k,n])=>{const z=-14;F.addTree(x,z,{kind:k,size:1});const d=document.createElement('div');d.textContent=n;d.style.cssText='position:fixed;color:#fff;font:600 12px system-ui;background:rgba(20,28,40,.75);padding:2px 6px;border-radius:6px;pointer-events:none;transform:translate(-50%,0)';d._p=new THREE.Vector3(x,0,z+3);document.body.appendChild(d);lab.push(d);x+=k==='fig'?11:7;});}
+  ui('<div style="margin-top:6px"><b style="font-size:12px">Rottnest natives</b></div><button id="spRow">Species row</button><div style="font-size:11px;opacity:.75;max-width:230px">Island pine, tea tree, wattle, saltbush, daisy bush, big fig, Norfolk Island pine, date palm. Engine option mix:\'rottnest\' plants the island woodland.</div>');
+  document.getElementById('spRow').onclick=()=>{showRow(true);cam.position.set(0,14,14);ctl.target.set(0,2,-14);};
+  onFrame(()=>{lab.forEach(d=>{const v=d._p.clone().project(cam);d.style.left=((v.x+1)/2*innerWidth)+'px';d.style.top=((1-v.y)/2*innerHeight)+'px';d.style.display=v.z<1?'block':'none';});});
+  setTimeout(()=>showRow(true),400);}
 
 let fr=0,ft=performance.now(),last=performance.now();const fe=document.getElementById('fps');(function loop(){requestAnimationFrame(loop);ctl.update();const now=performance.now(),t=now/1000,dt=Math.min(.1,(now-last)/1000);last=now;frames.forEach(f=>f(t,dt));
   if(renderFn)renderFn(t);else R.render(scene,cam);fr++;if(now-ft>1000){fe.textContent=fr+' fps';fr=0;ft=now;}})();})();
