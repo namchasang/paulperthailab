@@ -1493,6 +1493,7 @@ const YARDM=new THREE.MeshLambertMaterial({color:new THREE.Color('#d9cfb6').conv
 function yard(G,b,par){if(!G||!b)return;const F=realFoot(G),r=b.r||0,dx=Math.sin(r),dz=Math.cos(r),fx=b.x+dx*F[3],fz=b.z+dz*F[3];let best=null,bd=1e9;
   doc.roads.forEach(rd=>{if(rd.type==='bridge')return;const d=lineD(fx,fz,rd.pts)-KERB[rd.type];if(d<bd){bd=d;best=rd;}});if(!best||bd<.15||bd>4)return;
   const ex=fx+dx*(bd+KERB[best.type]),ez=fz+dz*(bd+KERB[best.type]);if(lineD(ex,ez,best.pts)>.8)return;/* the road is not straight ahead of the front */
+  /* the road must run square to the front: measure at both front corners (a slanted road gave paving that crossed the road, Paul 14 Nov 2026) */const cr=Math.cos(r),sr=Math.sin(r),dAt=lx=>{const px=fx+cr*lx,pz=fz-sr*lx;return lineD(px,pz,best.pts)-KERB[best.type];},dL=dAt(F[0]+.2),dR=dAt(F[2]-.2);if(Math.abs(dL-dR)>.35||Math.min(dL,dR)<.1)return;bd=Math.min(bd,dL,dR);
   const w=(F[2]-F[0])*.92,dep=bd+.15,m=new THREE.Mesh(new THREE.PlaneGeometry(w,dep),YARDM);m.rotation.set(-Math.PI/2,0,r,'YXZ');m.rotation.order='YXZ';m.rotation.y=r;m.rotation.x=-Math.PI/2;
   G.userData.yd=+dep.toFixed(2);const cx=fx+dx*dep/2,cz=fz+dz*dep/2;m.position.set(cx+Math.cos(r)*(F[0]+F[2])/2,Math.max(Hg(cx,cz),doc.sea)+.05,cz-Math.sin(r)*(F[0]+F[2])/2);m.receiveShadow=true;m.userData.yard=1;par.add(m);}
 /* once per map: shops whose real footprint (terrace and all) sits on a road are moved back to the road's edge plus the front yard */
@@ -1510,7 +1511,7 @@ function addBld(b){const G=E.bld.build({style:b.s,x:b.x,z:b.z,rot:b.r||0,sign:b.
 const LAYER_ENG={terr:'Ground',fol:'Plants',sky:'Sky',wl:'Sea life',road:'Roads',bld:'Buildings'};
 function applyLayers(k){const e=E[k],L=doc.layers[k];if(!e||!e.setLayer||!L)return;Object.keys(L).forEach(n=>e.setLayer(n,L[n]));}
 const ORDER=['road','terr','water','wl','props','bld','biz','fol','life','veh','rail'];/* trees after the buildings, so they keep clear of every footprint */
-window.__ED={get doc(){return doc;},set doc(d){doc=d;},E,G,cam,get ctl(){return ctl;},get mergeRoads(){return mergeRoads;},get H(){return {roadVsRail,stations,snapB,realFoot,footOnRoad,footPts,onRail,lineD,Hg,BIZ,BNAME,save,starter,railPts,KERB,why,fps,inStation,smallInc,BADGES,lotOf,seaFace,obbHit,chk,placeMoved,act,select,st};},get rebuild(){return rebuild;}};/* for tests and the agent team */
+window.__ED={get doc(){return doc;},set doc(d){doc=d;},E,G,cam,get ctl(){return ctl;},get mergeRoads(){return mergeRoads;},get H(){return {roadVsRail,stations,snapB,realFoot,footOnRoad,footPts,onRail,lineD,Hg,BIZ,BNAME,save,starter,railPts,KERB,why,fps,inStation,smallInc,BADGES,lotOf,seaFace,obbHit,chk,snapLot,placeMoved,act,select,st};},get rebuild(){return rebuild;}};/* for tests and the agent team */
 function rebuild(list){const t0=performance.now();(list||ORDER).forEach(k=>{try{mk[k]();if(k==='bld'||k==='biz')FPS=null;applyLayers(k);}catch(e){console.error(k,e);status('Error in '+k+': '+e.message);}});if(!PLAYER)status('Rebuilt '+(list||['all']).join(', ')+' in '+Math.round(performance.now()-t0)+' ms');}
 
 /* ---------- undo / save ---------- */
@@ -1649,6 +1650,7 @@ function why(o){const k=o.k,p=o.p||'',x=o.x,z=o.z,r=o.r||0,sk=o.skip,h=Hg(x,z);
   const G=o.G,big=(k==='build'||k==='biz'||(k==='decor'&&G&&G.userData.foot))&&G;
   if(big){const F=realFoot(G),P=footPts(x,z,r,F),me={x,z,r,F};
     if(P.some(q=>Hg(q[0],q[1])<doc.sea+.05))return'ล้นลงทะเล ขยับเข้าฝั่งอีกนิด';
+    /* no buildings on the beach: shops, houses and the café stand on the grass (Paul, 14 Nov 2026) */if(k!=='decor'&&E.terr&&E.terr.groundKind&&P.some(q=>E.terr.groundKind(q[0],q[1])==='sand'))return'อยู่บนชายหาด สร้างบนพื้นหญ้าเท่านั้น';
     if(railPts().length>1&&P.some(q=>onRail(q[0],q[1],1.4)))return'ทับรางรถไฟ';
     if(k==='decor'?doc.roads.some(rd=>rd.type!=='bridge'&&P.some(q=>lineD(q[0],q[1],rd.pts)<RW[rd.type]/2+.3)):footOnRoad(x,z,r,F,.15))return'ทับถนน';
     if(doc.paths.some(pa=>P.some(q=>lineD(q[0],q[1],pa.pts)<(pa.w||1.4)/2)))return'ทับทางเท้า';
