@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Build the Map Editor page: python3 tools/makeeditor.py editor/index.html"""
+"""Build the Map Editor page: python3 tools/makeeditor.py editor/index.html
+   Player version (no ground/life/sky, no nature sliders, roads on X/Z only): python3 tools/makeeditor.py editor/player.html --player"""
 import sys
 engines=['terrain/terrain.js','water-sea/water-sea.js','water-sea/waterlife.js','sky/sky.js','foliage/foliage.js','props/props.js','road/road.js','building/building.js','life/life.js','vehicle/vehicle.js']
 eng=''.join('<script>'+open(p).read()+'</script>\n' for p in engines)
@@ -45,4 +46,6 @@ button{font:inherit;cursor:pointer;border:0}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 @@ENG@@<script>@@ED@@</script></body></html>'''
-open(sys.argv[1],'w').write(html.replace('@@ENG@@',eng,1).replace('@@ED@@',open('editor/editor.js').read()))
+player='--player' in sys.argv
+if player:html=html.replace('<title>Island Builder · Map Editor','<title>Island Builder · Rottnest (player)',1).replace('@@ENG@@','<script>window.IB_PLAYER=true;</script>\n@@ENG@@',1)
+open([a for a in sys.argv[1:] if not a.startswith('--')][0],'w').write(html.replace('@@ENG@@',eng,1).replace('@@ED@@',open('editor/editor.js').read()))
