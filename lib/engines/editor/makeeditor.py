@@ -48,11 +48,15 @@ button{font:inherit;cursor:pointer;border:0}
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 @@ENG@@<script>@@ED@@</script></body></html>'''
 player='--player' in sys.argv
+pro=None
+if '--prologue' in sys.argv:
+    i=sys.argv.index('--prologue');pro=(sys.argv[i+1],sys.argv[i+2]);player=True
 demo=None
 if '--demo' in sys.argv:
     demo=sys.argv[sys.argv.index('--demo')+1];player=True
 if demo:html=html.replace('<title>Island Builder · Map Editor','<title>Island Builder · Rottnest (demo island)',1).replace('@@ENG@@','<script>window.IB_DEMO='+open(demo).read().strip()+';</script>\n@@ENG@@',1)
 start=sys.argv[sys.argv.index('--start')+1] if '--start' in sys.argv else None
 if start:html=html.replace('@@ENG@@','<script>window.IB_START='+open(start).read().strip()+';</script>\n@@ENG@@',1)
+if pro:html=html.replace('<title>Island Builder · Map Editor','<title>Quokka Cafe · Prologue preview (Last Summer)',1).replace('@@ENG@@','<script>window.IB_PRO={before:'+open(pro[0]).read().strip()+',after:'+open(pro[1]).read().strip()+'};window.IB_DEMO=Object.assign({},window.IB_PRO.before,{ver:"pro"});</script>\n@@ENG@@',1)
 if player:html=html.replace('<title>Island Builder · Map Editor','<title>Island Builder · Rottnest (player)',1).replace('@@ENG@@','<script>window.IB_PLAYER=true;</script>\n@@ENG@@',1)
-open([a for i,a in enumerate(sys.argv[1:],1) if not a.startswith('--') and sys.argv[i-1] not in('--demo','--start')][0],'w').write(html.replace('@@ENG@@',eng,1).replace('@@ED@@',open('editor/editor.js').read()))
+open([a for i,a in enumerate(sys.argv[1:],1) if not a.startswith('--') and sys.argv[i-1] not in('--demo','--start','--prologue') and (not pro or a not in pro)][0],'w').write(html.replace('@@ENG@@',eng,1).replace('@@ED@@',open('editor/editor.js').read()+('\n'+open('editor/prologue.js').read() if pro else '')))
