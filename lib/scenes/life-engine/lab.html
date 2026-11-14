@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Life Engine Lab</title>
 <style>body{margin:0;overflow:hidden;background:#9fd3ea;font-family:system-ui,sans-serif}#ui{position:fixed;left:10px;top:10px;background:rgba(20,28,40,.84);color:#fff;padding:10px 12px;border-radius:12px;font-size:13px;max-width:300px;max-height:90vh;overflow:auto}
 #ui b{font-size:14px}#ui label{display:block;margin:4px 0;cursor:pointer}#ui button{margin:6px 6px 0 0;padding:6px 10px;border:0;border-radius:8px;background:#3e7d5c;color:#fff;font-weight:600;cursor:pointer}#ui input[type=range]{width:130px;vertical-align:middle}#fps{opacity:.75;margin-top:6px}</style></head><body>
-<div id="ui"><b>Life Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">Things that live on their own: walkers, joggers, cyclists, quokkas, kangaroos, gulls, butterflies, pelicans, dolphins, boats, kayaks, picnics, kids building sandcastles, dogs playing fetch, bird flocks, jumping fish, people on benches, swimmers, sunbathers and beach fishers and seals. Tick a box to show or hide each one.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
+<div id="ui"><b>Life Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">Things that live on their own: island folk (quokkas, wombats, koalas, kangaroos and possums in clothes) walking, jogging and cycling, quokkas, kangaroos, gulls, butterflies, pelicans, dolphins, boats, kayaks, picnics, kids building sandcastles, dogs playing fetch, bird flocks, jumping fish, folk on benches, swimmers, sunbathers and beach fishers and seals. Tick a box to show or hide each one.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>/* Terrain Engine (Paul Perth Library, Nov 2026) — natural ground for three.js r128.
@@ -47,7 +47,7 @@ function create(o){const P=Object.assign({},DEF,o.palette||{}),W=o.size[0],D=o.s
   const U={tS:{value:ST},uLA:{value:new THREE.Vector4(1,1,1,1)},uLB:{value:new THREE.Vector4(1,1,1,1)},uLC:{value:new THREE.Vector4(1,1,1,1)},tM:{value:MT},tF:{value:FT},uB:{value:new THREE.Vector4(x0,z0,W,D)},uT:{value:0},uQ:{value:2},uSea:{value:SEA}};
   const m=new THREE.MeshLambertMaterial({color:0xffffff});
   m.onBeforeCompile=s=>{Object.assign(s.uniforms,U);
-    s.vertexShader='varying vec3 vTW;varying vec3 vTN;\n'+s.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvTW=(modelMatrix*vec4(transformed,1.)).xyz;vTN=normalize(mat3(modelMatrix)*objectNormal);');
+    s.vertexShader='varying vec3 vTW;varying vec3 vTN;\n'+s.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\n/* local frame lookup: fields are baked in mesh space, so mirrored or moved parents still line up */vTW=transformed;vTN=normalize(mat3(modelMatrix)*objectNormal);');
     s.fragmentShader=`varying vec3 vTW;varying vec3 vTN;uniform sampler2D tF,tM,tS;uniform vec4 uB,uLA,uLB,uLC;uniform float uT,uQ,uSea;
 float th(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float tn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(th(i),th(i+vec2(1,0)),f.x),mix(th(i+vec2(0,1)),th(i+1.),f.x),f.y);}
@@ -269,7 +269,8 @@ g.SkyEngine={create,WEATHERS:Object.keys(WX)};})(typeof window!=='undefined'?win
    const F=FoliageEngine.create({scene,bounds:[x0,z0,x1,z1],heightAt,kindAt:(x,z)=>'grass'|'sand'|'path'|'water'|'none',
                                   density:{tuft:2.2,flower:.35,bush:.03,tree:.012},keepOut:(x,z)=>bool,seed:1,chunk:10,radius:40,palette});
    each frame: F.update(time,camX,camZ)   // builds chunks near the camera, drops far ones, sways everything in the wind
-   F.setWind(strength)  F.setQuality(0..2)  F.addTree(x,z,{kind:'gum'|'pine'|'peppermint'|'palm',size})
+   F.setWind(strength)  F.setQuality(0..2)  F.addTree(x,z,{kind:'gum'|'pine'|'peppermint'|'palm'|'islandpine'|'teatree'|'wattle'|'saltbush'|'daisybush'|'fig'|'norfolk'|'datepalm',size})
+   create option mix:'rottnest' = island pine and tea tree woodland with wattle, saltbush and daisy bush
    What it does: everything is instanced (one draw per kind per chunk). Tufts and flowers are crossed painted cards; bushes and tree
    crowns are leaf-card clusters with crown-shaped normals (they shade like soft balls) and cast dappled shadows through the cards.
    Grass bends from the root, crowns sway from the trunk; the wind is a travelling gust field so neighbours move together. */
@@ -287,7 +288,7 @@ function leafTex(cols,seed){const c=canvas(128,128),x=c.getContext('2d'),r=rnd(s
     x.fillStyle=cols[(r()*cols.length)|0];x.beginPath();x.ellipse(0,0,10,4.5,0,0,6.283);x.fill();x.restore();}const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;}
 const WIND=`uniform float uT,uWind;uniform vec4 uPush;vec2 windAt(vec2 p){float g=sin(p.x*.13+uT*1.1)*.5+sin(p.y*.17+uT*.8+p.x*.05)*.5;return vec2(.8,.3)*(.35+.65*(g*.5+.5))*uWind;}`;
 function swayMat(map,opts){const m=new THREE.MeshLambertMaterial(Object.assign({map,alphaTest:.5,side:THREE.DoubleSide},opts.mat||{}));const U=opts.U;
-  m.onBeforeCompile=s=>{Object.assign(s.uniforms,U);s.vertexShader=WIND+'\n'+s.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
+  m.onBeforeCompile=s=>{Object.assign(s.uniforms,U);s.vertexShader=WIND+'\n'+s.vertexShader.replace('#include <lights_lambert_vertex>','#include <lights_lambert_vertex>\n#ifdef DOUBLE_SIDED\nvLightBack=vLightFront;vIndirectBack=vIndirectFront;\n#endif')/* both faces of a card take the front light: no black blades seen from behind */.replace('#include <begin_vertex>',`#include <begin_vertex>
     {vec4 wp=modelMatrix*instanceMatrix*vec4(transformed,1.);float k=${opts.bend};float w=pow(max(transformed.y,0.)/${opts.h.toFixed(3)},${opts.pow.toFixed(2)})*k;vec2 d=windAt(wp.xz)*w;
      d+=vec2(sin(uT*3.1+wp.x*1.7),cos(uT*2.7+wp.z*1.9))*.04*w*uWind;
      {vec2 pd=wp.xz-uPush.xy;float pl=length(pd);if(pl<uPush.z&&pl>.01)d+=pd/pl*(1.-pl/uPush.z)*.35*w*uPush.w;} /* someone walking through pushes it aside */mat3 IR=transpose(mat3(instanceMatrix));transformed+=IR*vec3(d.x,0.,d.y);}`);
@@ -306,7 +307,14 @@ function merge(geos){const P=[],U=[],N=[],I=[];let o=0;geos.forEach(g=>{const p=
     const ix=g.index?g.index.array:[...Array(p.count).keys()];ix.forEach(v=>I.push(v+o));o+=p.count;});const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setIndex(I);return g;}
 const DEFPAL={/* Rottnest palette: grey-olive heath, muted lawn blades, white and lilac island daisies */blades:['#5d6838','#6f7842','#858a50','#9c9a60','#b2aa72'],flowers:['#ffffff','#f6e27a','#c9a2f0','#f5a3c0','#ffffff','#f08a5a'],
   bush:['#3a4628','#45532e','#516236','#5d6c3e'],gum:['#4a6a44','#5a7a50','#6b8a5a','#7c9a68'],pine:['#22462e','#2c5636','#376640','#2a4a32'],pepper:['#3c6a36','#4c7c40','#5e8e4c','#6f9e56'],palm:['#3f7a3a','#4f8c44','#5f9c4e'],
-  bark:{gum:'#d8cfc0',pine:'#5a3a26',pepper:'#6a4a32',palm:'#8a7458'}};
+  /* Rottnest natives (Paul, 14 Nov 2026; colours from his island photos): olive island pine, grey-green tea tree, wattle with yellow flowers,
+     grey saltbush and daisy bush, the big settlement trees (fig, Norfolk pine) and the date palm */
+  islandpine:['#2c3f26','#34492b','#3d5430','#2a3a24'],teatree:['#56664a','#627258','#6f7e62','#4c5a42'],wattle:['#4a6232','#56703a','#e3c23c','#f0d24a'],
+  saltbush:['#7d8a72','#8c9a80','#9aa88e','#6f7c66'],daisybush:['#5f6e54','#6c7b60','#f4f1e6','#7a886c'],fig:['#2e5a2a','#386a32','#447a3a','#2a4e26'],
+  norfolk:['#2a4a2c','#325634','#3c623c','#2a442a'],datepalm:['#6c7a48','#7c8a52','#8c9a5e'],
+  bark:{gum:'#d8cfc0',pine:'#5a3a26',pepper:'#6a4a32',palm:'#8a7458',islandpine:'#5b4632',teatree:'#8b7d6a',wattle:'#5e4a38',saltbush:'#6e6252',daisybush:'#6e6252',fig:'#8f8676',norfolk:'#6a5040',datepalm:'#9a8462'}};
+/* the island mix: woodland of island pine and tea tree, with wattle, saltbush and daisy bush between (figs, Norfolk pines and palms are planted by hand near buildings) */
+const ROTT_MIX=['islandpine','islandpine','islandpine','teatree','teatree','teatree','wattle','saltbush','daisybush'];
 function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.chunk||10,RAD=o.radius||40,pal=Object.assign({},DEFPAL,o.palette||{}),D=Object.assign({tuft:2.2,flower:.35,bush:.03,tree:.012},o.density||{});
   const U={uT:{value:0},uWind:{value:o.wind==null?1:o.wind},uPush:{value:new THREE.Vector4(0,0,1.2,0)}};let Q=2;
   const LAYERS={tufts:true,flowers:true,bushes:true,trees:true,spinifex:false,wildflowers:true,reeds:true,heath:true,saplings:true,litter:true,fallingleaves:true,push:true};
@@ -318,15 +326,21 @@ function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.c
   const heathG=crown(.5,22,.35,7),heathM=swayMat(leafTex(['#8a9a88','#a8b4a0','#6f7f6a','#b8c0a8'],13),{U,bend:'.05',h:1,pow:1,crown:true,cy:'.35',key:'hz'});
   const sapG=crown(.35,16,.9,9);sapG.merge?0:0;const sapM=swayMat(leafTex(pal.pepper,17),{U,bend:'.12',h:1.2,pow:1.5,crown:true,cy:'.9',key:'sa'});const sapT=new THREE.CylinderGeometry(.03,.05,.9,6);sapT.translate(0,.45,0);
   const litG=new THREE.PlaneGeometry(.18,.1);litG.rotateX(-Math.PI/2);const litM=new THREE.MeshLambertMaterial({color:0xffffff,vertexColors:false});const litCols=['#a0662e','#c08a3a','#8a5a2a','#b8742e','#7a6a3a'].map(c=>lin(c));
-  const KINDS={gum:{h:6.5,R:2.2,n:70,trunk:.22},pine:{h:7.5,R:1.6,n:60,trunk:.2,cone:true},pepper:{h:4.2,R:2,n:60,trunk:.18,droop:true},palm:{h:5.5,R:1.8,n:30,trunk:.16,fronds:true}};
+  const KINDS={gum:{h:6.5,R:2.2,n:70,trunk:.22},pine:{h:7.5,R:1.6,n:60,trunk:.2,cone:true},pepper:{h:4.2,R:2,n:60,trunk:.18,droop:true},palm:{h:5.5,R:1.8,n:30,trunk:.16,fronds:true},
+    /* Rottnest natives */islandpine:{h:5.6,R:1.15,n:90,trunk:.16,cone:true,tiers:7,col:true},teatree:{h:3,R:2.1,n:80,trunk:.12,flat:.55,twist:true},
+    wattle:{h:2.6,R:1.6,n:70,trunk:.08,flat:.8,low:true},saltbush:{h:.9,R:.9,n:34,trunk:.04,flat:.6,low:true},daisybush:{h:1.1,R:1,n:38,trunk:.04,flat:.7,low:true},
+    fig:{h:7.5,R:4.2,n:170,trunk:.55,flat:.62,wide:6},norfolk:{h:12,R:2,n:110,trunk:.22,cone:true,tiers:9,disc:true},datepalm:{h:6.5,R:2.4,n:30,trunk:.3,fronds:true}};
   const TR={};for(const k in KINDS){const s=KINDS[k];let cg;
-    if(s.cone){const parts=[];for(let t=0;t<5;t++){const y=s.h*.35+t*s.h*.13,R=s.R*(1-t*.17);parts.push(crown(R,Math.round(s.n/5),y,20+t));}cg=merge(parts);}
+    if(s.cone){const parts=[],nt=s.tiers||5;for(let t=0;t<nt;t++){const f=t/nt,y=s.h*(s.col?.12:.35)+f*s.h*(s.col?.82:.65),R=s.R*(s.col?(1-f*.7):nt>5?(1-f*.8):(1-t*.17));const c=crown(R,Math.round(s.n/nt),0,20+t+k.length);
+        /* Norfolk pine: thin flat discs (tiers of branches); island pine: a narrow dense column */if(s.disc)c.scale(1,.28,1);c.translate(0,y,0);parts.push(c);}cg=merge(parts);}
+    else if(s.flat){/* low wide crowns: tea tree thickets, wattle, saltbush and daisy bush; the fig spreads several crowns wide */const parts=[],m=crown(s.R,Math.round(s.n*(s.wide?.4:.7)),0,30+k.length);m.scale(1,s.flat,1);m.translate(0,s.h*(s.low?.55:.7),0);parts.push(m);
+      const nw=s.wide||(s.twist?3:2);for(let t=0;t<nw;t++){const a=t/nw*6.283+.4,c=crown(s.R*(s.wide?.55:.62),Math.round(s.n*(s.wide?.6:.3)/nw*(s.wide?1:1.6)),0,40+t+k.length);c.scale(1,s.flat,1);c.translate(Math.cos(a)*s.R*(s.wide?.75:.55),s.h*(s.low?.45:.6),Math.sin(a)*s.R*(s.wide?.75:.55));parts.push(c);}cg=merge(parts);}
     else if(s.fronds){const P=[],U2=[],I=[];for(let f=0;f<9;f++){const a=f/9*6.283,base=f*4,L=s.R*1.4,dx=Math.cos(a),dz=Math.sin(a);[[0,s.h,0,0,0],[dx*L,s.h-.9,dz*L,1,0],[dx*L-dz*.35,s.h-.7,dz*L+dx*.35,1,1],[-dz*.35,s.h+.1,dx*.35,0,1]].forEach(([x,y,z,u,v])=>{P.push(x,y,z);U2.push(u,v);});I.push(base,base+1,base+2,base,base+2,base+3);}
       cg=new THREE.BufferGeometry();cg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));cg.setAttribute('uv',new THREE.Float32BufferAttribute(U2,2));cg.setIndex(I);cg.computeVertexNormals();}
     else{const parts=[crown(s.R,s.n,s.h*.72,30+k.length)];for(let t=0;t<3;t++){const a=t*2.1;const c=crown(s.R*.6,Math.round(s.n*.3),0,40+t);c.translate(Math.cos(a)*s.R*.7,s.h*(s.droop?.55:.62),Math.sin(a)*s.R*.7);parts.push(c);}cg=merge(parts);}
-    const lt=leafTex(pal[k==='pepper'?'pepper':k],60+k.length);const cm=swayMat(lt,{U,bend:'.12',h:s.h,pow:2,crown:true,cy:(s.h*.7).toFixed(2),key:'c'+k,mat:{emissive:lin('#081004')}});
+    const lt=leafTex(pal[k]||pal.gum,60+k.length);const cm=swayMat(lt,{U,bend:'.12',h:s.h,pow:2,crown:true,cy:(s.h*.7).toFixed(2),key:'c'+k,mat:{emissive:lin('#081004')}});
     const dm=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:lt,alphaTest:.5});
-    const tg=new THREE.CylinderGeometry(s.trunk*.6,s.trunk,s.h*.78,7);tg.translate(0,s.h*.39,0);const tm=new THREE.MeshLambertMaterial({color:lin(pal.bark[k])});
+    const th=s.h*(s.low?.45:s.flat?.62:.78);const tg=new THREE.CylinderGeometry(s.trunk*.6,s.trunk,th,7);tg.translate(0,th/2,0);if(s.twist)tg.rotateZ(.12);const tm=new THREE.MeshLambertMaterial({color:lin(pal.bark[k])});
     TR[k]={s,cg,cm,dm,tg,tm};}
   const chunks=new Map(),extra=[];
   function inst(geo,mat,list,shadow,depth){if(!list.length)return null;const im=new THREE.InstancedMesh(geo,mat,list.length),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),Y=new THREE.Vector3(0,1,0);
@@ -338,7 +352,7 @@ function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.c
     place(Math.round(area*D.tuft*qm),(x,z,k)=>{if(k!=='grass')return;L.t.push([x,H(x,z),z,r()*6.28,.7+r()*.6,.8+r()*.5]);});
     place(Math.round(area*D.flower*qm),(x,z,k)=>{if(k!=='grass')return;L.f.push([x,H(x,z),z,r()*6.28,.7+r()*.4,1]);});
     place(Math.round(area*D.bush+r()),(x,z,k)=>{if(k!=='grass')return;L.b.push([x,H(x,z)-.05,z,r()*6.28,.7+r()*.7,.8+r()*.3]);});
-    place(Math.round(area*D.tree+r()*.6),(x,z,k)=>{if(k!=='grass')return;const ks=o.treeKinds||['gum','pepper','pine'];const kk=ks[(r()*ks.length)|0];T[kk].push([x,H(x,z),z,r()*6.28,.75+r()*.5,1]);});
+    place(Math.round(area*D.tree+r()*.6),(x,z,k)=>{if(k!=='grass')return;const ks=o.treeKinds||(o.mix==='rottnest'?ROTT_MIX:['gum','pepper','pine']);const kk=ks[(r()*ks.length)|0];T[kk].push([x,H(x,z),z,r()*6.28,.75+r()*.5,1]);});
     const X={sp:[],wf:[],rd:[],hz:[],sa:[],lit:[]};
     if(LAYERS.spinifex)place(Math.round(area*1.2*qm),(x,z,k)=>{if(k!=='sand')return;const h=H(x,z);if(h<.25)return;X.sp.push([x,h,z,r()*6.28,.8+r()*.6,.7+r()*.4]);});
     if(LAYERS.wildflowers)place(Math.round(area*.9*qm),(x,z,k)=>{if(k!=='grass')return;const n=Math.sin(x*.21+Math.sin(z*.17)*2)*Math.cos(z*.19+x*.07);if(n<.45)return;X.wf.push([x,H(x,z),z,r()*6.28,.6+r()*.4,1]);});
@@ -377,17 +391,32 @@ g.FoliageEngine={create};})(typeof window!=='undefined'?window:this);
    run them faster, quokkas graze and hop between bushes and freeze when someone passes, kangaroos graze in open grass and bound
    away from people, gulls wheel over the beach and land on the sand, butterflies flutter round flowers in the day, pelicans glide
    low over the water, dolphins surface in pods, boats and kayaks cruise and anchor. Everyone goes home at night except gulls.
-   Models are toon 3D built in code (no pictures), coloured from a soft palette. */
+   Models are toon 3D built in code (no pictures), coloured from a soft palette. People are island folk by default: quokkas, wombats,
+   koalas, kangaroos and possums in clothes, like the characters of Quokka Cafe (option folk:false for humans). */
 (function(g){
 const lin=c=>new THREE.Color(c).convertSRGBToLinear(),MC={};const TM=c=>MC[c]||(MC[c]=new THREE.MeshToonMaterial({color:lin(c)}));
 const msh=(G,geo,c,x,y,z,sx,sy,sz)=>{const o=new THREE.Mesh(geo,TM(c));o.position.set(x||0,y||0,z||0);if(sx)o.scale.set(sx,sy,sz);o.castShadow=true;G.add(o);return o;};
 const SPH=new THREE.SphereGeometry(1,14,10),CYL=new THREE.CylinderGeometry(1,1,1,8),BOX=new THREE.BoxGeometry(1,1,1);
 const SKIN=['#f1c7a0','#d8a47a','#c99472','#8d5a3b','#5a3a28'],SHIRT=['#e0434f','#3f7ad0','#f2c14e','#3f9a6a','#8a5ad0','#f08a3c','#f4f2ec','#5ac8c8'],PANTS=['#3b4a6b','#2f3b5c','#5a4a3a','#3a3a3a','#c8b496'],HAIR=['#2a2420','#6b4226','#d8b25a','#1d1712','#a85a2a'];
-function person(r){const G=new THREE.Group(),sk=SKIN[r()*5|0],sh=SHIRT[r()*8|0],pa=PANTS[r()*5|0],ha=HAIR[r()*5|0];
+/* island folk (Paul, 14 Nov 2026): visitors are animals in clothes like the story's characters: quokka, wombat, koala, kangaroo, possum.
+   Option LifeEngine.create({folk:false}) brings back the human walkers. */
+const FOLK=[{n:'quokka',f:'#8a6446',l:'#c8a07a',ear:'round',sn:.07},{n:'wombat',f:'#7a6658',l:'#9a8676',ear:'small',sn:.09,wide:1.25,nose:'#3a2a24'},
+  {n:'koala',f:'#9aa0a6',l:'#e8e6e2',ear:'fluffy',sn:.05,nose:'#2a2426'},{n:'kangaroo',f:'#b0703e',l:'#d8b08a',ear:'tall',sn:.13},{n:'possum',f:'#6e6a68',l:'#d8d2c8',ear:'point',sn:.08,nose:'#e8a0a8'}];
+let FOLK_ON=true;
+function folkHead(G,r){const sp=FOLK[r()*FOLK.length|0],f=sp.f,w=sp.wide||1;msh(G,SPH,f,0,1.08,0,.15*w,.15,.14);
+  msh(G,SPH,sp.l,0,1.04,.1,.08*w,.07,.06+sp.sn*.4);/* muzzle */msh(G,SPH,sp.nose||'#2a2020',0,1.07,.13+sp.sn*.5,.03*w,.025,.025);
+  [-1,1].forEach(s=>{msh(G,SPH,'#1a1412',s*.055*w,1.12,.115,.022,.026,.015);/* eyes */
+    if(sp.ear==='tall'){const e=msh(G,SPH,f,s*.07,1.29,-.01,.035,.1,.025);e.rotation.z=-s*.2;}
+    else if(sp.ear==='fluffy'){msh(G,SPH,f,s*.14,1.2,-.01,.07,.07,.03);msh(G,SPH,sp.l,s*.14,1.2,.01,.045,.045,.02);}
+    else if(sp.ear==='point'){const e=msh(G,SPH,f,s*.08,1.24,0,.04,.07,.02);e.rotation.z=-s*.35;}
+    else msh(G,SPH,f,s*.09*w,1.21,0,sp.ear==='small'?.03:.045,sp.ear==='small'?.03:.045,.025);});
+  if(sp.n==='kangaroo'||sp.n==='possum'||sp.n==='quokka'){const t=msh(G,CYL,f,0,.5,-.18,.04,sp.n==='kangaroo'?.6:.35,.04);t.rotation.x=1.1;}
+  return sp.f;}
+function person(r){const G=new THREE.Group(),sh=SHIRT[r()*8|0],pa=PANTS[r()*5|0],ha=HAIR[r()*5|0];let sk=SKIN[r()*5|0];
   const legs=[-1,1].map(s=>{const L=new THREE.Group();L.position.set(s*.09,.46,0);msh(L,CYL,pa,0,-.22,0,.065,.46,.065);msh(L,SPH,'#2a2a30',0,-.46,.04,.07,.04,.1);G.add(L);return L;});
-  msh(G,CYL,sh,0,.7,0,.17,.48,.12);msh(G,SPH,sk,0,1.07,0,.13,.14,.13);msh(G,SPH,ha,0,1.13,-.02,.135,.1,.13);
+  msh(G,CYL,sh,0,.7,0,.17,.48,.12);if(FOLK_ON)sk=folkHead(G,r);else{msh(G,SPH,sk,0,1.07,0,.13,.14,.13);msh(G,SPH,ha,0,1.13,-.02,.135,.1,.13);}
   const arms=[-1,1].map(s=>{const A=new THREE.Group();A.position.set(s*.21,.9,0);msh(A,CYL,sh,0,-.12,0,.05,.24,.05);msh(A,SPH,sk,0,-.3,0,.05,.06,.05);G.add(A);return A;});
-  if(r()<.35){msh(G,CYL,['#f6f2e8','#e85a6a','#3a8ad0'][r()*3|0],0,1.22,0,.17,.03,.17);msh(G,CYL,'#f6f2e8',0,1.25,0,.11,.08,.11);}G.userData={legs,arms};return G;}
+  if(r()<.35){msh(G,CYL,['#f6f2e8','#e85a6a','#3a8ad0'][r()*3|0],0,1.22,0,.17,.03,.17);msh(G,CYL,'#f6f2e8',0,1.25,0,.11,.08,.11);}/* sun hat */G.userData={legs,arms};return G;}
 function quokka(r){const G=new THREE.Group(),f='#8a6446',l='#c8a07a';msh(G,SPH,f,0,.22,0,.2,.2,.24);msh(G,SPH,l,0,.2,.08,.13,.15,.14);msh(G,SPH,f,0,.42,.12,.13,.12,.12);[-1,1].forEach(s=>msh(G,SPH,f,s*.08,.53,.1,.04,.04,.03));
   msh(G,SPH,'#1a1412',0,.42,.24,.025,.02,.02);msh(G,SPH,f,0,.12,-.24,.05,.05,.16);G.userData={legs:[],arms:[]};return G;}
 function roo(r){const G=new THREE.Group(),f='#b0703e',l='#d8b08a';msh(G,SPH,f,0,.75,0,.28,.42,.3);msh(G,SPH,l,0,.72,.14,.18,.3,.18);const N=msh(G,SPH,f,0,1.2,.18,.13,.15,.18);[-1,1].forEach(s=>msh(G,SPH,f,s*.07,1.38,.14,.04,.1,.03));
@@ -429,7 +458,7 @@ function seal(r){const G=new THREE.Group(),c=['#5a4e44','#6a5c50','#4e443c'][r()
   const fl=[-1,1].map(sx=>{const f=msh(G,SPH,c,sx*.3,.1,.25,.2,.05,.1);return f;});const tail=msh(G,SPH,c,0,.12,-.78,.25,.06,.14);G.userData={legs:[],arms:[],fl,tail,body:b};return G;}
 const MAKE={seal,picnic,sandcastle,dogfetch,flock,fishjump,sitter,swimmer,sunbather,fisher,walker:person,jogger:person,cyclist:person,quokka,kangaroo:roo,gull,butterfly:bfly,pelican,dolphin,boat,kayak};
 function rnd(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-function create(o){const scene=o.scene,H=o.heightAt||(()=>0),K=o.kindAt||(()=>'grass'),W=o.water||((x,z)=>H(x,z)<0),B=o.bounds||[-50,-50,50,50],P=o.paths||[],agents=[],r=rnd(o.seed||7);
+function create(o){FOLK_ON=o.folk!==false;const scene=o.scene,H=o.heightAt||(()=>0),K=o.kindAt||(()=>'grass'),W=o.water||((x,z)=>H(x,z)<0),B=o.bounds||[-50,-50,50,50],P=o.paths||[],agents=[],r=rnd(o.seed||7);
   const pathPt=(pi,s)=>{const p=P[pi];let L=0;for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);let d=Math.max(0,Math.min(1,s))*L;for(let i=1;i<p.length;i++){const a=p[i-1],b=p[i],l=Math.hypot(b[0]-a[0],b[1]-a[1]);if(d<=l){const t=d/l;return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,L];}d-=l;}const e=p[p.length-1];return[e[0],e[1],L];};
   const where=test=>{for(let i=0;i<80;i++){const x=B[0]+r()*(B[2]-B[0]),z=B[1]+r()*(B[3]-B[1]);if(test(x,z))return[x,z];}return[0,0];};
   function spawn(kind,n,op){op=op||{};for(let i=0;i<n;i++){const G=MAKE[kind](r);G.traverse(q=>{q.__pxSkip=1;});scene.add(G);const a={kind,G,x:0,z:0,y:0,h:r()*6.28,v:0,t:r()*10,st:'go',ph:r()*6,op};
