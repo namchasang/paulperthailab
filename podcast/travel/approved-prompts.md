@@ -281,3 +281,19 @@ Keep everything else exactly the same: her face, hair, smile, pose, body, the wh
 - Face always from `00-NARA-MAIN-FACE.png` (gelato). Golf selfie = body only ("use ONLY her body shape, not her face").
 - Write "about 27, a fresh youthful face with smooth natural skin" instead of "mature adult face".
 - Any reference photo with a face (outfit photos too) pulls her face: crop the head off first.
+
+## 16. Barista in a small café, pouring latte art  ★ (Paul: "เก็บภาพ nara barista ไว้", 15 Nov 2026)
+File: `stills/NARA-STILL-01-barista.png` (PC: `for Gemini/NARA-STILL-01-barista.png`). First frame for video clip NARA-CLIP-01-barista.
+Gemini, images: (1) `00-NARA-MAIN-FACE.png` (2) a headless body reference. Paul attached the sporty one, so she came out in the white T-shirt and black shorts from that reference instead of the mustard shirt and apron in the prompt. Paul kept it as it is.
+```
+Image 1 shows her face: use ONLY her face from image 1. Image 2 shows her body: use ONLY her body shape from image 2, not its clothes or background.
+
+She is a Thai-Malaysian woman about 27 with a fresh youthful face and smooth natural skin, bright eyes, a warm sweet smile. Long straight black hair tied back in a low ponytail, soft see-through bangs, small gold earrings. A soft, curvy, healthy figure, fuller bust and hips, not a model's figure.
+
+She works as a barista in a small, cosy neighbourhood café in the morning. Framed from the waist up, she stands behind a light wooden counter with a chrome espresso machine (no brand, no logo), holding a white ceramic cup and a small milk jug, pouring latte art. She looks up at the camera with a natural smile.
+Outfit: a mustard-yellow short-sleeve linen shirt and a dark green canvas apron with no logo.
+Background: soft morning sunlight through a big window, plants, open shelves with cups and coffee jars, softly out of focus. No other people, no signs, no shop name.
+
+Shot on iPhone, vertical 9:16, natural light, deep focus on her, natural skin texture, no studio lighting, correct hands with five fingers.
+```
+(Lesson: a body reference with clothes passes its clothes on. For non-sporty scenes use `00-NARA-FULLBODY-REF.png`, or say "ignore the clothes in image 2" and describe the outfit.)
