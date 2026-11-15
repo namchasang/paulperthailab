@@ -297,3 +297,23 @@ Background: soft morning sunlight through a big window, plants, open shelves wit
 Shot on iPhone, vertical 9:16, natural light, deep focus on her, natural skin texture, no studio lighting, correct hands with five fingers.
 ```
 (Lesson: a body reference with clothes passes its clothes on. For non-sporty scenes use `00-NARA-FULLBODY-REF.png`, or say "ignore the clothes in image 2" and describe the outfit.)
+
+## 17. Brighton Bathing Boxes, full body in front of boxes 6 and 7  ★ (Paul: "เก็บภาพนี้", 15 Nov 2026; also used in the SSS Brighton post)
+File: `stills/NARA-STILL-02-brighton-boxes.png` (PC: `for Gemini/NARA-STILL-02-brighton-boxes.png`).
+Step 1, the original group photo only (it had a child, so it is never attached with a body description):
+```
+Remove all five people. Fill the space with the matching sand and footprints, the bathing boxes and their wooden decks. Keep the blue-and-yellow box number 6, the white-and-teal box number 7, the striped box on the right, the trees, the clear blue sky, the camera angle and the framing exactly the same.
+```
+Step 2, images: (1) `00-NARA-MAIN-FACE.png` (2) `00-NARA-FULLBODY-REF.png` (3) the cleaned photo. Her size and place were written into the prompt instead of attaching the original.
+```
+Image 1 shows her face: use ONLY her face and hair. Image 2 shows her body: use ONLY her body shape and proportions. Image 3 is the exact scene: keep the bathing boxes, the sand, the trees, the sky, the camera angle and the vertical framing exactly the same. Do not zoom in or crop.
+
+She is a Thai-Malaysian woman about 27 with the exact face from image 1: a fresh youthful face with smooth natural skin, bright eyes, a sweet happy smile showing a little teeth. Long straight black hair worn down with soft see-through bangs, small gold earrings. A soft, curvy, healthy figure, fuller bust and hips, fuller thighs, natural leg length for a woman about 160 cm tall, not a model's figure.
+
+A full-body photo taken by a friend standing about 4 metres away, phone at chest height. She stands on the sand about 1.5 metres in front of the wooden decks, in the gap between the blue-and-yellow box and the white-and-teal box, facing the camera. Her size in the frame: the top of her head is just below the bottom of the teal door's top edge, a little above the middle of the frame, and her feet are on the sand about three quarters of the way down the frame, with plenty of sand below her. Relaxed pose, weight on one leg, one hand lightly holding her bag strap, the other arm relaxed.
+
+She wears a coral-orange knit sweater, light-wash jeans, white sneakers, a small tan shoulder bag. No logos.
+
+Bright clear sunshine from the front, crisp light, her short shadow on the sand matching the shadows of the boxes. Shot on an iPhone main camera: casual snapshot, deep focus, everything sharp, natural HDR, no bokeh, natural skin texture, correct hands with five fingers. Same vertical frame as image 3.
+```
+(Lesson: for a photo with children, clean it first and describe her size and position in words instead of attaching the original as a pose reference.)
