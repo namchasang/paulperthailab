@@ -237,7 +237,7 @@ html,body{{margin:0;background:transparent}}
 .hl .c{{visibility:hidden}}
 .hl .c.now{{visibility:visible;background:#ffd27a;color:#3b2a1e;text-shadow:none;box-shadow:0 4px 14px rgba(0,0,0,.35)}}
 </style></head><body>
-<div class="f" id="base"><div class="badge">{e.get('series', show['show'])} <i>·</i> กับ{show['host']}</div><div class="ai">สร้างด้วย AI</div></div>
+<div class="f" id="base"><div class="badge">{e.get('series', show['show'])} <i>·</i> กับ{show['host']}</div>{'<div class="ai">สร้างด้วย AI</div>' if e.get('ai_badge', False) else ''}</div>
 <div class="f" id="card"><div class="card"><div>{card_html(e.get('hook_card', ''))}</div></div></div>
 <div class="f" id="hook"><div class="hook"><span>{label}{esc(hook_text)}</span></div></div>
 {''.join(blocks)}
