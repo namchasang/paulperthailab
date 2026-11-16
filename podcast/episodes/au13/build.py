@@ -11,6 +11,7 @@ qd=reel.duration(W+'q.wav'); QS=0.1; N=QS+qd+0.35
 nd=reel.duration(W+NARA)
 # phrase times inside the Nara file (Leda); Aoede differs
 PH={'nara_leda.wav':[(0.12,2.4),(2.5,4.33),(4.65,7.75),(8.12,9.9),(10.2,13.15)],
+    'nara_new.wav':[(0.18,2.18),(2.33,4.4),(4.5,6.93),(7.18,8.72),(9.1,13.05)],
     'nara_aoede.wav':[(0.33,2.98),(3.08,4.6),(4.88,7.08),(7.48,9.08),(9.38,12.33)]}[NARA]
 lines=[(N+a,N+b) for a,b in PH]
 T=N+nd+0.8
