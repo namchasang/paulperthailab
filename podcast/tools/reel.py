@@ -541,3 +541,28 @@ if __name__ == '__main__':
         sys.exit(__doc__)
     c, eid, *rest = sys.argv[1:]
     {'tts': cmd_tts, 'voice': cmd_voice, 'extend': cmd_extend, 'build': cmd_build, 'interview': cmd_interview, 'qa': cmd_qa}[c](eid, *rest)
+
+
+# ---------------------------------------------------------------- stray sounds at clip joins
+def stray_tails(path, joins, look=0.45, max_len=0.32, frame=0.025):
+    """Veo often starts an extra word or 'โอ๊ะ' right before a clip ends. For each join time, find the last
+    short burst of sound (< max_len s) that sits after a pause and runs into the cut. Returns [(start, end)] to mute.
+    No Thai speech-to-text here, so this only catches short bursts; longer extra words still need a human listen."""
+    sr = 16000
+    raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', path, '-ac', '1', '-ar', str(sr), '-f', 's16le', '-'],
+                         capture_output=True).stdout
+    a = np.frombuffer(raw, np.int16).astype(float)
+    n = int(frame * sr)
+    db = np.array([20 * np.log10(np.sqrt(np.mean(a[i:i + n] ** 2)) + 1) for i in range(0, len(a) - n, n)])
+    out = []
+    for j in joins:
+        hi = int(j / frame); lo = max(0, int((j - look) / frame))
+        if hi <= lo or db[hi - 2:hi].max() < 45:      # nothing sounding into the cut
+            continue
+        floor = db[lo:hi].max() - 12
+        k = hi - 1
+        while k > lo and db[k] >= floor:
+            k -= 1
+        if k > lo and (hi - k) * frame <= max_len:
+            out.append((round(k * frame, 3), round(j + 0.02, 3)))
+    return out
