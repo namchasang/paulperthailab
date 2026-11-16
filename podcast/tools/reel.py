@@ -383,15 +383,16 @@ def compose(eid, e, src, segs, hook_end, hook_text, hook_label='', sub_from=None
     cuts = e.get('close_cuts', [])
     if cuts:
         inside = '+'.join(f'between(t,{a:.2f},{b:.2f})' for a, b in cuts)
-        z = f'if({inside},{CLOSE},{z})'
+        z = f"if({inside},{e.get('close_zoom', CLOSE)},{z})"
         ccx, ccy = e.get('close_center', zoom_center)
         cx, cy = f'if({inside},{ccx},{zoom_center[0]})', f'if({inside},{ccy},{zoom_center[1]})'
+    # zoompan works per input frame (scale+crop can't move the crop when the size changes)
+    zp, zx, zy = (str(v).replace('(t-', '(it-').replace('-t)', '-it)').replace('between(t,', 'between(it,') for v in (z, cx, cy))
     inputs = ['-i', src, '-i', final]
     for i in ids:
         inputs += ['-loop', '1', '-i', os.path.join(ovdir, i + '.png')]
     f = [f"[0:v]scale=1080:1920:flags=lanczos,setsar=1,fps=30,"
-         f"scale=w='trunc(1080*{z}/2)*2':h=-2:eval=frame:flags=bicubic,"
-         f"crop=1080:1920:'(iw-1080)*{cx}':'(ih-1920)*{cy}'[v0]",
+         f"zoompan=z='{zp}':x='(iw-iw/zoom)*{zx}':y='(ih-ih/zoom)*{zy}':d=1:s=1080x1920:fps=30[v0]",
          '[v0][2:v]overlay=shortest=1[v1]',
          f"[v1][3:v]overlay=enable='between(t,{CARD_END if card else 0:.2f},{hook_end:.2f})':shortest=1[v2]"]
     last, n = 'v2', 4
