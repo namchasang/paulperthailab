@@ -219,14 +219,14 @@ html,body{{margin:0;background:transparent}}
 .hook{{position:absolute;left:40px;right:40px;top:{hook_top}px;text-align:center}}
 .hook span{{display:inline-block;background:rgba(251,245,234,.95);color:#3b2a1e;font-weight:700;font-size:72px;line-height:1.25;padding:22px 46px 28px;border-radius:36px;box-shadow:0 10px 40px rgba(0,0,0,.25)}}
 .hook em{{display:block;font-style:normal;font-weight:600;font-size:34px;color:#b5652e;margin-bottom:4px}}
-.sub{{position:absolute;left:60px;right:60px;top:1250px;text-align:center;color:#fff;font-weight:700;font-size:68px;line-height:1.3;
+.sub{{position:absolute;left:60px;right:60px;top:{e.get('sub_top', 1250)}px;text-align:center;color:#fff;font-weight:700;font-size:68px;line-height:1.3;
  text-shadow:0 0 6px rgba(0,0,0,.9),0 3px 0 rgba(0,0,0,.6),3px 0 0 rgba(0,0,0,.6),-3px 0 0 rgba(0,0,0,.6),0 -3px 0 rgba(0,0,0,.6),0 6px 22px rgba(0,0,0,.6)}}
 .c{{padding:0 .05em;margin:0 -.05em;border-radius:.22em;-webkit-box-decoration-break:clone;box-decoration-break:clone}}
 .c.k{{color:#ffd27a}}
 .hl .c{{visibility:hidden}}
 .hl .c.now{{visibility:visible;background:#ffd27a;color:#3b2a1e;text-shadow:none;box-shadow:0 4px 14px rgba(0,0,0,.35)}}
 </style></head><body>
-<div class="f" id="base"><div class="badge">{show['show']} <i>·</i> กับ{show['host']}</div><div class="ai">สร้างด้วย AI</div></div>
+<div class="f" id="base"><div class="badge">{e.get('series', show['show'])} <i>·</i> กับ{show['host']}</div><div class="ai">สร้างด้วย AI</div></div>
 <div class="f" id="hook"><div class="hook"><span>{label}{esc(hook_text)}</span></div></div>
 {''.join(blocks)}
 </body></html>"""
