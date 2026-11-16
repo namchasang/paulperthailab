@@ -21,6 +21,7 @@ TOOLS = os.path.join(ROOT, 'tools')
 DATA = json.load(open(os.path.join(ROOT, 'episodes.json'), encoding='utf-8'))
 CARD_END = 1.4         # big opening hook card (Tiger Shorts style) shows 0..CARD_END, then fades
 CARD_FADE = 0.3
+CLOSE = 1.4            # 'close-up' angle made by cropping (hard cut in and out)
 MAX_LEN = 15.0          # Reel length we aim for (Kling clips: 5, 10 or 15 s)
 GAP = 0.35              # longest pause kept between phrases
 
@@ -379,6 +380,12 @@ def compose(eid, e, src, segs, hook_end, hook_text, hook_label='', sub_from=None
     windows = [(a, times[i][1]) for i, cs in enumerate(timed) for (_, k, a, _b) in cs if k]
     z = zoom_expr(windows)
     cx, cy = zoom_center
+    cuts = e.get('close_cuts', [])
+    if cuts:
+        inside = '+'.join(f'between(t,{a:.2f},{b:.2f})' for a, b in cuts)
+        z = f'if({inside},{CLOSE},{z})'
+        ccx, ccy = e.get('close_center', zoom_center)
+        cx, cy = f'if({inside},{ccx},{zoom_center[0]})', f'if({inside},{ccy},{zoom_center[1]})'
     inputs = ['-i', src, '-i', final]
     for i in ids:
         inputs += ['-loop', '1', '-i', os.path.join(ovdir, i + '.png')]
@@ -409,7 +416,7 @@ def compose(eid, e, src, segs, hook_end, hook_text, hook_label='', sub_from=None
     for p in (mix, final):
         os.remove(p)
     json.dump({'source': os.path.basename(src), 'duration': round(d, 2), 'hook_end': round(hook_end, 2),
-               'hook_card': [0, CARD_END] if card else None,
+               'hook_card': [0, CARD_END] if card else None, 'close_cuts': cuts,
                'loudness_lufs': round(lufs, 1), 'punch_in': [[round(a, 2), round(b, 2)] for a, b in windows],
                'subtitles': [[round(s, 2), round(en, 2), plain(l), [[c[0], round(c[2], 2)] for c in cs]]
                              for (s, en), l, cs in zip(times, e['lines'], timed)]},
