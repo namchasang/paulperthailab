@@ -19,6 +19,8 @@ import numpy as np
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, 'tools')
 DATA = json.load(open(os.path.join(ROOT, 'episodes.json'), encoding='utf-8'))
+CARD_END = 1.4         # big opening hook card (Tiger Shorts style) shows 0..CARD_END, then fades
+CARD_FADE = 0.3
 MAX_LEN = 15.0          # Reel length we aim for (Kling clips: 5, 10 or 15 s)
 GAP = 0.35              # longest pause kept between phrases
 
@@ -192,6 +194,11 @@ def esc(s):
     return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 
 
+def card_html(t):
+    """hook_card text: '\\n' = new line, **word** = gold."""
+    return re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', esc(t)).replace('\n', '<br>')
+
+
 def html_overlays(e, show, path, timed, hook_text, hook_label='', hook_top=300):
     """timed: per line, list of (text, is_key, start, end). Writes one page with a block per overlay id."""
     fonts = os.path.join(TOOLS, 'fonts')
@@ -223,10 +230,14 @@ html,body{{margin:0;background:transparent}}
  text-shadow:0 0 6px rgba(0,0,0,.9),0 3px 0 rgba(0,0,0,.6),3px 0 0 rgba(0,0,0,.6),-3px 0 0 rgba(0,0,0,.6),0 -3px 0 rgba(0,0,0,.6),0 6px 22px rgba(0,0,0,.6)}}
 .c{{padding:0 .05em;margin:0 -.05em;border-radius:.22em;-webkit-box-decoration-break:clone;box-decoration-break:clone}}
 .c.k{{color:#ffd27a}}
+.card{{position:absolute;inset:0;background:rgba(0,0,0,.42)}}
+.card div{{position:absolute;left:60px;right:60px;top:760px;text-align:center;color:#fff;font-weight:700;font-size:104px;line-height:1.28;text-shadow:0 4px 18px rgba(0,0,0,.55)}}
+.card b{{color:#ffd27a}}
 .hl .c{{visibility:hidden}}
 .hl .c.now{{visibility:visible;background:#ffd27a;color:#3b2a1e;text-shadow:none;box-shadow:0 4px 14px rgba(0,0,0,.35)}}
 </style></head><body>
 <div class="f" id="base"><div class="badge">{e.get('series', show['show'])} <i>·</i> กับ{show['host']}</div><div class="ai">สร้างด้วย AI</div></div>
+<div class="f" id="card"><div class="card"><div>{card_html(e.get('hook_card', ''))}</div></div></div>
 <div class="f" id="hook"><div class="hook"><span>{label}{esc(hook_text)}</span></div></div>
 {''.join(blocks)}
 </body></html>"""
@@ -350,7 +361,8 @@ def compose(eid, e, src, segs, hook_end, hook_text, hook_label='', sub_from=None
     for p in os.listdir(ovdir):
         os.remove(os.path.join(ovdir, p))
     html_overlays(e, DATA, html, timed, hook_text, hook_label, hook_top)
-    ids = ['base', 'hook']
+    card = bool(e.get('hook_card'))
+    ids = ['base', 'hook'] + (['card'] if card else [])
     for i, cs in enumerate(timed):
         ids += [f's{i}'] + [f's{i}_{j}' for j in range(len(cs))]
     subprocess.run(['node', os.path.join(TOOLS, 'overlays.cjs'), html, ovdir] + ids, check=True,
@@ -374,8 +386,12 @@ def compose(eid, e, src, segs, hook_end, hook_text, hook_label='', sub_from=None
          f"scale=w='trunc(1080*{z}/2)*2':h=-2:eval=frame:flags=bicubic,"
          f"crop=1080:1920:'(iw-1080)*{cx}':'(ih-1920)*{cy}'[v0]",
          '[v0][2:v]overlay=shortest=1[v1]',
-         f"[v1][3:v]overlay=enable='between(t,0,{hook_end:.2f})':shortest=1[v2]"]
+         f"[v1][3:v]overlay=enable='between(t,{CARD_END if card else 0:.2f},{hook_end:.2f})':shortest=1[v2]"]
     last, n = 'v2', 4
+    if card:
+        f.append(f"[4:v]format=rgba,fade=t=out:st={CARD_END - CARD_FADE:.2f}:d={CARD_FADE}:alpha=1[cd];"
+                 f"[v2][cd]overlay=enable='lte(t,{CARD_END + 0.05:.2f})':shortest=1[v3]")
+        last, n = 'v3', 5
     for i, cs in enumerate(timed):
         a = (0 if sub_from is None else sub_from) if i == 0 else max(0, times[i][0] - 0.08)
         b = d if i == len(timed) - 1 else times[i + 1][0] - 0.08
@@ -393,6 +409,7 @@ def compose(eid, e, src, segs, hook_end, hook_text, hook_label='', sub_from=None
     for p in (mix, final):
         os.remove(p)
     json.dump({'source': os.path.basename(src), 'duration': round(d, 2), 'hook_end': round(hook_end, 2),
+               'hook_card': [0, CARD_END] if card else None,
                'loudness_lufs': round(lufs, 1), 'punch_in': [[round(a, 2), round(b, 2)] for a, b in windows],
                'subtitles': [[round(s, 2), round(en, 2), plain(l), [[c[0], round(c[2], 2)] for c in cs]]
                              for (s, en), l, cs in zip(times, e['lines'], timed)]},
