@@ -363,6 +363,7 @@ def compose(eid, e, src, segs, hook_end, hook_text, hook_label='', sub_from=None
         os.remove(os.path.join(ovdir, p))
     html_overlays(e, DATA, html, timed, hook_text, hook_label, hook_top)
     card = bool(e.get('hook_card'))
+    ce = e.get('card_end', CARD_END)   # per-episode hook-card length
     ids = ['base', 'hook'] + (['card'] if card else [])
     for i, cs in enumerate(timed):
         ids += [f's{i}'] + [f's{i}_{j}' for j in range(len(cs))]
@@ -394,11 +395,11 @@ def compose(eid, e, src, segs, hook_end, hook_text, hook_label='', sub_from=None
     f = [f"[0:v]scale=1080:1920:flags=lanczos,setsar=1,fps=30,"
          f"zoompan=z='{zp}':x='(iw-iw/zoom)*{zx}':y='(ih-ih/zoom)*{zy}':d=1:s=1080x1920:fps=30[v0]",
          '[v0][2:v]overlay=shortest=1[v1]',
-         f"[v1][3:v]overlay=enable='between(t,{CARD_END if card else 0:.2f},{hook_end:.2f})':shortest=1[v2]"]
+         f"[v1][3:v]overlay=enable='between(t,{ce if card else 0:.2f},{hook_end:.2f})':shortest=1[v2]"]
     last, n = 'v2', 4
     if card:
-        f.append(f"[4:v]format=rgba,fade=t=out:st={CARD_END - CARD_FADE:.2f}:d={CARD_FADE}:alpha=1[cd];"
-                 f"[v2][cd]overlay=enable='lte(t,{CARD_END + 0.05:.2f})':shortest=1[v3]")
+        f.append(f"[4:v]format=rgba,fade=t=out:st={ce - CARD_FADE:.2f}:d={CARD_FADE}:alpha=1[cd];"
+                 f"[v2][cd]overlay=enable='lte(t,{ce + 0.05:.2f})':shortest=1[v3]")
         last, n = 'v3', 5
     for i, cs in enumerate(timed):
         a = (0 if sub_from is None else sub_from) if i == 0 else max(0, times[i][0] - 0.08)
@@ -417,7 +418,7 @@ def compose(eid, e, src, segs, hook_end, hook_text, hook_label='', sub_from=None
     for p in (mix, final):
         os.remove(p)
     json.dump({'source': os.path.basename(src), 'duration': round(d, 2), 'hook_end': round(hook_end, 2),
-               'hook_card': [0, CARD_END] if card else None, 'close_cuts': cuts,
+               'hook_card': [0, ce] if card else None, 'close_cuts': cuts,
                'loudness_lufs': round(lufs, 1), 'punch_in': [[round(a, 2), round(b, 2)] for a, b in windows],
                'subtitles': [[round(s, 2), round(en, 2), plain(l), [[c[0], round(c[2], 2)] for c in cs]]
                              for (s, en), l, cs in zip(times, e['lines'], timed)]},
