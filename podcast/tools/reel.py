@@ -408,6 +408,8 @@ def compose(eid, e, src, segs, hook_end, hook_text, hook_label='', sub_from=None
         b = d if i == len(timed) - 1 else times[i + 1][0] - 0.08
         f.append(f"[{last}][{n}:v]overlay=enable='between(t,{a:.2f},{b:.2f})':shortest=1[l{i}]"); last = f'l{i}'; n += 1
         for j, (_, _k, ca, cb) in enumerate(cs):
+            if e.get('word_highlight') is False:   # per-episode: static subtitle line, no moving yellow box
+                n += 1; continue
             cb = b if j == len(cs) - 1 else cb
             f.append(f"[{last}][{n}:v]overlay=enable='between(t,{ca:.2f},{cb:.2f})':shortest=1[h{i}_{j}]")
             last = f'h{i}_{j}'; n += 1

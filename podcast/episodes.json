@@ -215,7 +215,8 @@
     "ตั้งแต่นั้น บอกทุกร้านเลยว่ามีแฟนแล้วค่ะ"
    ],
    "card_end": 3.0,
-   "punch_in": false
+   "punch_in": false,
+   "word_highlight": false
   }
  ]
 }
