@@ -379,6 +379,8 @@ def compose(eid, e, src, segs, hook_end, hook_text, hook_label='', sub_from=None
 
     # video: punch-in on **key** words, then overlays
     windows = [(a, times[i][1]) for i, cs in enumerate(timed) for (_, k, a, _b) in cs if k]
+    if e.get('punch_in') is False:   # per-episode: no zoom on **key** words
+        windows = []
     z = zoom_expr(windows)
     cx, cy = zoom_center
     cuts = e.get('close_cuts', [])
